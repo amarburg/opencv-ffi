@@ -1,0 +1,5 @@
+An initial attempt at using Ruby FFI to wrap OpenCV.
+
+Currently developing against OpenCV 2.3.
+
+
