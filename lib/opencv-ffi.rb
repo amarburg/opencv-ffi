@@ -1,4 +1,5 @@
 require "opencv-ffi/version"
+require "opencv-ffi/highgui"
 
 module Opencv
   module Ffi
