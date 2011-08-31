@@ -1,8 +1,13 @@
-
 require 'test/setup'
 require 'opencv-ffi/core'
+require 'find'
 
-class TestOpenCVFFICore < Test::Unit::TestCase
+Find.find( 'test/core/' ) { |f|
+  puts f
+  require f if f.match( "test/core/test_[\w]*" )
+}
+
+class TestCore < Test::Unit::TestCase
 
   def test_cvPoint
     p = CVFFI::CvPoint.new( {:x => 1, :y => 2} )

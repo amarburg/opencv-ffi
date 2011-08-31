@@ -1,10 +1,9 @@
+## An omnibus file which brings in all the core/* sub-files
 
-require 'nice-ffi'
+require 'core/core'
+require 'core/size'
 
 module CVFFI
-  extend NiceFFI::Library
-
-  load_library("opencv_core")
 
   class CvMat < NiceFFI::Struct
     layout :type, :int,
@@ -25,21 +24,6 @@ module CVFFI
            :height, :int
   end
 
-  class CvSize < NiceFFI::Struct
-    layout :width, :int,
-           :height, :int
-  end
-
-  class CvSize2D32f < NiceFFI::Struct
-    layout :width, :float,
-           :height, :float
-  end
-
-  class CvSize2D64f < NiceFFI::Struct
-    layout :width, :double,
-           :height, :double
-  end
-
   class CvPoint < NiceFFI::Struct
     layout :x, :int,
            :y, :int
@@ -55,3 +39,4 @@ module CVFFI
            :y, :double
   end
 end
+
