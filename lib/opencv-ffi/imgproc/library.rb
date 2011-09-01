@@ -1,7 +1,6 @@
-
 require 'cvffi'
-require 'imgproc/misc'
 
 module CVFFI
-
+  load_library("opencv_imgproc")
 end
+

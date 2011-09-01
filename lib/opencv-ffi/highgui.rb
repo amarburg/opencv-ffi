@@ -1,6 +1,6 @@
 
 require 'nice-ffi'
-require 'opencv-ffi/core'
+require 'core'
 
 module CVFFI
   extend NiceFFI::Library
@@ -12,6 +12,7 @@ module CVFFI
   CV_LOAD_IMAGE_COLOR      = 1
 
   attach_function :cvLoadImageM, [ :string, :int ], CvMat.typed_pointer
+  attach_function :cvLoadImage,  [ :string, :int ], IplImage.typed_pointer
 
   def loadImage( fname )
     cvLoadImageM( fname, CV_LOAD_IMAGE_COLOR )
