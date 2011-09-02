@@ -46,8 +46,8 @@ class TestSURF < Test::Unit::TestCase
     keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
     descriptors = CVFFI::CvSeq.new( desc_ptr.read_pointer() )
 
-    puts "#{keypoints.total} keypoints"
-    puts "#{descriptors.total} descriptors"
+    #puts "#{keypoints.total} keypoints"
+    #puts "#{descriptors.total} descriptors"
 
     (0...keypoints.total).each { |i|
       kp = CVFFI::CvSURFPoint.new( CVFFI::cvGetSeqElem( keypoints.to_ptr, i ) )

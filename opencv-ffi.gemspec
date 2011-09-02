@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 require "opencv-ffi/version"
+require "rake"
 
 Gem::Specification.new do |s|
   s.name        = "opencv-ffi"
@@ -14,9 +15,12 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "opencv-ffi"
 
   s.files         = `git ls-files`.split("\n")
+  s.extensions    = FileList["ext/**/Rakefile.rb"]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
   s.add_dependency "nice-ffi"
+  s.add_dependency "rake-compiler"
+  s.add_dependency "mkrf"
 end
