@@ -22,6 +22,7 @@ class TestCore < Test::Unit::TestCase
     assert_not_nil img
     assert_equal 1, img.nChannels
     assert_equal 8, img.depth
+
   end
 
 end
