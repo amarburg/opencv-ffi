@@ -1,0 +1,4 @@
+*.o
+Rakefile
+*.so
+*.log
