@@ -1,6 +1,6 @@
 
 require 'nice-ffi'
-require 'core'
+require 'opencv-ffi/core'
 
 module CVFFI
   extend NiceFFI::Library
