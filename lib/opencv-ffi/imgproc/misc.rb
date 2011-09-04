@@ -1,5 +1,5 @@
 
-require 'imgproc/library'
+require 'opencv-ffi/imgproc/library'
 
 module CVFFI
 

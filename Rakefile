@@ -4,7 +4,8 @@ require 'rake/testtask'
 require 'mkrf/rakehelper'
 
 Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib/opencv-ffi' << '.'
+#  t.libs << 'lib/opencv-ffi' << '.'
+  t.libs << '.'
   t.verbose = true
   t.test_files = FileList['test/test_*.rb']
 end

@@ -1,4 +1,4 @@
-require 'core/library'
+require 'opencv-ffi/core/library'
 
 module CVFFI
 

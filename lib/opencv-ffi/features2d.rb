@@ -1,7 +1,7 @@
 
-require 'cvffi'
-require 'core'
-require 'features2d/library'
+require 'opencv-ffi/cvffi'
+require 'opencv-ffi/core'
+require 'opencv-ffi/features2d/library'
 
 module CVFFI
 

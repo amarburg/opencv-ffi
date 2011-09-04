@@ -1,6 +1,6 @@
 
-require 'core/library'
-require 'core/types'
+require 'opencv-ffi/core/library'
+require 'opencv-ffi/core/types'
 
 module CVFFI
 

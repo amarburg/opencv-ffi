@@ -1,6 +1,6 @@
 
-require 'cvffi'
-require 'imgproc/misc'
+require 'opencv-ffi/cvffi'
+require 'opencv-ffi/imgproc/misc'
 
 module CVFFI
 
