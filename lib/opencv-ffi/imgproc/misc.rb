@@ -35,4 +35,5 @@ module CVFFI
 
   attach_function :cvResize, [ :pointer, :pointer, :cvInterpolation ], :void 
 
+
 end
