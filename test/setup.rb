@@ -9,6 +9,8 @@ module TestSetup
     "test/test_files/images/" + s
   end
 
+  EPSILON = 1e-3
+
 
 end
 

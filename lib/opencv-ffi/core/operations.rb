@@ -31,4 +31,5 @@ module CVFFI
   # CVAPI(CvScalar) cvGet2D( const CvArr* arr, int idx0, int idx1 );
   attach_function :cvGet2D, [ :pointer, :int, :int ], CvScalar.by_value
 
+  attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
 end
