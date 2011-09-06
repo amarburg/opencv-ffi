@@ -12,8 +12,8 @@ module CVFFI
         @origin = Point.new( args[0..1] )
         @size   = Size.new(  arg[2..3] )
       when Hash
-        if args[:origin] || args[:center]
-          @origin = Point.new args[:origin]
+        if args[:origin] 
+          @origin = Point.new( args[:origin] )
         else
           @origin = Point.new(args)
           args.delete :x
@@ -29,6 +29,11 @@ module CVFFI
         @size = Size.new args.size
         @origin = Point.new args.origin
       end
+    end
+
+    def to_CvRect
+      CvRect( :x => @origin.x, :y => @origin.y,
+              :width => @size.width, :height => @size.height )
     end
   end
 end
