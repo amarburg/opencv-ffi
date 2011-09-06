@@ -1,5 +1,6 @@
 
 require 'test/setup'
+require 'opencv-ffi/core'
 require 'opencv-ffi-wrappers/core'
 
 class TestCoreTypesWrappers < Test::Unit::TestCase
@@ -52,8 +53,16 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     p *= 2.0
     assert_equal 8.0, p.width
     assert_equal 10.0, p.height
+  end
 
+  def test_iplimage
+    img = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
 
+    size = img.size
+
+    assert_not_nil size
+    assert_equal 100, size.width
+    assert_equal 100, size.height
 
   end
 
