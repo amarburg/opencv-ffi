@@ -12,19 +12,20 @@ module CVFFI
         @origin = Point.new( args[0..1] )
         @size   = Size.new(  arg[2..3] )
       when Hash
-        if args[:origin] 
-          @origin = Point.new( args[:origin] )
-        else
-          @origin = Point.new(args)
-          args.delete :x
-          args.delete :y
-        end
-
         if args[:size]
           @size = Size.new args[:size]
         else
           @size = Size.new(args)
         end
+
+        if args[:origin] 
+          @origin = Point.new( args[:origin] )
+        else if args[:center]
+          @origin = Point.new( args[:center] - @size/2.0 )
+        else
+          @origin = Point.new(args)
+        end
+
       else
         @size = Size.new args.size
         @origin = Point.new args.origin
