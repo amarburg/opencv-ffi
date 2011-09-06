@@ -69,8 +69,9 @@ module CVFFI
       height*width
     end
 
-    def /(a)
-      Size.new( [ x/a, y/a ] )
+    def floor
+      @x = x.to_i
+      @y = y.to_i
     end
   end
 

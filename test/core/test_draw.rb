@@ -30,4 +30,17 @@ class TestcvCircle < Test::Unit::TestCase
     CVFFI::cvSaveImage( TestSetup.output_filename("TestcvCircle.jpg"), @img )
   end
 
+  def test_cvLine
+
+    pointA = CVFFI::CvPoint.new( :x => 50, :y => 50 )
+    pointB = CVFFI::CvPoint.new( :x => @img.width-50, :y => @img.height-50 )
+
+    color = CVFFI::CvScalar.new( {:w=>255, :x=>0, :y=>255, :z=>0} )
+
+    CVFFI::cvLine( @img, pointA, pointB, color, 10, 8, 0 )
+
+    CVFFI::cvSaveImage( "/tmp/testCvLine.jpg", @img )
+  end
+
+
 end

@@ -11,8 +11,8 @@ module CVFFI
   #                      int thickness CV_DEFAULT(1),
   #                      int line_type CV_DEFAULT(8), 
   #                      int shift CV_DEFAULT(0) );
-  #attach_function :cvLine, [ :point, 
-                              #CvPoint.by_value,
+  attach_function :cvLine, [ :pointer, CvPoint.by_value, CvPoint.by_value,
+                              CvScalar.by_value, :int, :int, :int ], :void
 
   # CVAPI(void)  cvCircle( CvArr* img, 
   #                        CvPoint center, 
