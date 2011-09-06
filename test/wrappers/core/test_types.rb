@@ -55,6 +55,21 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_equal 10.0, p.height
   end
 
+  def test_point
+    p = CVFFI::Point.new( 10.0, 0.0 )
+
+    assert_equal 10.0, p.x
+    assert_equal  0.0, p.y
+
+    q = p.rotate( 0.0 )
+    assert_equal 10.0, q.x
+    assert_equal  0.0, q.y
+
+    q = p.rotate( Math::PI/2.0 )
+    assert_in_delta 0.0, q.x, TestSetup::EPSILON
+    assert_in_delta 10.0, q.y, TestSetup::EPSILON
+  end
+
   def test_iplimage
     img = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
 

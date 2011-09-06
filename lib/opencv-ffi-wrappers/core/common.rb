@@ -36,6 +36,13 @@ module CVFFI
       end
     end
 
+    def rotate( rads )
+      sa = Math::sin rads
+      ca = Math::cos rads
+      self.class.new( x*ca - y*sa,
+                      x*sa + y*ca )
+    end
+
   end
 end
 
