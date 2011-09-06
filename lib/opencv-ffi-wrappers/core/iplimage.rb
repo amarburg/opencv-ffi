@@ -5,7 +5,7 @@ require 'opencv-ffi-wrappers/core'
 module CVFFI
 
   module IplImageFunctions
-    def size
+    def image_size
       Size.new( self.width, self.height )
     end
   end

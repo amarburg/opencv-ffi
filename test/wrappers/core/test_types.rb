@@ -58,7 +58,7 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
   def test_iplimage
     img = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
 
-    size = img.size
+    size = img.image_size
 
     assert_not_nil size
     assert_equal 100, size.width
