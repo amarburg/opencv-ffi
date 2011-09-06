@@ -36,18 +36,24 @@ module CVFFI
 
     attr_accessor :y, :x
 
-    def initialize( args )
-
-      case args
-      when Hash
-        @y = args[:y]
-        @x = args[:x]
-      when Array
+    def initialize( *args )
+      if args.length == 2
         @x = args[0]
         @y = args[1]
       else
+        args = args.shift
+
+        case args
+        when Hash
+          @y = args[:y]
+          @x = args[:x]
+        when Array
+          @x = args[0]
+          @y = args[1]
+      else
         @x = args.x
         @y = args.y
+      end
       end
 
     end

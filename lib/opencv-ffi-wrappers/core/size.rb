@@ -43,20 +43,24 @@ module CVFFI
     alias :x :width
     alias :y :height
 
-    def initialize( args )
-
-      case args
-      when Hash
-        @height = args[:height] || args[:y]
-        @width = args[:width] || args[:x]
-      when Array
+    def initialize( *args )
+      if args.length == 2
         @width = args[0]
         @height = args[1]
       else
-        @width = args.width || args.x
-        @height = args.height || args.y
+        args = args.shift
+        case args
+        when Hash
+          @height = args[:height] || args[:y]
+          @width = args[:width] || args[:x]
+        when Array
+          @width = args[0]
+          @height = args[1]
+        else
+          @width = args.width || args.x
+          @height = args.height || args.y
+        end
       end
-
     end
 
     def area
