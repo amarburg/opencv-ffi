@@ -78,7 +78,23 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_not_nil size
     assert_equal 100, size.width
     assert_equal 100, size.height
+  end
 
+  def test_rect
+    r = CVFFI::Rect.new( :center => CVFFI::Point.new( 0.0, 0.0 ),
+                         :size   => CVFFI::Size.new(  10.0, 10.0 ) )
+
+    assert_equal -5.0, r.origin.x
+    assert_equal -5.0, r.origin.y
+    assert_equal 10.0, r.size.width
+    assert_equal 10.0, r.size.height
+
+    cv = r.to_CvRect
+
+    assert_equal -5.0, cv.x
+    assert_equal -5.0, cv.y
+    assert_equal 10.0, cv.width
+    assert_equal 10.0, cv.height
   end
 
 end

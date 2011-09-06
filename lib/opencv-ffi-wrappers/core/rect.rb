@@ -4,10 +4,10 @@ require 'opencv-ffi-wrappers/core'
 module CVFFI
 
   class Rect
-    attr_accessor :size :origin
+    attr_accessor :size, :origin
 
     def initialize( args )
-      case args.class
+      case args
       when Array
         @origin = Point.new( args[0..1] )
         @size   = Size.new(  arg[2..3] )
@@ -20,7 +20,7 @@ module CVFFI
 
         if args[:origin] 
           @origin = Point.new( args[:origin] )
-        else if args[:center]
+        elsif args[:center]
           @origin = Point.new( args[:center] - @size/2.0 )
         else
           @origin = Point.new(args)
