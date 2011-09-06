@@ -33,7 +33,7 @@ module CVFFI
     end
 
     def to_CvRect
-      CvRect( :x => @origin.x, :y => @origin.y,
+      CvRect.new( :x => @origin.x, :y => @origin.y,
               :width => @size.width, :height => @size.height )
     end
   end
