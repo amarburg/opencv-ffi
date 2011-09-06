@@ -1,6 +1,6 @@
 
 require 'opencv-ffi/core/types'
-require 'opencv-ffi-wrappers/core/common'
+require 'opencv-ffi-wrappers/core/point'
 
 module CVFFI
 
@@ -35,36 +35,38 @@ module CVFFI
   class CvSize2D32f; def to_CvSize2D32f; self; end; end
   class CvSize2D64f; def to_CvSize2D64f; self; end; end
 
-  class Size 
+  class Size < Point
     include CvSizeCastMethods
-    include PointSizeCommon
+    #include PointSizeCommon
 
-    attr_accessor :height, :width
-    alias :x :width
-    alias :y :height
+    #attr_accessor :height, :width
+    alias :width :x
+    alias :height :y
+    alias :width= :x=
+    alias :height= :y=
 
     def initialize( *args )
       if args.length == 2
-        @width = args[0]
-        @height = args[1]
+        @x= args[0]
+        @y= args[1]
       else
         args = args.shift
         case args
         when Hash
-          @height = args[:height] || args[:y]
-          @width = args[:width] || args[:x]
+          @x= args[:width] || args[:x]
+          @y= args[:height] || args[:y]
         when Array
-          @width = args[0]
-          @height = args[1]
+          @x = args[0]
+          @y = args[1]
         else
-          @width = args.width || args.x
-          @height = args.height || args.y
+          @x = args.width || args.x
+          @y = args.height || args.y
         end
       end
     end
 
     def area
-      @height*@width
+      height*width
     end
 
     def /(a)

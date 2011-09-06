@@ -5,7 +5,7 @@ module CVFFI
   module PointSizeCommon
 
     def /(a)
-      if a.class == self.class 
+      if a.is_a? Point
         self.class.new( [ x/a.x, y/a.y ] )
       else
         self.class.new( [ x/a, y/a ] )
@@ -13,7 +13,7 @@ module CVFFI
     end
 
     def *(a)
-      if a.class == self.class
+      if a.is_a? Point
         self.class.new( [ x*a.x, y*a.y ] )
       else
         self.class.new( [ x*a, y*a ] )
@@ -21,7 +21,7 @@ module CVFFI
     end
 
     def -(a)
-      if a.class == self.class
+      if a.is_a? Point
         self.class.new( [ x-a.x, y-a.y ] )
       else
         self.class.new( [ x-a, y-a ] )
@@ -29,7 +29,7 @@ module CVFFI
     end
  
     def +(a)
-      if a.class == self.class
+      if a.is_a? Point
         self.class.new( [ x+a.x, y+a.y ] )
       else
         self.class.new( [ x+a, y+a ] )
