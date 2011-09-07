@@ -29,6 +29,17 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_in_delta 2.0, q.height, TestSetup::EPSILON
   end
 
+  def test_point
+    p = CVFFI::Point.new( 4.0, 5.0 )
+    assert_equal 4.0, p.x
+    assert_equal 5.0, p.y
+
+    q = p.to_CvPoint
+    assert_equal 4.0, q.x
+    assert_equal 5.0, q.y
+
+  end
+
   def test_size
     p = CVFFI::Size.new( [4.0, 5.0] )
 

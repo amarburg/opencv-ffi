@@ -8,6 +8,10 @@ module CVFFI
     def image_size
       Size.new( self.width, self.height )
     end
+
+    def to_IplImage
+      self
+    end
   end
 
   class IplImage

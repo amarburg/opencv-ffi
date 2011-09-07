@@ -1,6 +1,5 @@
 
 require 'opencv-ffi/core/types'
-require 'opencv-ffi-wrappers/core/common'
 
 module CVFFI
 
@@ -32,7 +31,6 @@ module CVFFI
 
   class Point 
     include CvPointCastMethods
-    include PointSizeCommon
 
     attr_accessor :y, :x
 
@@ -61,7 +59,47 @@ module CVFFI
     def area
       @y*@x
     end
-           
+       
+    def /(a)
+      if a.is_a? Point
+        self.class.new( [ x/a.x, y/a.y ] )
+      else
+        self.class.new( [ x/a, y/a ] )
+      end
+    end
+
+    def *(a)
+      if a.is_a? Point
+        self.class.new( [ x*a.x, y*a.y ] )
+      else
+        self.class.new( [ x*a, y*a ] )
+      end
+    end
+
+    def -(a)
+      if a.is_a? Point
+        self.class.new( [ x-a.x, y-a.y ] )
+      else
+        self.class.new( [ x-a, y-a ] )
+      end
+    end
+ 
+    def +(a)
+      if a.is_a? Point
+        self.class.new( [ x+a.x, y+a.y ] )
+      else
+        self.class.new( [ x+a, y+a ] )
+      end
+    end
+
+    def rotate( rads )
+      sa = Math::sin rads
+      ca = Math::cos rads
+      self.class.new( x*ca - y*sa,
+                      x*sa + y*ca )
+    end
+
+    
   end
 
 
