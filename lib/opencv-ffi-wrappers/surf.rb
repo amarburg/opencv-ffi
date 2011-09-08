@@ -62,6 +62,8 @@ module CVFFI
 
       raise ArgumentError unless params.is_a?( CvSURFParams ) || params.is_a?( Params )
 
+      img = CVFFI::IplImage img.to_IplImage
+
       if img.nChannels == 3
         greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( :height => img.height,
                                                            :width => img.width ),
