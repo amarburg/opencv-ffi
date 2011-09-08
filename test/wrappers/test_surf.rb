@@ -39,16 +39,12 @@ class TestSURF < Test::Unit::TestCase
     #p surf.inspect
 
     surf.mark_on_image( smallImg, {:radius=>5, :thickness=>-1} )
-
-#    surf.each { |kp|
-#      p kp.inspect
-
-      # cvCircle takes a CvPoint(int), but the CvSURFPoint contains CvPoint2D32f, need 
-      # to manually typecast...
-#      CVFFI::cvCircle( @img, CVFFI::CvPoint.new( :x => kp.pt.x.to_i, :y => kp.pt.y.to_i ), 5,
-#                      CVFFI::CvScalar.new( :w=>255, :x=>255, :y=>255, :z=>0 ), -1, 8, 0 )
-#    }
     CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), smallImg )
+
+    ## Test some of the functions built into SURF::Result
+    p surf[0]
+    puts surf[0].distance_to( surf[1] )
+    puts surf[1].distance_to( surf[2] )
  end
 
 end

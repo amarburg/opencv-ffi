@@ -3,6 +3,7 @@ require 'opencv-ffi/features2d'
 require 'opencv-ffi-wrappers/core/iplimage'
 require 'opencv-ffi-wrappers/core/misc_draw'
 require 'opencv-ffi-wrappers/sequence'
+require 'opencv-ffi-wrappers/enumerable'
 
 module CVFFI
   
@@ -13,6 +14,30 @@ module CVFFI
 #
   #  end
 
+    class FloatArrayCommon < NiceFFI::Struct
+      include Enumerable
+
+      def each
+        size.times { |i|
+          yield d[i]
+        }
+      end
+    end
+
+    class Float64 < FloatArrayCommon
+      SIZE = 64
+      layout :d, [ :float, SIZE ]
+
+      def size; SIZE; end
+    end
+
+     class Float128 < FloatArrayCommon
+      SIZE = 128
+      layout :d, [ :float, SIZE ]
+
+      def size; SIZE; end
+    end
+ 
     class Result 
       attr_accessor :kp, :desc
       def initialize( kp, desc )
@@ -22,17 +47,27 @@ module CVFFI
 
       def pt; @kp.pt; end
 
+      def distance_to( q )
+        # Hardcode 64-bit descriptors for now
+        # Could do with inject?
+        @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
+        #x = 0.0
+        #@desc.size.times { |i| x += (@desc.d[i]-q.desc.d[i])**2 }
+        #x 
+      end
    end
 
     class ResultsArray
       include Enumerable
 
       attr_accessor :kp, :desc, :pool
+      attr_accessor :desc_type
 
-      def initialize( kp, desc, pool )
+      def initialize( kp, desc, pool, desc_type = Float64 )
         @kp = Sequence.new(kp)
         @desc = Sequence.new(desc)
         @pool = pool
+        @desc_type = desc_type
 
         raise RuntimeError "SURF Keypoint and descriptor sequences different length (#{@kp.size} != #{@desc.size})" unless (@kp.size == @desc.size)
 
@@ -42,9 +77,13 @@ module CVFFI
 
       def each
         @kp.each_with_index { |kp,i| 
-          r = Result.new( kp, @desc[i]  )
+          r = Result.new( kp, @desc_type.new( @desc[i] )  )
           yield r 
         }
+      end
+
+      def [](i)
+        Result.new( @kp[i], @desc_type.new(@desc[i]) )
       end
 
       def size
