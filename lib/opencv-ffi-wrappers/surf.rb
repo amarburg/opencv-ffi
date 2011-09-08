@@ -47,6 +47,7 @@ module CVFFI
       def size
         @kp.size
       end
+      alias :length :size
 
     end
 
@@ -54,12 +55,21 @@ module CVFFI
 
       raise ArgumentError unless params.is_a?( CvSURFParams ) || params.is_a?( Params )
 
+      if img.nChannels == 3
+        greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( :height => img.height,
+                                                           :width => img.width ),
+                                                           :IPL_DEPTH_8U, 1 )
+        CVFFI::cvCvtColor( img, greyImg, :CV_RGB2GRAY )
+      else
+        greyImg = img
+      end
+
       kp_ptr = FFI::MemoryPointer.new :pointer
       desc_ptr = FFI::MemoryPointer.new :pointer
 
       mem_storage = CVFFI::cvCreateMemStorage( 0 )
 
-      CVFFI::cvExtractSURF( img, nil, kp_ptr, desc_ptr, mem_storage, params, :false )
+      CVFFI::cvExtractSURF( greyImg, nil, kp_ptr, desc_ptr, mem_storage, params, :false )
 
       keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
       descriptors = CVFFI::CvSeq.new( desc_ptr.read_pointer() )
