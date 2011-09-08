@@ -6,11 +6,16 @@ require 'opencv-ffi/highgui'
 
 
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
+TEST_IMAGE_FILE_TWO = "test/test_files/images/IMG_7088.JPG"
 
 module TestSetup
 
   def self.load_test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+  end
+
+  def self.load_second_test_image
+    CVFFI::cvLoadImage( TEST_IMAGE_FILE_TWO, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end
 
   def self.output_filename( s )
