@@ -27,17 +27,20 @@ module CVFFI
            :height, :double
   end
 
-  class CvPoint < NiceFFI::Struct
+  class CvPointBase < NiceFFI::Struct
+  end
+
+  class CvPoint < CvPointBase
     layout :x, :int,
            :y, :int
   end
 
-  class CvPoint2D32f < NiceFFI::Struct
+  class CvPoint2D32f < CvPointBase
     layout :x, :float,
            :y, :float
   end
 
-  class CvPoint2D64f < NiceFFI::Struct
+  class CvPoint2D64f < CvPointBase
     layout :x, :double,
            :y, :double
   end

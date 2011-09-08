@@ -19,11 +19,11 @@ class TestSURF < Test::Unit::TestCase
 #                                    :IPL_DEPTH_8U, 1 )
 #    CVFFI::cvCvtColor( @img, greyImg, :CV_RGB2GRAY )
 
-#    smallGreyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => greyImg.height/2,
-#                                                              :width => greyImg.width/2 } ),
-#                                    :IPL_DEPTH_8U, 1 )
+    smallImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height/2,
+                                                              :width => @img.width/2 } ),
+                                    @img.depth, @img.nChannels )
 
-#    CVFFI::cvResize( greyImg, smallGreyImg, :CV_INTER_LINEAR )
+    CVFFI::cvResize( @img, smallImg, :CV_INTER_LINEAR )
 
 
     params = CVFFI::CvSURFParams.new( :hessianThreshold => 500.0,
@@ -33,20 +33,22 @@ class TestSURF < Test::Unit::TestCase
                                       :nOctaveLayers => 4 )
 
     # This should test the auto=conversion to greyscale
-    surf = CVFFI::SURF::Detect( @img, params )
+    surf = CVFFI::SURF::Detect( smallImg, params )
 
     assert_not_nil surf
-    p surf.inspect
+    #p surf.inspect
 
-    surf.each { |kp|
-      p kp.inspect
+    surf.mark_on_image( smallImg, {:radius=>5, :thickness=>-1} )
+
+#    surf.each { |kp|
+#      p kp.inspect
 
       # cvCircle takes a CvPoint(int), but the CvSURFPoint contains CvPoint2D32f, need 
       # to manually typecast...
-      CVFFI::cvCircle( @img, CVFFI::CvPoint.new( :x => kp.pt.x.to_i, :y => kp.pt.y.to_i ), 5,
-                      CVFFI::CvScalar.new( :w=>255, :x=>255, :y=>255, :z=>0 ), -1, 8, 0 )
-    }
-    CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), @img )
+#      CVFFI::cvCircle( @img, CVFFI::CvPoint.new( :x => kp.pt.x.to_i, :y => kp.pt.y.to_i ), 5,
+#                      CVFFI::CvScalar.new( :w=>255, :x=>255, :y=>255, :z=>0 ), -1, 8, 0 )
+#    }
+    CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), smallImg )
  end
 
 end

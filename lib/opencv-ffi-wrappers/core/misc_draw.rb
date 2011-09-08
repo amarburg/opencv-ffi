@@ -1,5 +1,6 @@
 
 require 'opencv-ffi-wrappers/core'
+require 'opencv-ffi-wrappers/core/point'
 
 module CVFFI
 

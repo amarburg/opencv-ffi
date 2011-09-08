@@ -1,8 +1,11 @@
 
 require 'opencv-ffi/features2d'
+require 'opencv-ffi-wrappers/core/misc_draw'
 require 'opencv-ffi-wrappers/sequence'
 
 module CVFFI
+  
+
   module SURF
 
  #   class Params 
@@ -39,7 +42,6 @@ module CVFFI
       def each
         @kp.each_with_index { |kp,i| 
           r = Result.new( kp, @desc[i]  )
-          p r.inspect
           yield r 
         }
       end
@@ -49,6 +51,11 @@ module CVFFI
       end
       alias :length :size
 
+      def mark_on_image( img, opts )
+        each { |r|
+          CVFFI::draw_circle( img, r.kp.pt, opts )
+        }
+      end
     end
 
     def self.Detect( img, params )
