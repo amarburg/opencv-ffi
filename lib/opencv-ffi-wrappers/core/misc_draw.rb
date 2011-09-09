@@ -16,4 +16,12 @@ module CVFFI
     opts[:thickness] = -1
     draw_circle( img, point, opts )
   end
+
+
+  def self.draw_line( img, aPoint, bPoint, opts )
+    color = opts[:color] || CVFFI::CvScalar.new( {:w=>255, :x=>255, :y=>255, :z=>0} )
+    thickness = opts[:thickness] || 5
+
+    CVFFI::cvLine( img.to_IplImage, aPoint.to_CvPoint, bPoint.to_CvPoint, color, thickness, 8, 0 )
+  end
 end

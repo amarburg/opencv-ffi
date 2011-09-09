@@ -20,6 +20,8 @@ module CVFFI
       end
 
       def pt; @kp.pt; end
+      def x;  pt.x; end
+      def y;  pt.y; end
 
       def distance_to( q )
         #  Here's the pure-Ruby way to do it
