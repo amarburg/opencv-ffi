@@ -20,6 +20,15 @@ module CVFFI
     def to_s
       "Match t=#{@train_idx} q=#{@query_idx} distance=#{@distance}"
     end
+
+    def train
+      @train_set[@train_idx]
+    end
+
+    def query
+      @query_set[@query_idx]
+    end
+
   end
 
   class BruteForceMatcher
