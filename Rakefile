@@ -1,6 +1,7 @@
 require 'bundler/gem_tasks'
 require 'rake'
 require 'rake/testtask'
+require 'rake/clean'
 require 'mkrf/rakehelper'
 
 Rake::TestTask.new(:test) do |t|
@@ -10,8 +11,11 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/test_*.rb']
 end
 
+CLEAN.include "lib/*.so"
+
 #Rake::ExtensionTask.new('fast')
 setup_extension "fast", "libfast"
+setup_extension "opencv-ffi", "libopencvffi"
 
 task :default => 'test'
 

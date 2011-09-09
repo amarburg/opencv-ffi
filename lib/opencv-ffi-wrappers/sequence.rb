@@ -22,6 +22,7 @@ module CVFFI
     def size
       @seq.total
     end
+    alias :length :size
 
     def [](i)
       CVFFI::cvGetSeqElem( @seq, i )
