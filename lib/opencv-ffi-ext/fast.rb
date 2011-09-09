@@ -4,7 +4,7 @@ module CVFFI
   module FAST
   extend NiceFFI::Library
 
-  libs_dir = File.dirname(__FILE__) + "/../"
+  libs_dir = File.dirname(__FILE__) + "/../../ext/fast/"
   pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
   load_library("fast", pathset)
 

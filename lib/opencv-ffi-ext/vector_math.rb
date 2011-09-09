@@ -6,7 +6,7 @@ module CVFFI
   module VectorMath
     extend NiceFFI::Library
 
-    libs_dir = File.dirname(__FILE__) + "/../"
+    libs_dir = File.dirname(__FILE__) + "/../../ext/opencv-ffi/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
     load_library("opencvffi", pathset)
 
