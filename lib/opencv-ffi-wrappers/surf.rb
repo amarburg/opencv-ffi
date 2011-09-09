@@ -12,10 +12,6 @@ module CVFFI
 
   module SURF
 
- #   class Params 
-#
-  #  end
-
     class Result 
       attr_accessor :kp, :desc
       def initialize( kp, desc )
