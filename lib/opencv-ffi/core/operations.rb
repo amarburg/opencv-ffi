@@ -53,9 +53,15 @@ module CVFFI
   attach_function :cvGet2D, [ :pointer, :int, :int ], CvScalar.by_value
   attach_function :cvGet3D, [ :pointer, :int, :int, :int ], CvScalar.by_value
 
+  attach_function :cvGetReal1D, [ :pointer, :int ], :double
+  attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
+  attach_function :cvGetReal3D, [ :pointer, :int, :int, :int ], :double
+
   attach_function :cvSet1D, [ :pointer, :int, CvScalar.by_value ], :void
   attach_function :cvSet2D, [ :pointer, :int, :int, CvScalar.by_value ], :void
   attach_function :cvSet3D, [ :pointer, :int, :int, :int, CvScalar.by_value ], :void
 
-  attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
+  attach_function :cvSetReal1D, [ :pointer, :int, :double ], :void
+  attach_function :cvSetReal2D, [ :pointer, :int, :int, :double ], :void
+  attach_function :cvSetReal3D, [ :pointer, :int, :int, :int, :double ], :void
 end
