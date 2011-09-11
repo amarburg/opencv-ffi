@@ -18,7 +18,7 @@ class TestImgprocWrappers < Test::Unit::TestCase
       CVFFI::Point.new( i*1.0, i* -1.0 )
     }
 
-    result = CVFFI::getAffineTransform(src,dst)
+    result = CVFFI::get_affine_transform(src,dst)
 
     assert_not_nil result
 

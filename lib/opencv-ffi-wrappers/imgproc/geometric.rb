@@ -9,7 +9,7 @@ module CVFFI
     layout :a, [ CvPoint2D32f, 3 ]
   end
 
-  def self.getAffineTransform( src, dst )
+  def self.get_affine_transform( src, dst )
     result = CVFFI::cvCreateMat( 2, 3, :CV_32F )
 
     srcPts = GetAffineTransformPoints.new '\0'
