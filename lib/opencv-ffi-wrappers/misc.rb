@@ -5,6 +5,16 @@ module CVFFI
   def self.print_matrix(m, opts={})
 
     puts opts[:caption] if opts[:caption]
+
+    # Lots of potential to make this better...
+    f = '%'
+    case opts[:format]
+    when :e, :exp, :exponential 
+      f += '- 10.5e'
+    else
+      f += '- 10.5f'
+    end
+
     nChannels = CVFFI::matChannels(m)
     #  puts "#{nChannels} channel data"
 
@@ -13,13 +23,13 @@ module CVFFI
         scalar = CVFFI::cvGet2D( m, i, j )
         case nChannels
         when 1
-          printf "%- 10.5f  ", scalar.w
+          printf "#{f}  ", scalar.w
         when 2
-          printf "[%- 10.5f %- 10.5f] ", scalar.w, scalar.x
+          printf "[#{f} #{f}] ", scalar.w, scalar.x
         when 3
-          printf "[%- 10.5f %- 10.5f %- 10.5f] ", scalar.w, scalar.x, scalar.y
+          printf "[#{f} #{f} #{f}] ", scalar.w, scalar.x, scalar.y
         when 4
-          printf "[%- 10.5f %- 10.5f %- 10.5f %- 10.5f] ", scalar.w, scalar.x, scalar.y, scalar.z
+          printf "[#{f} #{f} #{f} #{f}] ", scalar.w, scalar.x, scalar.y, scalar.z
         end
       }
       puts
