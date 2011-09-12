@@ -26,9 +26,11 @@ module CVFFI
   end
 
   def self.warp_affine( src, dst, mat, opts={} )
-    CVFFI::cvWarpAffine( src.to_IplImage, dst, mat, 
-                        CVFFI::cv_warp_flags_to_i( :CV_INTER_LINEAR ) +
-                        CVFFI::cv_warp_flags_to_i( :CV_WARP_FILL_OUTLIERS ),
+    flags = opts[:flags] || [ :CV_INTER_LINEAR, :CV_WARP_FILL_OUTLIERS ]
+    flags << :CV_WARP_INVERSE_MAP if opts[:inverse]
+
+    flags = flags.inject(0) { |x,i| x + cv_warp_flags_to_i( i ) }
+    CVFFI::cvWarpAffine( src.to_IplImage, dst, mat,  flags,
                         CVFFI::CvScalar.new( [ 0.0, 0.0, 0.0, 0.0 ] ) )
 
 

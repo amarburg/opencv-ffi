@@ -9,7 +9,8 @@ module CVFFI
   attach_function :cvGetAffineTransform, [ :pointer, :pointer, :pointer ], CvMat.typed_pointer
 
   @cvWarpFlags = enum :cvWarpFlags, [ :CV_INTER_LINEAR, 1,
-                                      :CV_WARP_FILL_OUTLIERS, 8 ]
+                                      :CV_WARP_FILL_OUTLIERS, 8,
+                                      :CV_WARP_INVERSE_MAP, 16  ]
   
   def self.cv_warp_flags_to_i( a )
     if @cvWarpFlags.symbols.include? a
