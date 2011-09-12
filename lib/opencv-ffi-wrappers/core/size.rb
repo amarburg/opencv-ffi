@@ -10,6 +10,13 @@ module CVFFI
 
     def x=(a); self.width=a; end
     def y=(a); self.height=a; end
+
+    def ===(b)
+      width === b.width and height === b.height
+    end
+    def ==(b)
+      width == b.width and height == b.height
+    end
   end
 
   module CvSizeCastMethods
@@ -72,6 +79,7 @@ module CVFFI
       @x = x.to_i
       @y = y.to_i
     end
+
   end
 
 

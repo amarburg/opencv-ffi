@@ -89,6 +89,15 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_not_nil size
     assert_equal 100, size.width
     assert_equal 100, size.height
+
+    clone = img.clone
+
+
+    twin = img.twin
+    assert_equal img.image_size, twin.image_size
+    assert_equal img.depth,      twin.depth
+    assert_equal img.nChannels,  twin.nChannels
+
   end
 
   def test_rect

@@ -98,8 +98,14 @@ module CVFFI
       self.class.new( x*ca - y*sa,
                       x*sa + y*ca )
     end
-
     
+    def ==(b)
+      @x == b.x and @y == b.y
+    end
+    def ===(b)
+      @x === b.x and @y === b.y
+    end
+
   end
 
 

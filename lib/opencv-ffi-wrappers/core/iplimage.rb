@@ -16,6 +16,10 @@ module CVFFI
     def clone
       CVFFI::cvCloneImage( self )
     end
+
+    def twin
+      CVFFI::cvCreateImage( self.image_size.to_CvSize, self.depth, self.nChannels )
+    end
   end
 
   class IplImage
