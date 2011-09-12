@@ -64,4 +64,6 @@ module CVFFI
   attach_function :cvSetReal1D, [ :pointer, :int, :double ], :void
   attach_function :cvSetReal2D, [ :pointer, :int, :int, :double ], :void
   attach_function :cvSetReal3D, [ :pointer, :int, :int, :int, :double ], :void
+
+  attach_function :cvAddWeighted, [ :pointer, :double, :pointer, :double, :double, :pointer ], :void
 end
