@@ -12,6 +12,10 @@ module CVFFI
     def to_IplImage
       self
     end
+
+    def clone
+      CVFFI::cvCloneImage( self )
+    end
   end
 
   class IplImage
