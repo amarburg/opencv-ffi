@@ -62,9 +62,9 @@ module CVFFI
        
     def /(a)
       if a.is_a? Point
-        self.class.new( [ x/a.x, y/a.y ] )
+        self.class.new( [ x.to_f/a.x.to_f, y.to_f/a.y.to_f ] )
       else
-        self.class.new( [ x/a, y/a ] )
+        self.class.new( [ x.to_f/a, y.to_f/a ] )
       end
     end
 
