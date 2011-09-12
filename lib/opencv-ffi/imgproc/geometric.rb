@@ -12,7 +12,6 @@ module CVFFI
                                       :CV_WARP_FILL_OUTLIERS, 8 ]
   
   def self.cv_warp_flags_to_i( a )
-    p a
     if @cvWarpFlags.symbols.include? a
       @cvWarpFlags[a] 
     else

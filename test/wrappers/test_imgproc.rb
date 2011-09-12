@@ -40,7 +40,7 @@ class TestImgprocWrappers < Test::Unit::TestCase
 
     out = CVFFI::warp_affine( @img.to_IplImage, dst, warp )
 
-    CVFFI::cvSaveImage( TestSetup::output_filename("affineWarped.jpg"), dst )
+    CVFFI::save_image( TestSetup::output_filename("affineWarped.jpg"), dst )
 
   end
 
