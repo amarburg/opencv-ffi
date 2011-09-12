@@ -37,7 +37,6 @@ module CVFFI
 
   class Size < Point
     include CvSizeCastMethods
-    #include PointSizeCommon
 
     #attr_accessor :height, :width
     alias :width :x

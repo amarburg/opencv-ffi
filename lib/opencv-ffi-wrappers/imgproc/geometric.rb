@@ -24,4 +24,14 @@ module CVFFI
 
     CVFFI::cvGetAffineTransform( srcPts, dstPts, result )
   end
+
+  def self.warp_affine( src, dst, mat, opts={} )
+    CVFFI::cvWarpAffine( src.to_IplImage, dst, mat, 
+                        CVFFI::cv_warp_flags_to_i( :CV_INTER_LINEAR ) +
+                        CVFFI::cv_warp_flags_to_i( :CV_WARP_FILL_OUTLIERS ),
+                        CVFFI::CvScalar.new( [ 0.0, 0.0, 0.0, 0.0 ] ) )
+
+
+    dst
+  end
 end
