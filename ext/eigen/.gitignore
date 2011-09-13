@@ -1,4 +1,3 @@
 *.so
-Rakefile
 *.o
 mkrf.log
