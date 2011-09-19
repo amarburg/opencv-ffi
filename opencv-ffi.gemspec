@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "opencv-ffi"
 
   s.files         = `git ls-files`.split("\n")
-  s.extensions    = [ "ext/eigen/mkrf_conf.rb", "ext/opencv-ffi/mkrf_conf.rb", "ext/fast/mkrf_confg.rb" ]
+  s.extensions    = [ "ext/eigen/mkrf_conf.rb", "ext/opencv-ffi/mkrf_conf.rb", "ext/fast/mkrf_conf.rb" ]
  # FileList["ext/**/mkrf_conf.rb"]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
