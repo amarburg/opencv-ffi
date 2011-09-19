@@ -117,4 +117,15 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_equal 10.0, cv.height
   end
 
+  def test_mat
+    m = CVFFI::cvCreateMat(3,3,:CV_32F)
+    CVFFI::cvSetIdentity( m, CVFFI::CvScalar.new( :w => 1, :x => 0, :y => 0, :z => 0) )
+
+    mat = m.to_Matrix
+    assert_not_nil mat
+    assert_equal  mat[0,0], 1.0
+
+    #CVFFI::cvReleaseMat( m )
+  end
+
 end
