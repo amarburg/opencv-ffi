@@ -1,5 +1,6 @@
 
 require 'test/setup'
+require 'opencv-ffi/core'
 require 'opencv-ffi-ext/eigen'
 require 'benchmark'
 

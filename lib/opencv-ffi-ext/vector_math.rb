@@ -10,7 +10,6 @@ module CVFFI
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
     load_library("opencvffi", pathset)
 
-
     attach_function :L2distance_32f, [:pointer, :pointer, :int], :float
 
     def self.L2distance( a,b)
