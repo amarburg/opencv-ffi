@@ -12,9 +12,9 @@ gem 'rake','~> 0.8.7'
 #gem 'nice-ffi', :git=>"git@github.com:amarburg/nice-ffi.git"
 
 #gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
-if File.directory? "../mkrf"
-  gem 'mkrf', :path=>"../mkrf/"
-else
+#if File.directory? "../mkrf"
+#  gem 'mkrf', :path=>"../mkrf/"
+#else
   gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
-end
+#end
 

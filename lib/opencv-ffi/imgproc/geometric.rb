@@ -4,7 +4,6 @@ require 'opencv-ffi/core/types'
 require 'opencv-ffi/imgproc/library'
 
 module CVFFI
-  load_library("opencv_imgproc")
 
   attach_function :cvGetAffineTransform, [ :pointer, :pointer, :pointer ], CvMat.typed_pointer
 

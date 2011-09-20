@@ -5,7 +5,7 @@ require 'opencv-ffi/core'
 module CVFFI
   extend NiceFFI::Library
 
-  load_library("opencv_highgui")
+  load_library("opencv_highgui", @pathset)
 
   CV_LOAD_IMAGE_UNCHANGED  =-1
   CV_LOAD_IMAGE_GRAYSCALE  = 0

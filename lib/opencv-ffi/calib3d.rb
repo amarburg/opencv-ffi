@@ -3,7 +3,7 @@ require 'opencv-ffi/cvffi'
 require 'opencv-ffi/core'
 
 module CVFFI
-  load_library("opencv_calib3d")
+  load_library("opencv_calib3d", @pathset)
 
   enum :cvRansacMethod, [ :CV_FM_7POINT, 1,
                           :CV_FM_8POINT, 2,
