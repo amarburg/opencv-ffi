@@ -1,8 +1,4 @@
-require 'mkrf'
-begin
-  require 'bundler/setup'
-rescue LoadError
-end
+require '../mkrf-monkey'
 
 Mkrf::Generator.new('libopencvffi', [ "*.cpp", "eigen/*.cpp", "fast/*.c" ]) { |g|
   g.include_library 'stdc++'

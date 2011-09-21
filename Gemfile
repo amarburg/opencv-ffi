@@ -12,7 +12,7 @@ gem 'rake','~> 0.8.7'
 group :development do
 #gem 'ffi', :git=>"git@github.com:amarburg/ffi.git"
 #gem 'nice-ffi', :git=>"git@github.com:amarburg/nice-ffi.git"
-  gem 'mkrf', :path=>"../mkrf/"
+#  gem 'mkrf', :path=>"../mkrf/"
   gem "redcarpet"
 end
 
