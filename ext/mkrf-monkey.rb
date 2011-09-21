@@ -41,9 +41,7 @@ CFLAGS = "#{cflags} #{defines_compile_string}"
 RUBYARCHDIR = "\#{ENV["RUBYARCHDIR"]}"
 LIBRUBYARG_SHARED = "#{CONFIG['LIBRUBYARG_SHARED']}"
 
-task :default => :#{extension_sym}
-
-task :#{extension_sym} => ['Rakefile','#{@extension_name}']
+task :default => '#{@extension_name}'
 
 rule '.#{objext}' => '.c' do |t|
   sh "\#{CC} \#{CFLAGS} \#{INCLUDES} -o \#{t.name} -c \#{t.source}"
@@ -53,14 +51,16 @@ rule '.#{objext}' => '.cpp' do |t|
   sh "\#{CPP} \#{CFLAGS} \#{INCLUDES} -o \#{t.name} -c \#{t.source}"
 end
 
+DEPS = OBJ.clone.add('Rakefile')
 desc "Build this extension"
-file '#{@extension_name}' => OBJ do
+file '#{@extension_name}' => DEPS do
   sh "\#{LDSHARED} \#{LIBPATH} #{@available.ld_outfile(@extension_name)} \#{OBJ} \#{ADDITIONAL_OBJECTS} \#{LIBS} \#{LIBRUBYARG_SHARED}"
 end
 
 desc "Rebuild rakefile"
 file 'Rakefile' => 'mkrf_conf.rb' do |t|
   ruby 'mkrf_conf.rb'
+  puts "Rebuilt Rakefile.  Run \'rake #{extension_sym.to_s}\' again"
 end
 
 desc "Install this extension"
