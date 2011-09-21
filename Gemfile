@@ -8,13 +8,11 @@ gemspec
 gem 'rake','~> 0.8.7'
 
 # In case I need to use my personal forks...
+
+group :development do
 #gem 'ffi', :git=>"git@github.com:amarburg/ffi.git"
 #gem 'nice-ffi', :git=>"git@github.com:amarburg/nice-ffi.git"
-
-#gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
-#if File.directory? "../mkrf"
   gem 'mkrf', :path=>"../mkrf/"
-#else
-#  gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
-#end
+  gem "redcarpet"
+end
 
