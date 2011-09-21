@@ -14,12 +14,13 @@ end
 CLEAN.include "lib/*.so"
 
 #Rake::ExtensionTask.new('fast')
-setup_extension "opencv-ffi", "libopencvffi"
+setup_extension "opencv-ffi", "libcvffi"
+setup_extension "fast", "libcvffi_fast"
+setup_extension "eigen", "libcvffi_eigen"
 
-task 'lib/libopencvffi.so' => FileList['ext/opencv-ffi/**/*.c*', 'ext/opencv-ffi/mkrf_conf.rb']
 
 task :default => 'test'
 
-task :test => :libopencvffi
+task :test => Mkrf::all_libs
 
 

@@ -4,9 +4,9 @@ module CVFFI
   module FAST
     extend NiceFFI::Library
 
-    libs_dir = File.dirname(__FILE__) + "/../../ext/opencv-ffi/"
+    libs_dir = File.dirname(__FILE__) + "/../../ext/fast/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
-    load_library("opencvffi", pathset)
+    load_library("cvffi_fast", pathset)
 
     class Xy < NiceFFI::Struct
       layout :x, :int,

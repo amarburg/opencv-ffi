@@ -8,7 +8,7 @@ module CVFFI
 
     libs_dir = File.dirname(__FILE__) + "/../../ext/opencv-ffi/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
-    load_library("opencvffi", pathset)
+    load_library("cvffi", pathset)
 
     attach_function :L2distance_32f, [:pointer, :pointer, :int], :float
 

@@ -1,0 +1,12 @@
+
+libs = [ "opencv-ffi" ]
+
+task :default => libs
+
+libs.each { |l|
+  task l do
+    Dir.chdir(l)
+    sh 'rake'
+  end
+}
+

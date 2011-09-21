@@ -6,9 +6,9 @@ module CVFFI
   module Eigen
     extend NiceFFI::Library
 
-    libs_dir = File.dirname(__FILE__) + "/../../ext/opencv-ffi/"
+    libs_dir = File.dirname(__FILE__) + "/../../ext/eigen/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
-    load_library("opencvffi", pathset)
+    load_library("cvffi_eigen", pathset)
 
     class EigenSvdResults < NiceFFI::Struct
       layout :W, CvMat.typed_pointer,
