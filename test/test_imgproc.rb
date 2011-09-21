@@ -3,9 +3,7 @@ require 'opencv-ffi/imgproc'
 require 'opencv-ffi/core'
 require 'find'
 
-Find.find( 'test/imgproc/' ) { |f|
-  require f if f.match( "test/imgproc/test_[\w]*" )
-}
+recursive_test 'imgproc'
 
 class TestImgproc < Test::Unit::TestCase
 

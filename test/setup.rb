@@ -8,6 +8,17 @@ require 'opencv-ffi/highgui'
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
 TEST_IMAGE_FILE_TWO = "test/test_files/images/IMG_7088.JPG"
 
+def recursive_test name
+  dirname = [ 'test', name] .join('/')
+  if File.directory? dirname
+    Find.find( dirname ) { |f|
+      require f if f.basename.match( "test_[\w]*" )
+    }
+  end
+end
+
+
+
 module TestSetup
 
   def self.load_test_image
