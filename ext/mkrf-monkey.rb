@@ -9,7 +9,7 @@ module Mkrf
     def rakefile_contents # :nodoc:
       objext = CONFIG['OBJEXT']
       cc = CONFIG['CC'] || 'gcc'
-      cpp = CONFIG['CPP'] || 'g++'
+      cpp = CONFIG['CXX'] || 'g++'
       extension_sym = File.basename( @extension_name, ".#{CONFIG['DLEXT']}" ).to_sym
 
 
@@ -77,4 +77,5 @@ end
   end
 
 end
+
 

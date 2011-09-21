@@ -2,7 +2,7 @@ require 'bundler/gem_tasks'
 require 'rake'
 require 'rake/testtask'
 require 'rake/clean'
-require 'mkrf/rakehelper'
+require './ext/mkrf-rakehelper-monkey'
 
 Rake::TestTask.new(:test) do |t|
 #  t.libs << 'lib/opencv-ffi' << '.'
