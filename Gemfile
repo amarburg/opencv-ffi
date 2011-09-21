@@ -13,8 +13,8 @@ gem 'rake','~> 0.8.7'
 
 #gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
 #if File.directory? "../mkrf"
-#  gem 'mkrf', :path=>"../mkrf/"
+  gem 'mkrf', :path=>"../mkrf/"
 #else
-  gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
+#  gem 'mkrf', :git=>"git@github.com:amarburg/mkrf.git"
 #end
 

@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "nice-ffi"
+  s.add_dependency "mkrf"
 
 end
