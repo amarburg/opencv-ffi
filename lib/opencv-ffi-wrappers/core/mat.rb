@@ -6,6 +6,10 @@ require 'matrix'
 module CVFFI
 
   module CvMatFunctions
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+
     def to_CvMat
       self
     end
@@ -20,6 +24,10 @@ module CVFFI
     # CvMat uses the Array-like API calls (at, [], size, etc)
     def at_f(i,j)
       CVFFI::cvGetReal2D( self, i, j )
+    end
+
+    def set_f( i,j, f )
+      CVFFI::cvSetReal2D( self, i, j, f )
     end
 
     def clone
@@ -43,6 +51,17 @@ module CVFFI
     def zero
       CVFFI::cvSetZero( self )
     end
+
+
+    module ClassMethods 
+      def eye( x, type = :CV_32F )
+        a = CVFFI::cvCreateMat( x, x, type )
+        CVFFI::cvSetIdentity( a, CVFFI::CvScalar.new( :w => 1, :x => 1, :y => 1, :z => 1 ) )
+        a
+      end
+    end
+
+
   end
 
   class CvMat

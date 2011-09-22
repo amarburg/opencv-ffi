@@ -118,8 +118,13 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
   end
 
   def test_mat
-    m = CVFFI::cvCreateMat(3,3,:CV_32F)
-    CVFFI::cvSetIdentity( m, CVFFI::CvScalar.new( :w => 1, :x => 0, :y => 0, :z => 0) )
+    m = CVFFI::CvMat.eye( 3 )
+
+    3.times { |i|
+      3.times { |j|
+assert_equal m.at_f(i,j), ( i==j ? 1.0 : 0.0 )
+      }
+    }
 
     mat = m.to_Matrix
     assert_not_nil mat
@@ -142,7 +147,7 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
   def test_mat_transpose
     m = CVFFI::cvCreateMat( 3,3,:CV_32F)
     m.zero
-    CVFFI::cvSetReal2D( m, 0, 2, 1.0 )
+    m.set_f( 0, 2, 1.0 )
 
     assert_equal m.at_f( 0, 2 ), 1.0
     assert_equal m.at_f( 2, 0 ), 0.0

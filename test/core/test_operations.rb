@@ -84,7 +84,7 @@ class TestCoreOperations < Test::Unit::TestCase
 
   def test_transpose
     m = CVFFI::cvCreateMat( 3,3, :CV_32F )
-    CVFFI::cvZero( m )
+    CVFFI::cvSetZero( m )
     CVFFI::cvSetReal2D( m, 0, 2, 1.0 )
 
     assert_equal CVFFI::cvGetReal2D( m, 0, 2 ), 1.0
