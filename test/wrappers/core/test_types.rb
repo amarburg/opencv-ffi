@@ -102,7 +102,7 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
 
   def test_rect
     r = CVFFI::Rect.new( :center => CVFFI::Point.new( 0.0, 0.0 ),
-                         :size   => CVFFI::Size.new(  10.0, 10.0 ) )
+                        :size   => CVFFI::Size.new(  10.0, 10.0 ) )
 
     assert_equal -5.0, r.origin.x
     assert_equal -5.0, r.origin.y
@@ -137,6 +137,24 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_equal m.width, q.width
     assert_equal m.type, q.type
     assert_not_equal m.at_f(0,0), q.at_f(0,0)
+  end
+
+  def test_mat_transpose
+    m = CVFFI::cvCreateMat( 3,3,:CV_32F)
+    m.zero
+    CVFFI::cvSetReal2D( m, 0, 2, 1.0 )
+
+    assert_equal m.at_f( 0, 2 ), 1.0
+    assert_equal m.at_f( 2, 0 ), 0.0
+
+
+    t = m.transpose
+    assert_equal m.at_f( 0, 2 ), 1.0
+    assert_equal m.at_f( 2, 0 ), 0.0
+
+    assert_equal t.at_f( 0, 2 ), 0.0
+    assert_equal t.at_f( 2, 0 ), 1.0
+
 
   end
 

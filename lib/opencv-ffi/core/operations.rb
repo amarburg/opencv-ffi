@@ -69,6 +69,7 @@ module CVFFI
 
   attach_function :cvSetIdentity, [ :pointer, CvScalar.by_value ], :void
   attach_function :cvTranspose, [:pointer, :pointer], :void
+  attach_function :cvSetZero, [ :pointer ], :void
 
   attach_function :cvReleaseMat, [ :pointer ], :void
 end

@@ -23,7 +23,7 @@ module CVFFI
     end
 
     def clone
-      CVFFI::CvMat.new CVFFI::cvCloneMat( self )
+      CVFFI::cvCloneMat( self )
     end
 
     def mat_size
@@ -31,7 +31,17 @@ module CVFFI
     end
 
     def twin
-      CVFFI::CvMat.new CVFFI::cvCreateMat( self.height, self.width, self.type )
+      CVFFI::cvCreateMat( self.height, self.width, self.type )
+    end
+
+    def transpose
+      a = twin
+      CVFFI::cvTranspose( self, a )
+      a
+    end
+
+    def zero
+      CVFFI::cvSetZero( self )
     end
   end
 
