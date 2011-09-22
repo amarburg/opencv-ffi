@@ -20,7 +20,7 @@ INCLUDES = "-I/home/amarburg/.rvm/rubies/ruby-1.9.2-p290/include/ruby-1.9.1 -I/h
 
 LIBS = "-lpthread -lrt -ldl -lcrypt -lm -lstdc++ -lopencv_core"
 
-CFLAGS = "-fPIC  -O3 -ggdb -Wextra -Wno-unused-parameter -Wno-parentheses -Wpointer-arith -Wwrite-strings -Wno-missing-field-initializers -Wno-long-long  -fPIC -I/home/amarburg/usr/include  -DHAVE_EIGEN3_EIGEN_CORE"
+CFLAGS = "-fPIC  -O3 -ggdb -Wextra -Wno-unused-parameter -Wno-parentheses -Wpointer-arith -Wwrite-strings -Wno-missing-field-initializers -Wno-long-long  -fPIC -I/home/amarburg/usr/include -I/usr/local/include/eigen3 -DHAVE_EIGEN3_EIGEN_CORE"
 
 RUBYARCHDIR = "#{ENV["RUBYARCHDIR"]}"
 LIBRUBYARG_SHARED = "-Wl,-R -Wl,/home/amarburg/.rvm/rubies/ruby-1.9.2-p290/lib -L/home/amarburg/.rvm/rubies/ruby-1.9.2-p290/lib -lruby"

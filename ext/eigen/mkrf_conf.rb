@@ -7,6 +7,6 @@ Mkrf::Generator.new('libcvffi_eigen', [ "*.cpp" ], { :compiler=>"g++"}) { |g|
   g.include_library 'stdc++'
   raise "Can't find 'opencv_core'" unless g.include_library 'opencv_core', 'main', "#{ENV['HOME']}/usr/lib"
   raise "Can't find #include<eigne3/Eigen/Core>" unless g.include_header  'eigen3/Eigen/Core', "#{ENV['HOME']}/usr/include"
-  g.cflags += "-I#{ENV['HOME']}/usr/include "
+  g.cflags += "-I#{ENV['HOME']}/usr/include -I/usr/local/include/eigen3"
 }
 

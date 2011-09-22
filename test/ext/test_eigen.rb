@@ -32,5 +32,21 @@ class TestEigen < Test::Unit::TestCase
 
   end
 
+  def test_poly
+
+    # Should be coefficients for (t-1)(t-2)...(t-6) in ascending
+    # coefficient order...
+    coeffs = [ 720.0, -1764.0, 1624.0, -735.0, 175.0, -21.0, 1.0 ]
+    # Eigen expects polynomial in ascending order
+    roots = CVFFI::Eigen::polySolver( coeffs )
+    roots.sort!
+
+
+    epsilon = 1e-6
+    6.times { |i|
+      assert_in_delta roots[i], (i+1).to_f,  epsilon
+    }
+
+  end
 
 end
