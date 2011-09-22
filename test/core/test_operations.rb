@@ -50,7 +50,7 @@ class TestCoreOperations < Test::Unit::TestCase
     assert_color_at_point imgTwo, @center, WHITE
   end
 
-def test_roiOperations
+  def test_roiOperations
     imgOne = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
     CVFFI::cvSet( imgOne, BLACK, nil )
     CVFFI::cvCircle( imgOne, @center, @radius, WHITE, -1, 8, 0 )
@@ -78,8 +78,25 @@ def test_roiOperations
 
     CVFFI::cvResetImageROI( imgTwo )
 
-      CVFFI::cvSaveImage( TestSetup::output_filename("testroi.jpg"), imgTwo )
+    CVFFI::cvSaveImage( TestSetup::output_filename("testroi.jpg"), imgTwo )
 
-end
+  end
+
+  def test_transpose
+    m = CVFFI::cvCreateMat( 3,3, :CV_32F )
+    CVFFI::cvSetReal2D( m, 0, 2, 1.0 )
+
+    assert_equal CVFFI::cvGetReal2D( m, 0, 2 ), 1.0
+    assert_equal CVFFI::cvGetReal2D( m, 2, 0 ), 0.0
+
+    t = CVFFI::cvCreateMat( 3,3, :CV_32F )
+    CVFFI::cvTranspose( m, t )
+
+    assert_equal CVFFI::cvGetReal2D( m, 0, 2 ), 1.0
+    assert_equal CVFFI::cvGetReal2D( m, 2, 0 ), 0.0
+
+    assert_equal CVFFI::cvGetReal2D( t, 0, 2 ), 0.0
+    assert_equal CVFFI::cvGetReal2D( t, 2, 0 ), 1.0
+  end
 
 end

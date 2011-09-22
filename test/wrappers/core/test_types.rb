@@ -124,8 +124,20 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     mat = m.to_Matrix
     assert_not_nil mat
     assert_equal  mat[0,0], 1.0
+    assert_equal mat[0,0], m.at_f(0,0)
 
-    #CVFFI::cvReleaseMat( m )
+    r = m.clone
+    assert_equal m.height, r.height
+    assert_equal m.width, r.width
+    assert_equal m.type, r.type
+    assert_equal m.at_f(0,0), r.at_f(0,0)
+
+    q = m.twin
+    assert_equal m.height, q.height
+    assert_equal m.width, q.width
+    assert_equal m.type, q.type
+    assert_not_equal m.at_f(0,0), q.at_f(0,0)
+
   end
 
 end

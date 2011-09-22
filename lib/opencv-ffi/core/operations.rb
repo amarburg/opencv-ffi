@@ -68,7 +68,7 @@ module CVFFI
   attach_function :cvAddWeighted, [ :pointer, :double, :pointer, :double, :double, :pointer ], :void
 
   attach_function :cvSetIdentity, [ :pointer, CvScalar.by_value ], :void
-
+  attach_function :cvTranspose, [:pointer, :pointer], :void
 
   attach_function :cvReleaseMat, [ :pointer ], :void
 end

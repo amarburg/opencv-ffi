@@ -12,8 +12,26 @@ module CVFFI
 
     def to_Matrix
       Matrix.build( height, width ) { |i,j|
-        CVFFI::cvGetReal2D( self, i,j )
+        at_f(i,j)
       }
+    end
+
+    # This is somewhat awkward because the FFI::Struct-iness of
+    # CvMat uses the Array-like API calls (at, [], size, etc)
+    def at_f(i,j)
+      CVFFI::cvGetReal2D( self, i, j )
+    end
+
+    def clone
+      CVFFI::CvMat.new CVFFI::cvCloneMat( self )
+    end
+
+    def mat_size
+      CVFFI::CvSize.new( :width => self.width, :height => self.height ) 
+    end
+
+    def twin
+      CVFFI::CvMat.new CVFFI::cvCreateMat( self.height, self.width, self.type )
     end
   end
 
