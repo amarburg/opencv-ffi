@@ -10,7 +10,7 @@ using namespace cv;
 
 
 typedef struct {
-  CvMat *W;
+  CvMat *D;
   CvMat *U, *V;
 } EigenSVDResult_t;
 
@@ -47,7 +47,7 @@ void eigenSvdWithCvMat( CvMat* A, EigenSVDResult_t *result )
   MatrixXf m = cvMatToEigen( A );
   JacobiSVD<MatrixXf> svd( m, ComputeThinU | ComputeThinV );
 
-  result->W = eigenToCvMat( svd.singularValues() );
+  result->D = eigenToCvMat( svd.singularValues() );
   result->U = eigenToCvMat( svd.matrixU() );
   result->V = eigenToCvMat( svd.matrixV() );
 }

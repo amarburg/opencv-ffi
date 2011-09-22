@@ -13,7 +13,7 @@ module CVFFI
 
     ##--- SVD bits ---
     class EigenSvdResults < NiceFFI::Struct
-      layout :W, CvMat.typed_pointer,
+      layout :D, CvMat.typed_pointer,
         :U, CvMat.typed_pointer,
         :V, CvMat.typed_pointer
     end
@@ -25,7 +25,7 @@ module CVFFI
       results = EigenSvdResults.new '\0'
       eigenSvdWithCvMat( a.to_CvMat, results )
 
-      [ results.W, results.U, results.V ]
+      [ results.U, results.D, results.V ]
     end
 
 
