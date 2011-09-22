@@ -2,7 +2,7 @@
 require 'test/setup'
 require 'opencv-ffi/core'
 require 'opencv-ffi-ext/eigen'
-require 'benchmark'
+require 'matrix'
 
 class TestEigen < Test::Unit::TestCase
 
@@ -20,15 +20,48 @@ class TestEigen < Test::Unit::TestCase
   end
 
   def test_svd
+    # Test matrix [ 1,2,3
+    #               4,5,6
+    #               7,8,9 ]
+    a = CVFFI::cvCreateMat( 3,3, :CV_32F )
+    3.times {|i| 3.times {|j|
+      a.set_f( i,j,3*i+j+1)
+    }}
 
-    a = random_matrix( 3,3 )
-
-    w,u,v = CVFFI::Eigen::svd( a )
+    u,d,v = CVFFI::Eigen::svd( a )
 
     CVFFI::print_matrix a, {:caption => "a"}
-    CVFFI::print_matrix w, {:caption => "w"}
-    CVFFI::print_matrix u, {:caption => "u"}
+    CVFFI::print_matrix u, {:caption => "w"}
+    CVFFI::print_matrix d, {:caption => "u"}
     CVFFI::print_matrix v, {:caption => "v"}
+
+    epsilon = 1e-3
+
+    ## Test results from alpha
+    uans = Matrix.rows( [ [0.214837 , 0.887231 , 0.408248 ],
+                       [0.520587 , 0.249644 , -0.816497 ],
+                       [0.826338 , -0.387943 , 0.408248 ] ] )
+    dans = [16.8481 , 1.06837 , 0.0 ]
+    vans = Matrix.rows( [ [0.479671 , -0.776691 , 0.408248 ],
+                       [0.572368 , -0.0756865 , -0.816497],
+                       [0.665064 , 0.625318 , 0.408248] ] )
+
+    # Check the SVDs
+    dans.each_with_index { |dans,i| assert_in_delta d.at_f(i,0), dans, epsilon }
+
+    3.times{ |j| 
+      # Check the original matrix
+      3.times { |i|
+        assert_equal a.at_f( i,j ), 3*i+j+1 
+      }
+      2.times { |i|
+        # Because there's scalar ambiguity in the third column
+        # check ratios instead
+        assert_in_delta u.at_f(i,j)/u.at_f(i+1,j), uans[i,j]/uans[i+1,j], epsilon
+        assert_in_delta v.at_f(i,j)/v.at_f(i+1,j), vans[i,j]/vans[i+1,j], epsilon
+      }
+    }
+
 
   end
 
