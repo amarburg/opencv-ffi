@@ -25,7 +25,11 @@ CFLAGS = "-fPIC  -O3 -ggdb -Wextra -Wno-unused-parameter -Wno-parentheses -Wpoin
 RUBYARCHDIR = "#{ENV["RUBYARCHDIR"]}"
 LIBRUBYARG_SHARED = "-Wl,-R -Wl,/home/amarburg/.rvm/rubies/ruby-1.9.2-p290/lib -L/home/amarburg/.rvm/rubies/ruby-1.9.2-p290/lib -lruby"
 
-task :default => 'libcvffi_eigen.so'
+task :default => :build_library
+
+# Add one layer of indirection so I can generically call "rake build_library"
+# and have it work ... or not work if the wrong rakefile is being run
+task :build_library => 'libcvffi_eigen.so'
 
 rule '.o' => '.c' do |t|
   sh "#{CC} #{CFLAGS} #{INCLUDES} -o #{t.name} -c #{t.source}"

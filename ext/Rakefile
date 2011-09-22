@@ -1,12 +1,13 @@
 
-libs = [ "opencv-ffi" ]
+libs = [ "opencv-ffi", "eigen", "fast" ]
 
 task :default => libs
 
 libs.each { |l|
   task l do
-    Dir.chdir(l)
-    sh 'rake'
+    Dir.chdir( [File.dirname(__FILE__),l].join('/') )
+    ruby 'mkrf_conf.rb' unless File.exists?( 'Rakefile' )
+    sh 'rake build_library'
   end
 }
 

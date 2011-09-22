@@ -41,7 +41,11 @@ CFLAGS = "#{cflags} #{defines_compile_string}"
 RUBYARCHDIR = "\#{ENV["RUBYARCHDIR"]}"
 LIBRUBYARG_SHARED = "#{CONFIG['LIBRUBYARG_SHARED']}"
 
-task :default => '#{@extension_name}'
+task :default => :build_library
+
+# Add one layer of indirection so I can generically call "rake build_library"
+# and have it work ... or not work if the wrong rakefile is being run
+task :build_library => '#{@extension_name}'
 
 rule '.#{objext}' => '.c' do |t|
   sh "\#{CC} \#{CFLAGS} \#{INCLUDES} -o \#{t.name} -c \#{t.source}"
