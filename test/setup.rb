@@ -12,7 +12,7 @@ def recursive_test name
   dirname = [ 'test', name] .join('/')
   if File.directory? dirname
     Find.find( dirname ) { |f|
-      require f if File.basename(f).match( "test_[\w]*" )
+      require f if File.basename(f).match( "^test_[\w]*" )
     }
   end
 end
