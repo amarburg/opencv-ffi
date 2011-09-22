@@ -1,0 +1,4 @@
+*.o
+Rakefile
+mkrf.log
+libcvffi_fast.so
