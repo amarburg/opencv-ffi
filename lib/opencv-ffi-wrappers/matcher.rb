@@ -13,6 +13,16 @@ end
 
 module CVFFI
 
+  class Match
+    attr_accessor :train, :query, :distance
+
+    def initialize( t, q, d )
+      @train = t
+      @query = q
+      @distance = d
+    end
+  end
+
   class MatchResults
     include Enumerable
 
@@ -53,7 +63,9 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
     end
 
     def each( &blk )
-      @results.each( blk )
+      @results.each { |r|
+        blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
+      }
     end
       
   end
