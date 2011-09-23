@@ -55,7 +55,6 @@ class TestMatchers < Test::Unit::TestCase
       b.report("best_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two )
       end
-      #puts "Matches found: " + results.map { |r| r.length }.join(' ')
       puts "Matches found: "
       puts results.to_s
 
@@ -63,7 +62,6 @@ class TestMatchers < Test::Unit::TestCase
       b.report("distance_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two, { :max_distance => 0.1 } )
       end
-      #puts "Matches found: " + results.map { |r| r.length }.join(' ')
       puts "Matches found: "
       puts results.to_s
 
@@ -71,9 +69,26 @@ class TestMatchers < Test::Unit::TestCase
       b.report("knn_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two, { :k => 5 } )
       end
-      #puts "Matches found: " + results.map { |r| r.length }.join(' ')
       puts "Matches found: "
       puts results.to_s
+
+      # Test the masking functionality"
+      r = results.length
+      assert_equal r, results.num_unmasked
+      assert_equal 0, results.num_masked
+
+      i = rand(r)
+      results.mask( i )
+      assert_equal r-1, results.num_unmasked
+      assert_equal 1,   results.num_masked
+      i == 0 ? j=i+1 : j=i-1
+      assert results.masked?( i )
+      assert !results.masked?( j )
+
+      results.unmask(i)
+      assert_equal r, results.num_unmasked
+      assert_equal 0, results.num_masked
+      assert !results.masked?( i )
     end
 
   end

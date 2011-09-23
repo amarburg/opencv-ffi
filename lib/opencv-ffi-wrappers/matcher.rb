@@ -29,7 +29,6 @@ module CVFFI
     attr_accessor :train_set, :query_set
     attr_accessor :results
 
-
     def initialize( tset, qset )
       @train_set = tset
       @query_set = qset
@@ -40,6 +39,8 @@ module CVFFI
       @by_train.extend( AddMapWithIndex )
 
       @by_query = []
+
+      @mask = []
     end
 
     def add_result(r)
@@ -62,10 +63,56 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       }
     end
 
+    def length
+      @results.length
+    end
+
+    alias :size :length
+
     def each( &blk )
       @results.each { |r|
         blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
       }
+    end
+
+    def num_masked
+      @mask.inject(0) { |m,s| s ? m+1 : m }
+    end
+
+    def num_unmasked
+      @results.length - num_masked
+    end
+
+    def masked?( i )
+      @mask[i] == true
+    end
+
+    def mask( i )
+      @mask[i] = true
+    end
+
+    def unmask(i)
+      @mask[i] = false
+    end
+
+    def clear_mask(i)
+      @mask = []
+    end
+
+    def toCvMats
+      pointsOne = CVFFI::cvCreateMat( num_unmasked, 2, :CV_32F )
+      pointsTwo = CVFFI::cvCreateMat( num_unmasked, 2, :CV_32F )
+
+      @results.each_with_index { |r, i|
+        unless masked?(i)
+          CVFFI::cvSetReal2D( pointsOne, i, 0, @train_set[r.tidx].x )
+          CVFFI::cvSetReal2D( pointsOne, i, 1, @train_set[r.tidx].y )
+          CVFFI::cvSetReal2D( pointsTwo, i, 0, @query_set[r.qidx].x )
+          CVFFI::cvSetReal2D( pointsTwo, i, 1, @query_set[r.qidx].y )
+        end
+      }
+
+      [pointsOne, pointsTwo]
     end
       
   end
