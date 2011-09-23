@@ -2,19 +2,69 @@
 
 require 'opencv-ffi-wrappers'
 
+module AddMapWithIndex
+
+  def map_with_index( &blk )
+    a = []
+    each_with_index { |k,i| a << blk.yield( k,i ) }
+    a
+  end
+end
+
 module CVFFI
 
-  class MatchResult
+  class MatchResults
+
     attr_accessor :train_set, :query_set
+    attr_accessor :results
+
+
+    def initialize( tset, qset )
+      @train_set = tset
+      @query_set = qset
+
+      @results = []
+
+      @by_train = []
+      @by_train.extend( AddMapWithIndex )
+
+      @by_query = []
+    end
+
+    def add_result(r)
+raise RuntimeError "index greater than size of training set (#{r.train_idx} > #{train_set.size})" if r.train_idx >= train_set.size
+raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{query_set.size})" if r.query_idx >= query_set.size
+      @results << r
+      (@by_train[r.train_idx] ||= Array.new) << r
+      (@by_query[r.query_idx] ||= Array.new) << r
+      r
+    end
+
+    def add( tidx, qidx, dist )
+      add_result MatchResult.new( tidx, qidx, dist )
+    end
+
+    def to_s
+      [ "Total matches: #{@results.size}" ] + 
+      @by_train.map_with_index { |r,tidx|
+         "Tidx #{tidx} (#{r.nil? ? 0 : r.length}): #{r.nil? ? "" : r.map {|r| sprintf "%d(%.2e)", r.query_idx, r.dist }.join(' ') }"
+      }
+    end
+
+  end
+
+  class MatchResult
     attr_accessor :train_idx, :query_idx
     attr_accessor :distance
 
-    def initialize( tset, tidx, qset, qidx, dist )
-      @train_set = tset
-      @train_idx = tidx
-      @query_set = qset
-      @query_idx = qidx
-      @distance = dist
+    alias :tidx :train_idx
+    alias :qidx :query_idx
+    alias :dist :distance
+
+    def initialize( t, q, d )
+      @train_idx = t
+      @query_idx = q
+      @distance = d
     end
 
     def to_s
@@ -42,7 +92,7 @@ module CVFFI
       maxDistance = opts[:max_distance] || nil
       k = opts[:k] || nil
 
-      results = []
+      results = MatchResults.new( train, query )
       query.each_with_index { |q,qidx|
 
         this_result = []
@@ -52,25 +102,25 @@ module CVFFI
           ## Non-optimized algorithms...
           if maxDistance
             if distance < maxDistance
-              this_result <<  MatchResult.new( train, tidx, query, qidx, distance )
+              this_result <<  MatchResult.new( tidx, qidx, distance )
             end
           elsif k
             if this_result.length < k
-              this_result << MatchResult.new( train, tidx, query, qidx, distance )
+              this_result << MatchResult.new( tidx, qidx, distance )
             else
               this_result.sort! { |a,b| a.distance <=> b.distance }
               if distance < this_result[0].distance
-                this_result[0] = MatchResult.new( train, tidx, query, qidx, distance )
+                this_result[0] = MatchResult.new( tidx, qidx, distance )
               end
             end
           else
             if this_result.length == 0 or distance < this_result[0].distance
-              this_result = [ MatchResult.new( train, tidx, query, qidx, distance ) ]
+              this_result = [ MatchResult.new( tidx, qidx, distance ) ]
             end
           end
 
         }
-        results[qidx] = this_result
+        this_result.each { |r| results.add_result( r ) }
       }
 
       results
