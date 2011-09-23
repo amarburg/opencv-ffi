@@ -14,6 +14,7 @@ end
 module CVFFI
 
   class MatchResults
+    include Enumerable
 
     attr_accessor :train_set, :query_set
     attr_accessor :results
@@ -51,6 +52,10 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       }
     end
 
+    def each( &blk )
+      @results.each( blk )
+    end
+      
   end
 
   class MatchResult
