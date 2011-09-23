@@ -69,6 +69,10 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
 
     alias :size :length
 
+    def [](i)
+      Match.new( @train_set[@results[i].tidx], @query_set[@results[i].qidx], @results[i].distance )
+    end
+
     def each( &blk )
       @results.each { |r|
         blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
