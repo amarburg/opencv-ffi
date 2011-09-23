@@ -107,6 +107,14 @@ module CVFFI
       @x === b.x and @y === b.y
     end
 
+    def to_Vector( homogeneous = true )
+      if homogeneous
+        Vector.[]( @x, @y, @w )
+      else
+        Vector.[]( @x, @y )
+      end
+    end
+
   end
 
 

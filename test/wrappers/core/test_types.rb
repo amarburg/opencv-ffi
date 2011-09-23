@@ -144,6 +144,24 @@ assert_equal m.at_f(i,j), ( i==j ? 1.0 : 0.0 )
     assert_not_equal m.at_f(0,0), q.at_f(0,0)
   end
 
+  def test_vector
+    m = CVFFI::cvCreateMat( 1, 5, :CV_32F )
+    n = CVFFI::cvCreateMat( 5, 1, :CV_32F )
+
+    5.times { |i|
+      m.set_f(0,i,i)
+      n.set_f(i,0,i)
+    }
+
+    mv = m.to_Vector
+    nv = n.to_Vector
+
+    5.times { |i|
+      assert_equal i, mv[i]
+      assert_equal i, nv[i]
+    }
+  end
+
   def test_mat_transpose
     m = CVFFI::cvCreateMat( 3,3,:CV_32F)
     m.zero

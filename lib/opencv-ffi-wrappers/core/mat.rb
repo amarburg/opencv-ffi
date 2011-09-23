@@ -20,6 +20,17 @@ module CVFFI
       }
     end
 
+    def to_Vector
+      to_Matrix if height > 1 and width > 1
+      a = []
+      if height == 1
+         a = Array.new( width ) { |i| at_f(0,i) } 
+      else
+        a = Array.new( height ) { |i| at_f(i,0) }
+      end
+      Vector.elements(a)
+    end
+
     # This is somewhat awkward because the FFI::Struct-iness of
     # CvMat uses the Array-like API calls (at, [], size, etc)
     def at_f(i,j)
