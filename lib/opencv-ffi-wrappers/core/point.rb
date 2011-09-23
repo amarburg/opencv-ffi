@@ -32,7 +32,7 @@ module CVFFI
   class Point 
     include CvPointCastMethods
 
-    attr_accessor :y, :x
+    attr_accessor :w, :y, :x
 
     def initialize( *args )
       if args.length == 2
@@ -54,6 +54,7 @@ module CVFFI
       end
       end
 
+      @w = 1
     end
 
     def area
