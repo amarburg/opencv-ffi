@@ -3,7 +3,7 @@ require 'opencv-ffi/core/types'
 
 module CVFFI
 
-  module CvPointFunctions
+  module CvPointMethods
   end
 
   module CvPointCastMethods
@@ -21,7 +21,7 @@ module CVFFI
   end
 
   class CvPointBase
-    include CvPointFunctions
+    include CvPointMethods
     include CvPointCastMethods
   end
 
