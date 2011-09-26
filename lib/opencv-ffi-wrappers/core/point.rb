@@ -117,6 +117,106 @@ module CVFFI
 
   end
 
+#===========================================================
+  module CvPoint3DFunctions
+    def to_CvPoint3D64f
+      CvPoint3D64f.new( :x => x, :y => y, :z => z )
+    end
+
+    def to_CvPoint3D32f
+      CvPoint3D32f.new( :x => x, :y => y, :z => z )
+    end
+
+  end
+
+  class CvPoint3DBase
+    include CvPoint3DFunctions
+  end
+
+  class CvPoint3D32f; def to_CvPoint3D32f; self; end; end
+  class CvPoint3D64f; def to_CvPoint3D64f; self; end; end
+
+  class Point3D
+    include CvPoint3DCastMethods
+
+    attr_accessor :w, :z, :y, :x
+
+    def initialize( *args )
+      if args.length == 3
+        @x = args[0]
+        @y = args[1]
+        @z = args[2]
+      else
+        args = args.shift
+
+        case args
+        when Hash
+          @z = args[:z]
+          @y = args[:y]
+          @x = args[:x]
+        when Array
+          @x = args[0]
+          @y = args[1]
+          @z = args[2]
+      else
+        @x = args.x
+        @y = args.y
+        @z = args.z
+      end
+      end
+
+      @w = 1
+    end
+
+    def /(a)
+      if a.is_a? Point3D
+        self.class.new( [ x.to_f/a.x.to_f, y.to_f/a.y.to_f, z.to_f/a.z.to_f ] )
+      else
+        self.class.new( [ x.to_f/a, y.to_f/a, z.to_f/z ] )
+      end
+    end
+
+    def *(a)
+      if a.is_a? Point3D
+        self.class.new( [ x*a.x, y*a.y, z*a.z ] )
+      else
+        self.class.new( [ x*a, y*a, z*a.z ] )
+      end
+    end
+
+    def -(a)
+      if a.is_a? Point3D
+        self.class.new( [ x.to_f-a.x, y.to_f-a.y, z.to_f-a.z ] )
+      else
+        self.class.new( [ x.to_f-a, y.to_f-a, z.to_f-a ] )
+      end
+    end
+ 
+    def +(a)
+      if a.is_a? Point3D
+        self.class.new( [ x+a.x, y+a.y, z+a.z ] )
+      else
+        self.class.new( [ x+a, y+a, z+a ] )
+      end
+    end
+
+    def ==(b)
+      @x == b.x and @y == b.y and @z == b.z
+    end
+    def ===(b)
+      @x === b.x and @y === b.y and @z === b.z
+    end
+
+    def to_Vector( homogeneous = true )
+      if homogeneous
+        Vector.[]( @x/@w, @y/@w, @z/@w, 1 )
+      else
+        Vector.[]( @x, @y, @z )
+      end
+    end
+
+  end
+
 
 
 
