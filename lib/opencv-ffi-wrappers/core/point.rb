@@ -118,7 +118,10 @@ module CVFFI
   end
 
 #===========================================================
-  module CvPoint3DFunctions
+  module CvPoint3DMethods
+  end
+  
+  module CvPoint3DCastMethods
     def to_CvPoint3D64f
       CvPoint3D64f.new( :x => x, :y => y, :z => z )
     end
@@ -130,7 +133,8 @@ module CVFFI
   end
 
   class CvPoint3DBase
-    include CvPoint3DFunctions
+    include CvPoint3DMethods
+    include CvPoint3DCastMethods
   end
 
   class CvPoint3D32f; def to_CvPoint3D32f; self; end; end
