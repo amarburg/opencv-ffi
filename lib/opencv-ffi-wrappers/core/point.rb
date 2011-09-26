@@ -109,7 +109,7 @@ module CVFFI
 
     def to_Vector( homogeneous = true )
       if homogeneous
-        Vector.[]( @x, @y, @w )
+        Vector.[]( @x/@w, @y/@w, 1.0 )
       else
         Vector.[]( @x, @y )
       end
@@ -213,7 +213,7 @@ module CVFFI
 
     def to_Vector( homogeneous = true )
       if homogeneous
-        Vector.[]( @x/@w, @y/@w, @z/@w, 1 )
+        Vector.[]( @x/@w, @y/@w, @z/@w, 1.0 )
       else
         Vector.[]( @x, @y, @z )
       end
