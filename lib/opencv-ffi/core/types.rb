@@ -45,6 +45,23 @@ module CVFFI
            :y, :double
   end
 
+  class CvPoint3DBase < NiceFFI::Struct
+  end
+
+  class CvPoint3D32f < CvPoint3DBase
+    layout :x, :float,
+           :y, :float,
+           :z, :float
+  end
+
+  class CvPoint3D64f < CvPoint3DBase
+    layout :x, :double,
+           :y, :double,
+           :z, :double
+  end
+
+
+  
   #
   # CvScalar
   #
