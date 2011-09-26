@@ -24,4 +24,21 @@ module CVFFI
 
     CVFFI::cvLine( img.to_IplImage, aPoint.to_CvPoint, bPoint.to_CvPoint, color, thickness, 8, 0 )
   end
+
+  def self.put_text( img, text, point, opts = {} )
+    color = opts[:color] || CVFFI::Scalar.new( 255,255,255,0 )
+    thickness = opts[:thickness] || 2
+    face = opts[:face] || opts[:typeface] || :CV_FONT_HERSHEY_SIMPLEX
+    font = opts[:font] || nil
+    hscale = opts[:hscale] || opts[:scale] || 1.0
+    vscale = opts[:vscale] || opts[:scale] || hscale
+    shear = opts[:shear] || 0.0
+
+    unless font
+      font = CVFFI::CvFont.new '\0'
+      CVFFI::cvInitFont( font, face, hscale, vscale, shear, thickness, :CV_AA )
+    end
+
+    CVFFI::cvPutText( img.to_IplImage, text, point.to_CvPoint, font, color.to_CvScalar )
+  end
 end
