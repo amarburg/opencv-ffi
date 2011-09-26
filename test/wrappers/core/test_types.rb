@@ -170,7 +170,6 @@ assert_equal m.at_f(i,j), ( i==j ? 1.0 : 0.0 )
     assert_equal m.at_f( 0, 2 ), 1.0
     assert_equal m.at_f( 2, 0 ), 0.0
 
-
     t = m.transpose
     assert_equal m.at_f( 0, 2 ), 1.0
     assert_equal m.at_f( 2, 0 ), 0.0
@@ -183,13 +182,13 @@ assert_equal m.at_f(i,j), ( i==j ? 1.0 : 0.0 )
     # Test each expected initializer pattern
     # Default ordering is BGRA
     [ CVFFI::Scalar.new( 1,2,0,4 ),
-      CVFFI::Scalar.new( :w => 1, :x => 1, :z => 1),
+      CVFFI::Scalar.new( :w => 1, :x => 2, :z => 4),
       CVFFI::Scalar.new( :A => 4, :g => 2, :B => 1) ].each { |m|
 
-      [ [1,2,0,4], [:w,:x,:y,:z], [:B,:G,:R,:A], [:b,:g,:r,:a ].transpose.each { |i,j,k,p|
-        assert_equal i, m[j]
-        assert_equal i, m[k]
-        assert_equal i, m[p]
+      [ [1,2,0,4], [:w,:x,:y,:z], [:B,:G,:R,:A], [:b,:g,:r,:a ] ].transpose.each { |i,j,k,p|
+        assert_equal i, m[j], "m[:#{j.to_s}] != #{i} for #{m.to_s}"
+        assert_equal i, m[k], "m[:#{k.to_s}] != #{i} for #{m.to_s}"
+        assert_equal i, m[p], "m[:#{p.to_s}] != #{i} for #{m.to_s}"
       }
     }
 
