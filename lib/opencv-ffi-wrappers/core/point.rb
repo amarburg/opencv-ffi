@@ -62,7 +62,7 @@ module CVFFI
     end
        
     def /(a)
-      if a.is_a? Point
+      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
         self.class.new( [ x.to_f/a.x.to_f, y.to_f/a.y.to_f ] )
       else
         self.class.new( [ x.to_f/a, y.to_f/a ] )
@@ -70,7 +70,7 @@ module CVFFI
     end
 
     def *(a)
-      if a.is_a? Point
+      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
         self.class.new( [ x*a.x, y*a.y ] )
       else
         self.class.new( [ x*a, y*a ] )
@@ -78,7 +78,7 @@ module CVFFI
     end
 
     def -(a)
-      if a.is_a? Point
+      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
         self.class.new( [ x.to_f-a.x, y.to_f-a.y ] )
       else
         self.class.new( [ x.to_f-a, y.to_f-a ] )
@@ -86,7 +86,7 @@ module CVFFI
     end
  
     def +(a)
-      if a.is_a? Point
+      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
         self.class.new( [ x+a.x, y+a.y ] )
       else
         self.class.new( [ x+a, y+a ] )
