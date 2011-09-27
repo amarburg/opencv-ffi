@@ -18,6 +18,14 @@ module CVFFI
     def to_CvPoint
       CvPoint.new( :x => x.to_i, :y => y.to_i )
     end
+
+    def to_a(homogeneous=true)
+      if homogeneous
+        [ x, y, 1 ]
+      else
+        [x,y]
+      end
+    end
   end
 
   class CvPointBase
@@ -110,13 +118,16 @@ module CVFFI
     end
 
     def to_Vector( homogeneous = true )
-      if homogeneous
-        Vector.[]( @x/@w, @y/@w, 1.0 )
-      else
-        Vector.[]( @x, @y )
-      end
+      Vector.elements( to_a( homogeneous ) )
     end
 
+    def to_a(homogeneous=true)
+      if homogeneous
+        [ @x/@w, @y/@w, 1.0 ]
+      else
+        [ @x, @y ]
+      end
+    end
   end
 
 #===========================================================
@@ -132,6 +143,13 @@ module CVFFI
       CvPoint3D32f.new( :x => x, :y => y, :z => z )
     end
 
+    def to_a( homogeneous = true )
+      if homogeneous
+        [x,y,z,1]
+      else
+        [x,y,z]
+      end
+    end
   end
 
   class CvPoint3DBase
@@ -214,12 +232,17 @@ module CVFFI
     end
 
     def to_Vector( homogeneous = true )
+      Vector.elements( to_a(homogeneous) )
+    end
+
+    def to_a(homogeneous=true)
       if homogeneous
-        Vector.[]( @x/@w, @y/@w, @z/@w, 1.0 )
+        [@x/@w, @y/@w, @z/@w, 1]
       else
-        Vector.[]( @x, @y, @z )
+        [@x, @y, @z]
       end
     end
+
 
   end
 

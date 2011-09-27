@@ -38,6 +38,19 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_equal 4.0, q.x
     assert_equal 5.0, q.y
 
+    a = p.to_a
+    assert a.is_a?(Array)
+    assert_equal 3, a.length
+    assert_equal 4.0, a[0]
+    assert_equal 5.0, a[1]
+    assert_equal 1.0, a[2]
+
+    a = p.to_a(false)
+    assert a.is_a?(Array)
+    assert_equal 2, a.length
+    assert_equal 4.0, a[0]
+    assert_equal 5.0, a[1]
+
   end
 
   def test_size
