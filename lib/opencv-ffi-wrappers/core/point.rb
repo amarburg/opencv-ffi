@@ -35,7 +35,7 @@ module CVFFI
     attr_accessor :w, :y, :x
 
     def initialize( *args )
-      if args.length == 2
+      if args.length == 2 and args[1] != nil
         @x = args[0]
         @y = args[1]
       else
@@ -54,6 +54,8 @@ module CVFFI
       end
       end
 
+      @x = @x.to_f
+      @y = @y.to_f
       @w = 1
     end
 
