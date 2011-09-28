@@ -55,22 +55,22 @@ class TestMatchers < Test::Unit::TestCase
       b.report("best_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two )
       end
-      puts "Matches found: "
-      puts results.to_s
+#      puts "Matches found: "
+#      puts results.to_s
 
       ## Test the "max distance" matcher
       b.report("distance_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two, { :max_distance => 0.1 } )
       end
-      puts "Matches found: "
-      puts results.to_s
+#      puts "Matches found: "
+#      puts results.to_s
 
       ## Test the K-nearest-neighbor matcher
       b.report("knn_match") do
         results = CVFFI::BruteForceMatcher.bestMatch( surf_one, surf_two, { :k => 5 } )
       end
-      puts "Matches found: "
-      puts results.to_s
+#      puts "Matches found: "
+#      puts results.to_s
 
       # Test the masking functionality"
       r = results.length

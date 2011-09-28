@@ -4,7 +4,68 @@ require 'opencv-ffi/core/types'
 module CVFFI
 
   module CvPointMethods
-  end
+    def got_what_i_need(a)
+      a.class.method_defined?(:x) and a.class.method_defined?(:y) 
+    end
+
+    def /(a)
+      if got_what_i_need a
+        self.class.new( [ x.to_f/a.x.to_f, y.to_f/a.y.to_f ] )
+      else
+        self.class.new( [ x.to_f/a, y.to_f/a ] )
+      end
+    end
+
+    def *(a)
+      if got_what_i_need a
+        self.class.new( [ x*a.x, y*a.y ] )
+      else
+        self.class.new( [ x*a, y*a ] )
+      end
+    end
+
+    def -(a)
+      if got_what_i_need a
+        self.class.new( [ x.to_f-a.x, y.to_f-a.y ] )
+      else
+        self.class.new( [ x.to_f-a, y.to_f-a ] )
+      end
+    end
+ 
+    def +(a)
+      if  got_what_i_need a
+        self.class.new( [ x+a.x, y+a.y ] )
+      else
+        self.class.new( [ x+a, y+a ] )
+      end
+    end
+
+    def rotate( rads )
+      sa = Math::sin rads
+      ca = Math::cos rads
+      self.class.new( x*ca - y*sa,
+                      x*sa + y*ca )
+    end
+    
+    def ==(b)
+      @x == b.x and @y == b.y
+    end
+    def ===(b)
+      @x === b.x and @y === b.y
+    end
+
+    def to_Vector( homogeneous = true )
+      Vector.elements( to_a( homogeneous ) )
+    end
+
+    def to_a(homogeneous=true)
+      if homogeneous
+        [ @x/@w, @y/@w, 1.0 ]
+      else
+        [ @x, @y ]
+      end
+    end
+ end
 
   module CvPointCastMethods
     def to_CvPoint2D64f
@@ -39,6 +100,7 @@ module CVFFI
 
   class Point 
     include CvPointCastMethods
+    include CvPointMethods
 
     attr_accessor :w, :y, :x
 
@@ -70,126 +132,12 @@ module CVFFI
     def area
       @y*@x
     end
-       
-    def /(a)
-      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
-        self.class.new( [ x.to_f/a.x.to_f, y.to_f/a.y.to_f ] )
-      else
-        self.class.new( [ x.to_f/a, y.to_f/a ] )
-      end
-    end
-
-    def *(a)
-      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
-        self.class.new( [ x*a.x, y*a.y ] )
-      else
-        self.class.new( [ x*a, y*a ] )
-      end
-    end
-
-    def -(a)
-      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
-        self.class.new( [ x.to_f-a.x, y.to_f-a.y ] )
-      else
-        self.class.new( [ x.to_f-a, y.to_f-a ] )
-      end
-    end
- 
-    def +(a)
-      if a.class.method_defined?(:x) and a.class.method_defined?(:y)
-        self.class.new( [ x+a.x, y+a.y ] )
-      else
-        self.class.new( [ x+a, y+a ] )
-      end
-    end
-
-    def rotate( rads )
-      sa = Math::sin rads
-      ca = Math::cos rads
-      self.class.new( x*ca - y*sa,
-                      x*sa + y*ca )
-    end
-    
-    def ==(b)
-      @x == b.x and @y == b.y
-    end
-    def ===(b)
-      @x === b.x and @y === b.y
-    end
-
-    def to_Vector( homogeneous = true )
-      Vector.elements( to_a( homogeneous ) )
-    end
-
-    def to_a(homogeneous=true)
-      if homogeneous
-        [ @x/@w, @y/@w, 1.0 ]
-      else
-        [ @x, @y ]
-      end
-    end
-  end
+ end
 
 #===========================================================
   module CvPoint3DMethods
-  end
-  
-  module CvPoint3DCastMethods
-    def to_CvPoint3D64f
-      CvPoint3D64f.new( :x => x, :y => y, :z => z )
-    end
-
-    def to_CvPoint3D32f
-      CvPoint3D32f.new( :x => x, :y => y, :z => z )
-    end
-
-    def to_a( homogeneous = true )
-      if homogeneous
-        [x,y,z,1]
-      else
-        [x,y,z]
-      end
-    end
-  end
-
-  class CvPoint3DBase
-    include CvPoint3DMethods
-    include CvPoint3DCastMethods
-  end
-
-  class CvPoint3D32f; def to_CvPoint3D32f; self; end; end
-  class CvPoint3D64f; def to_CvPoint3D64f; self; end; end
-
-  class Point3D
-    include CvPoint3DCastMethods
-
-    attr_accessor :w, :z, :y, :x
-
-    def initialize( *args )
-      if args.length == 3
-        @x = args[0]
-        @y = args[1]
-        @z = args[2]
-      else
-        args = args.shift
-
-        case args
-        when Hash
-          @z = args[:z]
-          @y = args[:y]
-          @x = args[:x]
-        when Array
-          @x = args[0]
-          @y = args[1]
-          @z = args[2]
-      else
-        @x = args.x
-        @y = args.y
-        @z = args.z
-      end
-      end
-
-      @w = 1
+    def got_what_i_need(a)
+      a.method_defined?(:x) and a.method_defined?(:y) and a.method_defined(:z)
     end
 
     def /(a)
@@ -243,6 +191,66 @@ module CVFFI
       end
     end
 
+end
+  
+  module CvPoint3DCastMethods
+    def to_CvPoint3D64f
+      CvPoint3D64f.new( :x => x, :y => y, :z => z )
+    end
+
+    def to_CvPoint3D32f
+      CvPoint3D32f.new( :x => x, :y => y, :z => z )
+    end
+
+    def to_a( homogeneous = true )
+      if homogeneous
+        [x,y,z,1]
+      else
+        [x,y,z]
+      end
+    end
+  end
+
+  class CvPoint3DBase
+    include CvPoint3DMethods
+    include CvPoint3DCastMethods
+  end
+
+  class CvPoint3D32f; def to_CvPoint3D32f; self; end; end
+  class CvPoint3D64f; def to_CvPoint3D64f; self; end; end
+
+  class Point3D
+    include CvPoint3DCastMethods
+    include CvPoint3DMethods
+
+    attr_accessor :w, :z, :y, :x
+
+    def initialize( *args )
+      if args.length == 3
+        @x = args[0]
+        @y = args[1]
+        @z = args[2]
+      else
+        args = args.shift
+
+        case args
+        when Hash
+          @z = args[:z]
+          @y = args[:y]
+          @x = args[:x]
+        when Array
+          @x = args[0]
+          @y = args[1]
+          @z = args[2]
+      else
+        @x = args.x
+        @y = args.y
+        @z = args.z
+      end
+      end
+
+      @w = 1
+    end
 
   end
 
