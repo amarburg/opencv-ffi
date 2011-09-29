@@ -7,8 +7,8 @@ gemspec
 # system Rake.  Require path issues, I guess.
 gem 'rake','~> 0.8.7'
 
-# In case I need to use my personal forks...
 group :development do
   gem "redcarpet"
+  gem "simplecov", :require => false
 end
 

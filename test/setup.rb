@@ -1,3 +1,7 @@
+# This must be the first require called, otherwise the
+# results will be inaccurate
+require 'simplecov'
+SimpleCov.start
 
 require 'test/unit'
 require 'pp'
