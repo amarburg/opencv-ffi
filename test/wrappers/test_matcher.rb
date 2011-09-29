@@ -26,7 +26,7 @@ class TestMatchers < Test::Unit::TestCase
                                       :nOctaveLayers => 4 )
 
     # This should test the auto=conversion to greyscale
-    surf = CVFFI::SURF::Detect( smallImg, params )
+    surf = CVFFI::SURF::detect( smallImg, params )
 
     assert_not_nil surf
 

@@ -29,6 +29,10 @@ module CVFFI
         
         CVFFI::VectorMath::L2distance( @desc, q.desc )
       end
+
+      def to_vector
+        Vector.[]( x, y, 1 )
+      end
    end
 
     class ResultsArray
@@ -76,7 +80,7 @@ module CVFFI
       end
     end
 
-    def self.Detect( img, params )
+    def self.detect( img, params )
 
       raise ArgumentError unless params.is_a?( CvSURFParams ) || params.is_a?( Params )
 
