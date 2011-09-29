@@ -57,6 +57,7 @@ module CVFFI
     def to_Vector( homogeneous = true )
       Vector.elements( to_a( homogeneous ) )
     end
+    alias :to_vector :to_Vector
 
     def to_a(homogeneous=true)
       if homogeneous
@@ -182,6 +183,7 @@ module CVFFI
     def to_Vector( homogeneous = true )
       Vector.elements( to_a(homogeneous) )
     end
+    alias :to_vector :to_Vector
 
     def to_a(homogeneous=true)
       if homogeneous
