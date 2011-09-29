@@ -5,7 +5,7 @@ require 'test/setup'
 class TestcvCircle < Test::Unit::TestCase
 
   def setup
-    @img = CVFFI::cvLoadImageM( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+    @img = TestSetup::test_image
   end
 
 
@@ -27,7 +27,7 @@ class TestcvCircle < Test::Unit::TestCase
       assert_equal 0, c.z
     }
 
-    CVFFI::cvSaveImage( TestSetup.output_filename("TestcvCircle.jpg"), @img )
+    TestSetup::save_image( "test_cvCircle", @img )
   end
 
   def test_cvLine
@@ -39,7 +39,7 @@ class TestcvCircle < Test::Unit::TestCase
 
     CVFFI::cvLine( @img, pointA, pointB, color, 10, 8, 0 )
 
-    CVFFI::cvSaveImage( "/tmp/testCvLine.jpg", @img )
+    TestSetup::save_image( "text_cvLine", @img )
   end
 
 

@@ -17,24 +17,29 @@ def recursive_test name
   end
 end
 
-
-
 module TestSetup
+  
+  @dirname = "/tmp/opencv-ffi-test"
 
-  def self.load_test_image
+  def self.test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end
 
-  def self.load_second_test_image
+  def self.second_test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE_TWO, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end
 
+  def self.save_image( fname, img )
+    fname += ".jpg" unless fname.match('\.')
+    CVFFI::cvSaveImage( output_filename(fname), img )
+  end
+
   def self.output_filename( s )
-    "test/test_files/images/" + s
+    FileUtils.mkdir_p @dirname unless FileTest::directory? @dirname    
+    @dirname + '/' + s
   end
 
   EPSILON = 1e-3
 
 end
 
-TEST_IMAGE_OUTPUT = TestSetup.output_filename( "output.jpg" )

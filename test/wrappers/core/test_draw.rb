@@ -6,7 +6,7 @@ require 'opencv-ffi-wrappers/core/misc_draw'
 class TestDrawWrappers < Test::Unit::TestCase
 
   def setup
-    @img = TestSetup.load_test_image
+    @img = TestSetup.test_image
   end
 
   def test_draw_point
@@ -15,7 +15,7 @@ class TestDrawWrappers < Test::Unit::TestCase
     opts = { :radius => 50 }
     CVFFI::draw_point( @img, p, opts)
 
-    CVFFI::cvSaveImage( TestSetup.output_filename("TestDrawPointWrapper.jpg"), @img )
+    TestSetup::save_image( "test_DrawPointWrapper", @img )
   end
 
   def test_put_text
@@ -34,7 +34,7 @@ class TestDrawWrappers < Test::Unit::TestCase
                                         :scale => 2.0,
                                         :color => color } )
 
-    CVFFI::cvSaveImage( TestSetup::output_filename("fontWrapperTest.tif"), img )
+    TestSetup::save_image( "test_FontWrapper", img )
   end
 
 

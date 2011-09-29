@@ -78,7 +78,7 @@ class TestCoreOperations < Test::Unit::TestCase
 
     CVFFI::cvResetImageROI( imgTwo )
 
-    CVFFI::cvSaveImage( TestSetup::output_filename("testroi.jpg"), imgTwo )
+    TestSetup::save_image( "test_roi", imgTwo )
 
   end
 

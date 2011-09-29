@@ -3,6 +3,20 @@ require 'opencv-ffi-wrappers/core'
 
 require 'matrix'
 
+
+# Monkey with Matrix and Vector's coercion functions
+class Vector
+  alias :coerce_orig :coerce
+  def coerce(other)
+    case other
+    when CvMat
+      nil
+    else
+      coerce_orig(other)
+    end
+  end
+end
+
 module CVFFI
 
   module CvMatFunctions
@@ -63,6 +77,16 @@ module CVFFI
       CVFFI::cvSetZero( self )
     end
 
+    def coerce( other )
+      case other
+      when Matrix 
+        [other, to_Matrix]
+      when Vector 
+        [other, to_Vector]
+      else
+        raise TypeError, "#{self.class} can't be coerced into #{other.class}, fool"
+      end
+    end
 
     module ClassMethods 
       def eye( x, type = :CV_32F )

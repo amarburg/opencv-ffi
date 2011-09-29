@@ -191,6 +191,20 @@ assert_equal m.at_f(i,j), ( i==j ? 1.0 : 0.0 )
     assert_equal t.at_f( 2, 0 ), 1.0
   end
 
+  def test_mat_coercion
+    a = Matrix.rows( [ [ 1,0,0 ], [0,2,0], [0,0,3] ] )
+    b = CVFFI::CvMat.eye( 3 )
+
+    c = nil
+    assert_nothing_raised {
+      c = a*b
+    }
+    assert c.is_a?(Matrix)
+    assert_equal 1, c[0,0]
+    assert_equal 2, c[1,1]
+    assert_equal 3, c[2,2]
+  end
+
   def test_scalar
     # Test each expected initializer pattern
     # Default ordering is BGRA
