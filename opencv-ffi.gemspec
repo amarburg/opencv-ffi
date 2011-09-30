@@ -20,6 +20,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
+  s.has_rdoc = true
+
   s.add_dependency "nice-ffi"
   s.add_dependency "mkrf"
 end

@@ -2,6 +2,7 @@ require 'bundler/gem_tasks'
 require 'rake'
 require 'rake/testtask'
 require 'rake/clean'
+require 'yard'
 require './ext/mkrf-rakehelper-monkey'
 
 Rake::TestTask.new(:test) do |t|
@@ -23,4 +24,8 @@ task :default => 'test'
 
 task :test => Mkrf::all_libs
 
+YARD::Rake::YardocTask.new do |t|
+  t.files = ['lib/**/*.rb']
+  t.options = [ '--output-dir','docs/yard' ]
+end
 

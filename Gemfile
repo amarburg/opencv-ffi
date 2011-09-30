@@ -10,5 +10,6 @@ gem 'rake','~> 0.8.7'
 group :development do
   gem "redcarpet"
   gem "simplecov", :require => false
+  gem "yard"
 end
 

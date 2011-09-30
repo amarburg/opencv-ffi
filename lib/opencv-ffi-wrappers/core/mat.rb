@@ -88,6 +88,10 @@ module CVFFI
       end
     end
 
+    def print( opts = nil )
+
+    end
+
     module ClassMethods 
       def eye( x, type = :CV_32F )
         a = CVFFI::cvCreateMat( x, x, type )
