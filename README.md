@@ -67,6 +67,8 @@ Resources
 
 See also {file:docs/DocsIndex.md} for an index of other documentation.
 
+Example code is in the `docs/examples` directory.
+
 
 Caveats and Second thoughts
 ---
