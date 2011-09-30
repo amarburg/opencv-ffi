@@ -54,20 +54,26 @@ and the aforementioned OpenCV-to-Eigen translation layer.
 Naming
 ---
 
-Everything is in the `CVFFI` namespace.  OpenCV structures and functions are named exactly as in OpenCV, with function using the `cvFunctionName` convention, and structure using the `CvStruct` convention.  
+Everything is in the `CVFFI` namespace.  OpenCV structures and functions
+are named as in OpenCV, with function using the `cvFunctionName`
+convention, and structure using the `CvStruct` convention.
 
-Wrappers will generally dispense with the `Cv`/`cv` prefix.  So a `CvPoint` is an OpenCV CvPoint structures, while a `Point` is a wrapper.
+Wrappers will generally dispense with the `Cv`/`cv` prefix.  So a
+`CvPoint` is an OpenCV CvPoint structures, while a `Point` is its wrapper.
 
-Extensions
+
+Resources
 ---
 
-Caveats
+See also {file:docs/DocsIndex.md} for an index of other documentation.
+
+
+Caveats and Second thoughts
 ---
 
-Arguably, there's room to split the "wrappers" layer into two layers --
-one which adds as much functionality as possible just extending the OpenCV
+Arguably, the "wrappers" layer could be split into two layers --
+one which adds as much functionality as possible while just extending the OpenCV
 structs, and a second which really breaks out into new high-level objects.
-Time will tell.
 
 
 License
