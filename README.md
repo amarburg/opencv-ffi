@@ -55,15 +55,16 @@ Motivation and Project Goals
 ---
 
 This project was largely inspired by my experiments with OpenCV's C++
-interface.   The strong type-checking and nature of C++ made casual
-experimentation difficult, and led to verbose code which spent more time
-converting between data types than actually performing calculations,
-particularly given the frequent shaping and matrix construction used in
-multiple view geometry and stereo vision.  I also needed to interface
-with third-party algorithm libraries like Eigen, and needed to convert
-Cv constructs to Eigen constructs, and back.  Inevitably I wrote whole
-families of interface and helper functions, but wondered at their
-long-term utility.
+interface.  I found experimentation difficult, and always ended up with
+verbose code which spent more time converting between data types than
+actually performing calculations, particularly given the frequent shaping
+and matrix construction used in multiple view geometry and stereo vision.
+I was constantly refactoring for readability.
+
+I also needed to interface with third-party algorithm libraries like
+Eigen, and needed to convert Cv constructs to Eigen constructs, and back.
+Inevitably I wrote whole families of interface and helper functions,
+but wondered at their long-term utility.
 
 In the end, I decided if I was going to write helper and conversion
 functions, I might as well get all of the benefits of coding in Ruby
