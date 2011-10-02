@@ -51,6 +51,34 @@ accelerated backend for a Ruby function.  At present, it also includes
 a copy of Edward Rosten's FAST feature detector, compiled from his code,
 and the aforementioned OpenCV-to-Eigen translation layer.
 
+Motivation and Project Goals
+---
+
+This project was largely inspired by my experiments with OpenCV's C++
+interface.   The strong type-checking and nature of C++ made casual
+experimentation difficult, and led to verbose code which spent more time
+converting between data types than actually performing calculations,
+particularly given the frequent shaping and matrix construction used in
+multiple view geometry and stereo vision.  I also needed to interface
+with third-party algorithm libraries like Eigen, and needed to convert
+Cv constructs to Eigen constructs, and back.  Inevitably I wrote whole
+families of interface and helper functions, but wondered at their
+long-term utility.
+
+In the end, I decided if I was going to write helper and conversion
+functions, I might as well get all of the benefits of coding in Ruby
+for free.
+
+The project goals are:
+
+ * Bring OpenCV's algorithms and data types into Ruby.
+ * Allow prototyping of expressive, low-code-overhead computer vision algorithms in Ruby.
+ * Keep things as time efficient as possible.
+
+Obviously, working in Ruby, time/CPU efficiency isn't your first goal,
+but it should be possible to quickly sketch and test an algorithm in Ruby,
+then slowly push the computationally expensive elements into C.
+
 Naming
 ---
 
