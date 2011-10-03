@@ -63,8 +63,12 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       }
     end
 
-    def length
+    def length( include_masked = false )
+      if( include_masked )
       @results.length
+      else
+        num_unmasked
+      end
     end
 
     alias :size :length
@@ -73,10 +77,26 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       Match.new( @train_set[@results[i].tidx], @query_set[@results[i].qidx], @results[i].distance )
     end
 
-    def each( &blk )
-      @results.each { |r|
-        blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
+    # The "public" each yields a Match to the block
+    def each( include_masked = false, &blk )
+      @results.each_with_index { |r,i|
+        if !include_masked and !masked?(i)
+          blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
+        end
       }
+    end
+
+    # the "private" each yelds a MatchResult to the block
+    def results_each_with_index( include_masked = false, &blk )
+      @results.each_with_index { |r,i|
+        if !include_masked and !masked?(i)
+          blk.yield( r,i )
+        end
+      }
+    end
+
+    def results_each( include_masked = false, &blk )
+      results_each_with_index { |r,i| blk.yield(r) }
     end
 
     def num_masked
@@ -103,17 +123,28 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       @mask = []
     end
 
-    def toCvMats
+    def to_Points( include_masked = false )
+      pointsOne = []
+      pointsTwo = []
+
+      results_each( include_masked ) { |r|
+          pointsOne << @train_set[r.tidx].to_Point
+          pointsTwo << @query_set[r.qidx].to_Point
+      }
+
+      [pointsOne, pointsTwo]
+    end
+
+
+    def to_CvMats( include_masked = false )
       pointsOne = CVFFI::cvCreateMat( num_unmasked, 2, :CV_32F )
       pointsTwo = CVFFI::cvCreateMat( num_unmasked, 2, :CV_32F )
 
-      @results.each_with_index { |r, i|
-        unless masked?(i)
+      results_each_with_index( include_masked ) { |r,i|
           CVFFI::cvSetReal2D( pointsOne, i, 0, @train_set[r.tidx].x )
           CVFFI::cvSetReal2D( pointsOne, i, 1, @train_set[r.tidx].y )
           CVFFI::cvSetReal2D( pointsTwo, i, 0, @query_set[r.qidx].x )
           CVFFI::cvSetReal2D( pointsTwo, i, 1, @query_set[r.qidx].y )
-        end
       }
 
       [pointsOne, pointsTwo]

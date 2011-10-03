@@ -81,6 +81,10 @@ module CVFFI
       CvPoint.new( :x => x.to_i, :y => y.to_i )
     end
 
+    def to_Point
+      Point.new( x, y )
+    end
+
     def to_a(homogeneous=true)
       if homogeneous
         [ x, y, 1 ]

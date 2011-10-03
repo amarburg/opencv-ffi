@@ -33,6 +33,10 @@ module CVFFI
       def to_vector
         Vector.[]( x, y, 1 )
       end
+      
+      def to_Point
+        pt.to_Point
+      end
    end
 
     class ResultsArray
