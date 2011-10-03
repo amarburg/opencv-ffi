@@ -123,6 +123,14 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       @mask = []
     end
 
+    def get_mask
+      @mask
+    end
+
+    def set_mask(m)
+      @mask = m
+    end
+
     def to_Points( include_masked = false )
       pointsOne = []
       pointsTwo = []
