@@ -131,6 +131,13 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       @mask = m
     end
 
+    def merge_mask(m)
+      old_mask = @mask
+      @mask = Array.new( [old_mask.length, m.length].max ) { |i|
+        old_mask[i] or m[i]
+      }
+    end
+
     def to_Points( include_masked = false )
       pointsOne = []
       pointsTwo = []
