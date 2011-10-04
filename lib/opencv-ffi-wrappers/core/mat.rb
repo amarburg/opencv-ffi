@@ -23,6 +23,21 @@ module CVFFI
     def self.included(base)
       base.extend(ClassMethods)
     end
+    
+    # This is the somewhat funny Matrix format for coerce
+    # which returns the template class as well as the coerced version
+    # of the matrix
+    def coerce( other )
+            case other
+                     when Matrix 
+                       [other, to_Matrix]
+                     when Vector 
+                       [other, to_Vector]
+                     else
+                       raise TypeError, "#{self.class} can't be coerced into #{other.class}, fool"
+                     end
+          end
+
 
     def to_CvMat
       self
@@ -38,11 +53,11 @@ module CVFFI
       to_Matrix if height > 1 and width > 1
       a = []
       if height == 1
-         a = Array.new( width ) { |i| at_f(0,i) } 
+        a = Array.new( width ) { |i| at_f(0,i) } 
       else
         a = Array.new( height ) { |i| at_f(i,0) }
       end
-      Vector.elements(a)
+      Vector[*a]
     end
 
     # This is somewhat awkward because the FFI::Struct-iness of
@@ -75,17 +90,6 @@ module CVFFI
 
     def zero
       CVFFI::cvSetZero( self )
-    end
-
-    def coerce( other )
-      case other
-      when Matrix 
-        [other, to_Matrix]
-      when Vector 
-        [other, to_Vector]
-      else
-        raise TypeError, "#{self.class} can't be coerced into #{other.class}, fool"
-      end
     end
 
     def print( opts = nil )

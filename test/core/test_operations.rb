@@ -100,4 +100,30 @@ class TestCoreOperations < Test::Unit::TestCase
     assert_equal CVFFI::cvGetReal2D( t, 2, 0 ), 1.0
   end
 
+  def test_solve_cubic
+    c = CVFFI::cvCreateMat( 1,4, :CV_32F )
+    r = CVFFI::cvCreateMat( 1,3, :CV_32F )
+    CVFFI::cvSetZero( r )
+
+    # The roots of x^3 - 6x^2 + 11x - 6
+    # are 1,2,3
+    [1,-6,11,-6].each_with_index { |x,i|
+      CVFFI::cvSetReal1D(c,i,x)
+    }
+
+    CVFFI::cvSolveCubic( c, r )
+
+    # For siplicity, dump to an array I can sort
+    r = Array.new(3) { |i|
+      CVFFI::cvGetReal1D(r,i)
+    }.sort
+    
+    3.times { |i|
+      assert_in_delta i+1, r[i], 1e-06
+    }
+  end
+
+
+
+
 end

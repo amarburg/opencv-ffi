@@ -47,14 +47,16 @@ module CVFFI
   end
 
 
-  attach_function :cvCreateMat, [ :int, :int, :cvMatType ], CvMat.typed_pointer
-  attach_function :cvCreateImage, [ CvSize.by_value, :int, :int ], IplImage.typed_pointer
-
   attach_function :cvCloneImage, [ :pointer ], IplImage.typed_pointer
   attach_function :cvCloneMat,   [ :pointer ], CvMat.typed_pointer
 
+  attach_function :cvCreateMat, [ :int, :int, :cvMatType ], CvMat.typed_pointer
+  attach_function :cvCreateImage, [ CvSize.by_value, :int, :int ], IplImage.typed_pointer
+
   attach_function :cvCopy, [ :pointer, :pointer, :pointer ], :void
+
   attach_function :cvSet,  [ :pointer, CvScalar.by_value, :pointer ], :void
+  attach_function :cvSolveCubic, [:pointer, :pointer ], :void
 
   attach_function :cvSetImageROI, [:pointer, CvRect.by_value ], :void
   attach_function :cvGetImageROI, [:pointer], CvRect.by_value

@@ -45,7 +45,7 @@ void eigenSvdWithCvMat( CvMat* A, EigenSVDResult_t *result )
 //  assert( ( A->type == CV_32F ) || (A->type == CV_64F) );
 
   MatrixXf m = cvMatToEigen( A );
-  JacobiSVD<MatrixXf> svd( m, ComputeThinU | ComputeThinV );
+  JacobiSVD<MatrixXf> svd( m, ComputeFullU | ComputeFullV );
 
   result->D = eigenToCvMat( svd.singularValues() );
   result->U = eigenToCvMat( svd.matrixU() );
