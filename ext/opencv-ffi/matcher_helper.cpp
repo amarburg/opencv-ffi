@@ -50,8 +50,7 @@ double computeReprojError( const Match_t *match, const CvMat *model )
 extern "C"
 void computeSetReprojError( MatchSet_t *set, CvMat *model )
 {
-  //for( int i = 0; i < set->length; i ++ ) {
-  for( int i = 0; i < 5; i ++ ) {
+  for( int i = 0; i < set->length; i ++ ) {
     set->error[i] = computeReprojError( &(set->d[i]), model );
   }
 }
