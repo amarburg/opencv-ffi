@@ -13,14 +13,44 @@ end
 
 module CVFFI
 
-  class Match
-    attr_accessor :train, :query, :distance
+  class Match < NiceFFI::Struct
+    layout :train, CvPoint2D32f,
+           :query, CvPoint2D32f,
+           :distance, :double
+  end
+
+  class MatchSet < NiceFFI::Struct
+    layout :length, :int,
+           :d, :pointer,
+           :err, :pointer
+  end
+
+  class MatchResult
+    attr_accessor :train_idx, :query_idx
+    attr_accessor :distance
+
+    alias :tidx :train_idx
+    alias :qidx :query_idx
+    alias :dist :distance
 
     def initialize( t, q, d )
-      @train = t
-      @query = q
+      @train_idx = t
+      @query_idx = q
       @distance = d
     end
+
+    def to_s
+      "Match t=#{@train_idx} q=#{@query_idx} distance=#{@distance}"
+    end
+
+    def train
+      @train_set[@train_idx]
+    end
+
+    def query
+      @query_set[@query_idx]
+    end
+
   end
 
   class MatchResults
@@ -34,6 +64,7 @@ module CVFFI
       @query_set = qset
 
       @results = []
+      @match_cache = []
 
       @by_train = []
       @by_train.extend( AddMapWithIndex )
@@ -74,14 +105,53 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
     alias :size :length
 
     def [](i)
-      Match.new( @train_set[@results[i].tidx], @query_set[@results[i].qidx], @results[i].distance )
+      if @match_cache[i]
+        @match_cache[i]
+      else
+        m=Match.new( '\0' )
+        m.distance = @results[i].distance
+       
+        # This is a bit awkward with nested FFI structs
+        m.train.x = @train_set[@results[i].tidx].x
+        m.train.y = @train_set[@results[i].tidx].y
+        m.query.x = @query_set[@results[i].qidx].x
+        m.query.y = @query_set[@results[i].qidx].y
+        @match_cache[i] = m
+        m
+      end
     end
+    alias :element :[]
+
+    # Experiment
+    def match_set
+      if @match_set
+        @match_set
+      else
+      m = FFI::MemoryPointer.new( Match, length )
+      results_each_with_index { |r,i|
+        match = Match.new( m + i*Match.size )
+        match.distance = r.distance
+       
+        # This is a bit awkward with nested FFI structs
+        match.train.x = @train_set[r.tidx].x
+        match.train.y = @train_set[r.tidx].y
+        match.query.x = @query_set[r.qidx].x
+        match.query.y = @query_set[r.qidx].y
+      }
+      ms = MatchSet.new( :length => length,
+                         :d => m,
+                         :err => FFI::MemoryPointer.new( :double, length ) )
+      @match_set = ms
+      end
+    end
+
+    def invalidate_match_set; @match_set = nil; end
 
     # The "public" each yields a Match to the block
     def each( include_masked = false, &blk )
-      @results.each_with_index { |r,i|
+      @results.length.times { |i|
         if !include_masked and !masked?(i)
-          blk.yield( Match.new( @train_set[r.tidx], @query_set[r.qidx], r.distance ) )
+          blk.yield( element(i) )
         end
       }
     end
@@ -112,14 +182,17 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
     end
 
     def mask( i )
+      invalidate_match_set
       @mask[i] = true
     end
 
     def unmask(i)
+      invalidate_match_set
       @mask[i] = false
     end
 
     def clear_mask(i)
+      invalidate_match_set
       @mask = []
     end
 
@@ -128,10 +201,12 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
     end
 
     def set_mask(m)
+      invalidate_match_set
       @mask = m
     end
 
     def merge_mask(m)
+      invalidate_match_set
       old_mask = @mask
       @mask = Array.new( [old_mask.length, m.length].max ) { |i|
         old_mask[i] or m[i]
@@ -165,34 +240,6 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       [pointsOne, pointsTwo]
     end
       
-  end
-
-  class MatchResult
-    attr_accessor :train_idx, :query_idx
-    attr_accessor :distance
-
-    alias :tidx :train_idx
-    alias :qidx :query_idx
-    alias :dist :distance
-
-    def initialize( t, q, d )
-      @train_idx = t
-      @query_idx = q
-      @distance = d
-    end
-
-    def to_s
-      "Match t=#{@train_idx} q=#{@query_idx} distance=#{@distance}"
-    end
-
-    def train
-      @train_set[@train_idx]
-    end
-
-    def query
-      @query_set[@query_idx]
-    end
-
   end
 
   class BruteForceMatcher
