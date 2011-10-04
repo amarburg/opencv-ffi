@@ -39,13 +39,14 @@ CvMat *eigenToCvMat( MatrixXf a )
 }
 
 extern "C"
-void eigenSvdWithCvMat( CvMat* A, EigenSVDResult_t *result )
+void eigenSvdWithCvMat( CvMat* A, EigenSVDResult_t *result, unsigned char thin )
 {
   // Brute force pack/unpack I'm afraid
 //  assert( ( A->type == CV_32F ) || (A->type == CV_64F) );
 
   MatrixXf m = cvMatToEigen( A );
-  JacobiSVD<MatrixXf> svd( m, ComputeFullU | ComputeFullV );
+  unsigned int options = (thin == 0) ? (ComputeFullU | ComputeFullV) : (ComputeThinU | ComputeThinV);
+  JacobiSVD<MatrixXf> svd( m, options );
 
   result->D = eigenToCvMat( svd.singularValues() );
   result->U = eigenToCvMat( svd.matrixU() );

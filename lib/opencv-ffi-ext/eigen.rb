@@ -18,12 +18,13 @@ module CVFFI
         :V, CvMat.typed_pointer
     end
 
-    attach_function :eigenSvdWithCvMat, [:pointer, :pointer], :void
+    attach_function :eigenSvdWithCvMat, [:pointer, :pointer, :uchar], :void
 
-    def self.svd( a )
+    def self.svd( a, opts = {} )
+      thin = opts[:thin] ? 1 : 0
 
       results = EigenSvdResults.new '\0'
-      eigenSvdWithCvMat( a.to_CvMat, results )
+      eigenSvdWithCvMat( a.to_CvMat, results, thin )
 
       [ results.U, results.D, results.V ]
     end
