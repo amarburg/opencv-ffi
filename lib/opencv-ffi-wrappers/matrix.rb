@@ -6,8 +6,9 @@ class Matrix
   end
 
   # Painful but that's OK...
-  def to_CvMat
-    a = CVFFI::cvCreateMat( row_size, column_size, :CV_32F )
+  def to_CvMat( opts = {} )
+    type = opts[:type] || :CV_32F
+    a = CVFFI::cvCreateMat( row_size, column_size, type )
     each_with_index { |e,i,j|
       a.set_f( i, j, e )
     }
@@ -22,8 +23,9 @@ class Vector
     self
   end
 
-  def to_CvMat
-    a = CVFFI::cvCreateMat( size, 1, :CV_32F )
+  def to_CvMat( opts = {} )
+    type = opts[:type] || :CV_32F
+    a = CVFFI::cvCreateMat( size, 1,  type )
     size.times { |i|
       CVFFI::cvSetReal1D( a, i, element(i))
     }

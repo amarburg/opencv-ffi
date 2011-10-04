@@ -39,7 +39,10 @@ module CVFFI
           end
 
 
-    def to_CvMat
+    def to_CvMat( opt = {} )
+      if opt[:type]
+        raise "Need to convert CvMat types" if opt[:type] != type
+      end
       self
     end
 

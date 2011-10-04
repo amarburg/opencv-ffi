@@ -1,6 +1,8 @@
 
 #include <opencv2/core/types_c.h>
 
+#include <stdio.h>
+
 typedef struct {
   CvPoint2D32f train, query;
   double distance;
@@ -13,7 +15,7 @@ typedef struct {
 } MatchSet_t;
 
 extern "C"
-float computeReprojError(  Match_t *match, CvMat *model )
+double computeReprojError( const Match_t *match, const CvMat *model )
 {
   const double* F = model->data.db;
    const CvPoint2D32f *m1 = &(match->train);
@@ -35,8 +37,10 @@ float computeReprojError(  Match_t *match, CvMat *model )
      s1 = 1./(a*a + b*b);
      d1 = m1->x*a + m1->y*b + c;
 
+
      a = d1*d1*s1;
      b = d2*d2*s2;
+
      if( a>b )
        return a;
      else
@@ -46,7 +50,8 @@ float computeReprojError(  Match_t *match, CvMat *model )
 extern "C"
 void computeSetReprojError( MatchSet_t *set, CvMat *model )
 {
-  for( int i = 0; i < set->length; i ++ ) {
+  //for( int i = 0; i < set->length; i ++ ) {
+  for( int i = 0; i < 5; i ++ ) {
     set->error[i] = computeReprojError( &(set->d[i]), model );
   }
 }
