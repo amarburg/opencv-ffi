@@ -32,6 +32,32 @@ yield Xy.new( @points[i] )
 
     end
 
+    VALID_SIZES = [ 9, 10, 11, 12 ]
+
+    def self.size_valid?( sz )
+      VALID_SIZES.include? sz
+    end
+
+    def Params
+      attr_accessor :size, :threshold
+
+      def initialize( opts = {} )
+        @size = opts[:size] || 9
+        @threshold = opts[:threshold] || 0.5
+
+        raise "Hm, invalid size #{opts[:size]} specified for FAST keypoint detector" unless size_valid? opts[:size] 
+      end
+
+      def to_hash
+        { :size => @size, :threshold => @threshold }
+      end
+    end
+
+
+    def self.detect( img, params )
+      FASTDetect( params.size, img, params.threshold )
+    end
+
     def self.FASTDetect( size, img, threshold )
       nResults = FFI::MemoryPointer.new :int
 
