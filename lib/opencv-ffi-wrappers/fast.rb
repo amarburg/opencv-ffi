@@ -43,7 +43,7 @@ yield Xy.new( @points[i] )
 
       def initialize( opts = {} )
         @size = opts[:size] || 9
-        @threshold = opts[:threshold] || 0.5
+        @threshold = opts[:threshold] || 20
 
         raise "Hm, invalid size #{opts[:size]} specified for FAST keypoint detector" unless size_valid? opts[:size] 
       end
