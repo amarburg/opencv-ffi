@@ -1,6 +1,7 @@
 
 require 'test/setup'
 require 'opencv-ffi-wrappers/fast'
+require 'opencv-ffi-wrappers/core/iplimage'
 
 class TestSURF < Test::Unit::TestCase
 
@@ -9,10 +10,12 @@ class TestSURF < Test::Unit::TestCase
   end
 
   def test_cvFASTDetector
-    greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height, 
-                                                         :width => @img.width }), 
-                                    :IPL_DEPTH_8U, 1 )
-    CVFFI::cvCvtColor( @img, greyImg, :CV_RGB2GRAY )
+#    greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height, 
+#                                                         :width => @img.width }), 
+#                                    :IPL_DEPTH_8U, 1 )
+#    CVFFI::cvCvtColor( @img, greyImg, :CV_RGB2GRAY )
+
+    greyImg = @img.ensure_greyscale
 
     smallGreyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => greyImg.height/2,
                                                               :width => greyImg.width/2 } ),

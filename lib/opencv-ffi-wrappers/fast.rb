@@ -36,6 +36,9 @@ yield Xy.new( @points[i] )
       nResults = FFI::MemoryPointer.new :int
 
       if img.is_a?( IplImage )
+        # Ensure the image is b&w
+        img = img.ensure_greyscale
+
         results = FFI::Pointer.new :pointer, method("fast#{size}_detect").call( img.imageData, img.width, img.height, img.widthStep, threshold, nResults )
       else
         raise ArgumentError, "Don't know how to deal with image class #{img.class}"
