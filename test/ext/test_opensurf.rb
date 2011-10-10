@@ -25,6 +25,11 @@ class TestOpenSURF < Test::Unit::TestCase
     CVFFI::cvSaveImage( TestSetup::output_filename("openSurfPts.jpg"), img )
 
     puts "OpenSURF detected #{surf.length} points"
+
+
+    descriptors = CVFFI::OpenSURF::describe( img, surf, params )
+
+    puts "After description #{descriptors.length} points"
  end
 
 end

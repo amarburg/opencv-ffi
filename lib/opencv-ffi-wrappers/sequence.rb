@@ -9,7 +9,7 @@ module CVFFI
     attr_accessor :seq
 
     def initialize( seq )
-      ArgumentError "Don't know how to handle class #{seq.class}" unless seq.is_a?(CvSeq)
+      raise "Don't know how to handle class #{seq.class}" unless seq.is_a?(CvSeq)
       @seq = seq
     end
 

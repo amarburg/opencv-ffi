@@ -19,15 +19,25 @@ module CVFFI
              :thres, :float 
     end
 
+    class OpenSURFPoint < NiceFFI::Struct
+      layout :pt, CvPoint,
+             :scale, :float,
+             :orientation, :float,
+             :laplacian, :int,
+             :descriptor, [ :float, 64 ]
+    end
+
+
     # CvSeq *opensurfDet( IplImage *img,
     #                   CvMemStorage *storage,
     #                   CvSURFParams params )
     attach_function :openSurfDetect, [ :pointer, :pointer, OpenSURFParams.by_value ], CvSeq.typed_pointer 
+    attach_function :openSurfDescribe, [ :pointer, :pointer, OpenSURFParams.by_value ], CvSeq.typed_pointer 
 
-    class Keypoint
+    class Result
       attr_accessor :kp
       def initialize( kp )
-         @kp = CVFFI::CvSURFPoint.new(kp)
+         @kp = CVFFI::OpenSURF::OpenSURFPoint.new(kp)
       end
 
       def pt; @kp.pt; end
@@ -43,22 +53,29 @@ module CVFFI
       end
    end
 
-    class KeypointArray
+    class ResultArray
       include Enumerable
 
-      attr_accessor :kp, :pool
+      attr_reader :kp, :pool
 
       def initialize( kp, pool )
         @kp = Sequence.new(kp)
         @pool = pool
         @results = Array.new( @kp.length )
 
-        destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @pool ); cvReleaseMemStorage( poolPtr ) }
+        destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer 
+                                poolPtr.putPointer( 0, @pool ) 
+                                cvReleaseMemStorage( poolPtr ) }
         ObjectSpace.define_finalizer( self, destructor )
       end
 
+      def kp=(kp)
+        @kp = Sequence.new( kp )
+        @results = Array.new( @kp.length )
+      end
+
       def result(i)
-        @results[i] ||= Keypoint.new( @kp[i] )
+        @results[i] ||= Result.new( @kp[i] )
       end
 
       def each
@@ -75,6 +92,10 @@ module CVFFI
         @kp.size
       end
       alias :length :size
+
+      def to_CvSeq
+        @kp.seq
+      end
 
       def mark_on_image( img, opts )
         each { |r|
@@ -100,21 +121,39 @@ module CVFFI
       def to_OpenSurfParams
         OpenSURFParams.new( @params )
       end
-    end
-        
 
-      def self.detect( img, params )
-        params = params.to_OpenSurfParams unless params.is_a?( OpenSURFParams ) 
-        raise ArgumentError unless params.is_a?( OpenSURFParams ) 
-
-        mem_storage = CVFFI::cvCreateMemStorage( 0 )
-        
-        img = img.ensure_greyscale
-
-        kp = CVFFI::CvSeq.new openSurfDetect( img, mem_storage, params )
-
-        KeypointArray.new( kp, mem_storage )
+      def to_hash
+        @params
       end
+    end
+
+
+    # Detection sets x,y,scale, laplacian
+    def self.detect( img, params )
+      params = params.to_OpenSurfParams unless params.is_a?( OpenSURFParams ) 
+      raise ArgumentError unless params.is_a?( OpenSURFParams ) 
+
+      mem_storage = CVFFI::cvCreateMemStorage( 0 )
+
+      img = img.ensure_greyscale
+      kp = CVFFI::CvSeq.new openSurfDetect( img, mem_storage, params )
+
+      ResultArray.new( kp, mem_storage )
+    end
+
+    # Descriptor takes x,y, scale.  Apparently not laplcian
+    # Sets orientation, descriptor
+    def self.describe( img, points, params )
+      params = params.to_OpenSurfParams unless params.is_a?( OpenSURFParams ) 
+      raise ArgumentError unless params.is_a?( OpenSURFParams ) 
+
+      img = img.ensure_greyscale
+      kp = points.to_CvSeq
+      seq = openSurfDescribe( img, kp, params )
+      points.kp = seq
+
+      points
+    end
 
 
   end
