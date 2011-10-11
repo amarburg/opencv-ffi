@@ -33,7 +33,7 @@ yield Xy.new( @points[i] )
     end
 
     class Params
-      attr_accessor :size, :threshold
+      attr_accessor :points, :threshold
 
       VALID_SIZES = [ 9, 10, 11, 12 ]
 
@@ -43,20 +43,20 @@ yield Xy.new( @points[i] )
 
       def initialize( opts = {} )
         p opts
-        @size = opts[:points] ||  9
+        @points = opts[:points] ||  9
         @threshold = opts[:threshold] || 20
 
-        raise "Hm, invalid size #{@size} specified for FAST keypoint detector" unless size_valid? @size
+        raise "Hm, invalid size #{@points} specified for FAST keypoint detector" unless size_valid? @points
       end
 
       def to_hash
-        { :size => @size, :threshold => @threshold }
+        { :points => @points, :threshold => @threshold }
       end
     end
 
 
     def self.detect( img, params )
-      FASTDetect( params.size, img, params.threshold )
+      FASTDetect( params.points, img, params.threshold )
     end
 
     def self.FASTDetect( size, img, threshold )

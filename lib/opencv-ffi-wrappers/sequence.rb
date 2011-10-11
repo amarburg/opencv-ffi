@@ -19,6 +19,10 @@ module CVFFI
       }
     end
 
+    def push( a )
+      CVFFI::cvSeqPush( @seq, a )
+    end
+
     def size
       @seq.total
     end

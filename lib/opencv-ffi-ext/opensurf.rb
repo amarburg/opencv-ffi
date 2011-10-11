@@ -33,6 +33,7 @@ module CVFFI
     #                   CvSURFParams params )
     attach_function :openSurfDetect, [ :pointer, :pointer, OpenSURFParams.by_value ], CvSeq.typed_pointer 
     attach_function :openSurfDescribe, [ :pointer, :pointer, OpenSURFParams.by_value ], CvSeq.typed_pointer 
+    attach_function :createOpenSURFPointSequence, [:pointer ], CvSeq.typed_pointer
 
     class Result
       attr_accessor :kp
@@ -44,12 +45,20 @@ module CVFFI
       def x;  pt.x; end
       def y;  pt.y; end
 
+      def scale; @kp.scale; end
+      def laplacian; @kp.laplacian; end
+      def orientation; @kp.orientation; end
+
       def to_vector
         Vector.[]( x, y, 1 )
       end
       
       def to_Point
         pt.to_Point
+      end
+
+      def packed_descriptor
+        @kp.descriptor.to_a.pack('e64')
       end
    end
 
@@ -69,8 +78,7 @@ module CVFFI
         ObjectSpace.define_finalizer( self, destructor )
       end
 
-      def kp=(kp)
-        @kp = Sequence.new( kp )
+      def reset
         @results = Array.new( @kp.length )
       end
 
@@ -102,6 +110,42 @@ module CVFFI
           CVFFI::draw_circle( img, r.kp.pt, opts )
         }
       end
+
+      def to_a
+        Array.new( size ) { |i|
+          r = result(i)
+          [ r.x, r.y, r.scale, r.orientation, r.laplacian, r.packed_descriptor ]
+          }
+      end
+
+      def self.from_a( a )
+        a = YAML::load(a) if a.is_a? String
+        raise "Don't know what to do" unless a.is_a? Array
+
+        pool = CVFFI::cvCreateMemStorage(0)
+        cvseq = CVFFI::OpenSURF::createOpenSURFPointSequence( pool )
+        seq = Sequence.new cvseq
+
+        a.each { |r|
+          raise "Hm, not what I expected" unless r.length == 6
+          point = CVFFI::OpenSURF::OpenSURFPoint.new( '' )
+          # Hm, the embedded CvPoint buggers up initialization by hash
+          point.scale = r[2]
+          point.orientation = r[3]
+          point.laplacian = r[4]
+          d = r[5].unpack('e64')
+          d.each_with_index { |d,i| point.descriptor[i] = d }
+
+          # r[5].unpack('e64')
+          point.pt.x = r[0]
+          point.pt.y = r[1]
+          seq.push( point )
+        }
+
+
+        ra = ResultArray.new( cvseq, pool )
+      end
+
     end
 
     class Params
@@ -148,11 +192,14 @@ module CVFFI
       raise ArgumentError unless params.is_a?( OpenSURFParams ) 
 
       img = img.ensure_greyscale
-      kp = points.to_CvSeq
-      seq = openSurfDescribe( img, kp, params )
-      points.kp = seq
 
-      points
+      puts "Extracting #{points.length} features"
+
+      kp = points.to_CvSeq
+
+      openSurfDescribe( img, kp, params )
+
+      points.reset
     end
 
 

@@ -8,5 +8,6 @@ module CVFFI
   attach_function :cvReleaseMemStorage, [:pointer], :void
 
   attach_function :cvGetSeqElem, [ :pointer, :int ], :pointer
+  attach_function :cvSeqPush, [:pointer, :pointer ], :pointer
 
 end
