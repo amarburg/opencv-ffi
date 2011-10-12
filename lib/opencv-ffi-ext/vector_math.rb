@@ -12,8 +12,9 @@ module CVFFI
 
     attach_function :L2distance_32f, [:pointer, :pointer, :int], :float
 
-    def self.L2distance( a,b)
-      L2distance_32f( a, b, a.nElem )
+    def self.L2distance( a,b, len = nil)
+      len ||= a.length
+      L2distance_32f( a, b, len )
     end
   end
 

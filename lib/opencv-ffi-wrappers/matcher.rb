@@ -94,6 +94,12 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
       }
     end
 
+    def to_a
+      Array.new( size ) { |i|
+        [ @results[i].tidx, @results[i].qidx, @results[i].dist ]
+      }
+    end
+
     def length( include_masked = false )
       if( include_masked )
       @results.length

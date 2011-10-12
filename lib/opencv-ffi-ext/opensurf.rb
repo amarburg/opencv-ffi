@@ -48,6 +48,11 @@ module CVFFI
       def scale; @kp.scale; end
       def laplacian; @kp.laplacian; end
       def orientation; @kp.orientation; end
+      def descriptor; @kp.descriptor; end
+
+      def distance_to(b)
+        CVFFI::VectorMath::L2distance( @kp.descriptor, b.descriptor, 64 )
+      end
 
       def to_vector
         Vector.[]( x, y, 1 )
@@ -58,7 +63,7 @@ module CVFFI
       end
 
       def packed_descriptor
-        @kp.descriptor.to_a.pack('e64')
+        [@kp.descriptor.to_a.pack('e64')].pack('m0')
       end
    end
 
@@ -78,8 +83,11 @@ module CVFFI
         ObjectSpace.define_finalizer( self, destructor )
       end
 
-      def reset
+      def reset( kp )
+        @kp = Sequence.new(kp)
+        @pool = kp.storage
         @results = Array.new( @kp.length )
+        self
       end
 
       def result(i)
@@ -125,7 +133,7 @@ module CVFFI
         pool = CVFFI::cvCreateMemStorage(0)
         cvseq = CVFFI::OpenSURF::createOpenSURFPointSequence( pool )
         seq = Sequence.new cvseq
-
+        
         a.each { |r|
           raise "Hm, not what I expected" unless r.length == 6
           point = CVFFI::OpenSURF::OpenSURFPoint.new( '' )
@@ -133,7 +141,8 @@ module CVFFI
           point.scale = r[2]
           point.orientation = r[3]
           point.laplacian = r[4]
-          d = r[5].unpack('e64')
+          d = r[5].unpack('m')[0].unpack('e64')
+
           d.each_with_index { |d,i| point.descriptor[i] = d }
 
           # r[5].unpack('e64')
@@ -199,7 +208,8 @@ module CVFFI
 
       openSurfDescribe( img, kp, params )
 
-      points.reset
+      points.reset(kp)
+      points
     end
 
 
