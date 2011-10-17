@@ -10,7 +10,7 @@ module CVFFI
       case args
       when Array
         @origin = Point.new( args[0..1] )
-        @size   = Size.new(  arg[2..3] )
+        @size   = Size.new(  args[2..3] )
       when Hash
         if args[:size]
           @size = Size.new args[:size]
