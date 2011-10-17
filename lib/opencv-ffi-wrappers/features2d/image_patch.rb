@@ -1,6 +1,7 @@
 require 'opencv-ffi'
 require 'opencv-ffi-wrappers/core/iplimage'
 require 'opencv-ffi-wrappers/core/point'
+require 'opencv-ffi-ext/eigen'
 
 module CVFFI
 
@@ -86,7 +87,38 @@ module CVFFI
           }
         }
 
-        if params.upright
+        if params.upright == false
+          # Calculate covariance matrix by Yingen Xiong
+          patch_sum = mxi = mxj = 0.0
+          patch.each_index { |i|
+            patch[i].each_index { |j|
+              patch_sum += patch[i][j]
+              mxi += i*patch[i][j]
+              mxj += j*patch[i][j]
+            }
+          }
+          mxi /= patch_sum
+          mxj /= patch_sum
+
+          c11 = c12 = c22 = 0.0
+          patch.each_index { |i|
+            patch[i].each_index { |j|
+              c11 += patch[i][j] * (i-mxi)*(i-mxi)
+              c12 += patch[i][j] * (i-mxi)*(j-mxj)
+              c22 += patch[i][j] * (j-mxj)*(j-mxj)
+            }
+          }
+
+          c = Matrix.rows( [ [c11,c12],[c12,c22] ] )
+          d,v = CVFFI::Eigen.eigen( c )
+
+          d = d.to_Matrix
+          v = v.to_Matrix
+
+
+          puts d
+          puts v
+
           
         end
 

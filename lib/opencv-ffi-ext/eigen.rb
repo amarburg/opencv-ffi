@@ -29,6 +29,21 @@ module CVFFI
       [ results.U, results.D, results.V ]
     end
 
+    ##-- Eigenvector solvers
+    class EigenDecompResults < NiceFFI::Struct
+      layout :D, CvMat.typed_pointer,
+             :V, CvMat.typed_pointer
+    end
+
+    attach_function :eigenDecompWithCvMat, [:pointer, :pointer], :void
+
+    def self.eigen( a )
+      results = EigenDecompResults.new '\0'
+      eigenDecompWithCvMat( a.to_CvMat, results )
+
+      [results.D, results.V]
+    end
+    
 
     ##--- Polynomial solver bits --
     class Eigen7d <NiceFFI::Struct
