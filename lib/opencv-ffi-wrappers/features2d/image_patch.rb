@@ -54,11 +54,10 @@ module CVFFI
     class Result 
 
       attr_accessor :center
-      attr_accessor :patch
       attr_accessor :mask
       attr_accessor :angle
 
-      def initialize( center, patch, mask, angle = 0.0 )
+      def initialize( center, patch, mask, angle = 0.0, isOriented = false )
         @center = CVFFI::Point.new center
         case patch
         when Matrix
@@ -70,12 +69,36 @@ module CVFFI
         end
         @angle = angle
         @mask = mask
+
+        # Set this if the patch has already been rotated
+        @oriented_patch = @patch if isOriented
       end
 
       def ==(b)
         @center == b.center and
         @angle == b.angle and
         @patch == b.patch
+      end
+
+      # TODO:  Consider whether rotating just the patch is ever a good idea
+      # or if you should always get the patch by rotating the original image
+      def orient_patch
+        srcimg = @patch.to_CvMat
+        rotmat = CVFFI::cvCreateMat( 2,3, :CV_32F )
+        CVFFI::cv2DRotationMatrix( CVFFI::CvPoint2D32f.new( [ @patch.column_size/2.0, @patch.row_size/2.0 ]), -@angle*180.0/Math::PI, 1.0, rotmat )
+
+        dstimg = srcimg.twin
+        CVFFI::cvWarpAffine( srcimg, dstimg, rotmat )
+        dstimg.to_Matrix
+      end
+
+      def oriented_patch
+        @oriented_patch ||= orient_patch
+      end
+
+      def patch( oriented = true )
+        return @patch if angle == 0.0 or oriented == false
+        oriented_patch
       end
 
       def to_a
@@ -160,6 +183,7 @@ module CVFFI
 
     def self.describe( img, keypoints, params )
       img = img.to_IplImage.ensure_greyscale
+      preOriented = false
 
       half_size = (params.size/2).floor
       results = ResultsArray.new( params )
@@ -189,6 +213,7 @@ module CVFFI
              mask.valid?(i,j) ?  CVFFI::cvGetReal2D( img, i,j ) : 0.0
           }
         }
+        CVFFI::cvResetImageROI( img )
 
         if params.oriented  == true
           # Calculate covariance matrix by Yingen Xiong
@@ -246,9 +271,25 @@ module CVFFI
           angle %= 2*Math::PI
           puts "Computed angle #{angle * 180.0/Math::PI}"
 
+            ## Pre-orient patch
+            puts "Pre-orienting patch"
+            rotmat = CVFFI::cvCreateMat( 2,3, :CV_32F )
+            CVFFI::cv2DRotationMatrix( kp.to_CvPoint2D32f, -angle*180.0/Math::PI, 1.0, rotmat )
+
+            dstimg = img.twin
+            CVFFI::cvWarpAffine( img, dstimg, rotmat )
+            CVFFI::cvSetImageROI( dstimg, rect.to_CvRect )
+            patch = Array.new( params.size ) { |i|
+              Array.new( params.size ) { |j|
+                mask.valid?(i,j) ?  CVFFI::cvGetReal2D( dstimg, i,j ) : 0.0
+              }
+            }
+            CVFFI::cvResetImageROI( dstimg )
+            preOriented = true
+
         end
 
-        results << Result.new( kp, patch, mask, angle )
+        results << Result.new( kp, patch, mask, angle, preOriented )
       }
 
       results

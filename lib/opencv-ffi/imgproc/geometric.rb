@@ -24,7 +24,15 @@ module CVFFI
   #                            const CvMat* map_matrix,
   #                            int flags CV_DEFAULT(CV_INTER_LINEAR+CV_WARP_FILL_OUTLIERS),
   #                            CvScalar fillval CV_DEFAULT(cvScalarAll(0)) );
-  attach_function :cvWarpAffine, [ :pointer, :pointer, :pointer, :int, CvScalar.by_value ], :void
+  attach_function :cvWarpAffineReal, :cvWarpAffine, [ :pointer, :pointer, :pointer, :int, CvScalar.by_value ], :void
+
+  def self.cvWarpAffine( src, dst, map_matrix, flags = nil, fillval = nil )
+    flags ||= @cvWarpFlags[:CV_INTER_LINEAR]+@cvWarpFlags[:CV_WARP_FILL_OUTLIERS]
+    fillval ||= CVFFI::CvScalar.new( [0,0,0,0] )
+
+    cvWarpAffineReal( src,dst,map_matrix,flags,fillval )
+  end
+
 
   # CVAPI(CvMat*)  cv2DRotationMatrix( CvPoint2D32f center, 
   #                                    double angle,
