@@ -66,6 +66,10 @@ module CVFFI
         [ @x, @y ]
       end
     end
+
+    def neighbor?( p, radius )
+      return false if (x-p.x).abs > radius or (y-p.y).abs > radius
+
  end
 
   module CvPointCastMethods
