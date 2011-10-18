@@ -118,6 +118,11 @@ module CVFFI
            :widthStep, :int,
            :BorderMode, [:int, 4],
            :imageDataOrigin, :pointer
+
+#    def self.release(ptr)
+#      p ptr
+#      CVFFI::cvReleaseData( ptr )
+#    end
   end
 
 

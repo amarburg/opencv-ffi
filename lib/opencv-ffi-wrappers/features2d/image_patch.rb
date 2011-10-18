@@ -22,6 +22,12 @@ module CVFFI
         raise "Requesting point outside mask" unless ((0...@size).include? i and (0...@size).include? j) 
         true
       end
+      def to_a
+        Array.new(size) { |i|
+          Array.new(size) { |j| 1
+          }
+        }
+      end
     end
 
     class CircularMask < Mask
@@ -48,6 +54,10 @@ module CVFFI
 
       def valid?(i,j)
         @mask[i][j]
+      end
+
+      def to_a
+        @mask.map { |m| m.map { |m| m ? 1 : 0 } }
       end
     end
 
@@ -84,12 +94,13 @@ module CVFFI
       # or if you should always get the patch by rotating the original image
       def orient_patch
         srcimg = @patch.to_CvMat
-        rotmat = CVFFI::cvCreateMat( 2,3, :CV_32F )
+        rotmat = CVFFI::CvMat.new CVFFI::cvCreateMat( 2,3, :CV_32F )
         CVFFI::cv2DRotationMatrix( CVFFI::CvPoint2D32f.new( [ @patch.column_size/2.0, @patch.row_size/2.0 ]), -@angle*180.0/Math::PI, 1.0, rotmat )
 
         dstimg = srcimg.twin
         CVFFI::cvWarpAffine( srcimg, dstimg, rotmat )
-        dstimg.to_Matrix
+        m = dstimg.to_Matrix
+        CVFFI::cvReleaseImage( dstimg )
       end
 
       def oriented_patch
@@ -102,7 +113,7 @@ module CVFFI
       end
 
       def to_a
-
+        [ center.x, center.y, angle, patch.to_a, mask.to_a ]
       end
     end
 
@@ -114,6 +125,12 @@ module CVFFI
 
       def patch_size
         @params.size
+      end
+
+      def to_a
+        each.map { |r|
+          r.to_a
+        }
       end
 
 
@@ -167,9 +184,12 @@ module CVFFI
 
         @params = {}
         DEFAULTS.each_key { |k|
-          @params[k] = (opts[k] or DEFAULTS[k])
+          @params[k] = (opts[k] or opts[k.to_s] or DEFAULTS[k])
           define_singleton_method( k ) { @params[k] }
         }
+
+        # Ensure the shape is a symbol
+        @params[:shape] = @params[:shape].to_sym
       end
 
       def check_params
@@ -196,7 +216,7 @@ module CVFFI
         angle = 0.0
         rect = Rect.new( [ kp.x-half_size, kp.y-half_size, params.size, params.size ] )
         CVFFI::cvSetImageROI( img, rect.to_CvRect )
-
+        
         case params.shape
         when :square
           mask = SquareMask.new( params.size )
@@ -273,7 +293,7 @@ module CVFFI
 
             ## Pre-orient patch
             puts "Pre-orienting patch"
-            rotmat = CVFFI::cvCreateMat( 2,3, :CV_32F )
+            rotmat = CVFFI::CvMat.new CVFFI::cvCreateMat( 2,3, :CV_32F )
             CVFFI::cv2DRotationMatrix( kp.to_CvPoint2D32f, -angle*180.0/Math::PI, 1.0, rotmat )
 
             dstimg = img.twin
@@ -285,6 +305,7 @@ module CVFFI
               }
             }
             CVFFI::cvResetImageROI( dstimg )
+            CVFFI::cvReleaseImage( dstimg )
             preOriented = true
 
         end

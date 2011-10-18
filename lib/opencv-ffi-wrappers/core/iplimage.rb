@@ -14,11 +14,11 @@ module CVFFI
     end
 
     def clone
-      CVFFI::cvCloneImage( self )
+      CVFFI::IplImage.new CVFFI::cvCloneImage( self )
     end
 
     def twin
-      CVFFI::cvCreateImage( self.image_size.to_CvSize, self.depth, self.nChannels )
+      CVFFI::IplImage.new CVFFI::cvCreateImage( self.image_size.to_CvSize, self.depth, self.nChannels )
     end
 
     def ensure_greyscale

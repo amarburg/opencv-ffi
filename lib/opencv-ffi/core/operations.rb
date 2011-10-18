@@ -86,4 +86,14 @@ module CVFFI
   attach_function :cvSetZero, [ :pointer ], :void
 
   attach_function :cvReleaseMat, [ :pointer ], :void
+  attach_function :cvReleaseData, [ :pointer ], :void
+
+  # cvReleaseImage expects a double-pointer to an IplImage
+  attach_function :cvReleaseImageReal, :cvReleaseImage, [ :pointer ], :void
+  def self.cvReleaseImage( iplimage )
+    ptr = FFI::MemoryPointer.new :pointer
+    ptr.put_pointer(0, iplimage.to_ptr )
+
+    cvReleaseImageReal ptr
+  end
 end
