@@ -22,6 +22,12 @@ class TestCoreOperations < Test::Unit::TestCase
     assert_equal color.y, c.y, "Third channel mismatch"  if img.nChannels > 2
     assert_equal color.z, c.z, "Fourth channel mismatch" if img.nChannels > 3
   end
+  
+  def test_cvReleaseImage
+    imgOne = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
+    CVFFI::cvReleaseImage( imgOne )
+  end
+
 
   def test_imageOperations
     imgOne = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )

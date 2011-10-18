@@ -69,7 +69,12 @@ module CVFFI
 
     def neighbor?( p, radius )
       return false if (x-p.x).abs > radius or (y-p.y).abs > radius
+      return false if l2distance > radius
+    end
 
+    def l2distance( b )
+      Math::sqrt( (x-b.x)*(x-b.x) + (y-b.y)*(y-b.y) )
+    end
  end
 
   module CvPointCastMethods

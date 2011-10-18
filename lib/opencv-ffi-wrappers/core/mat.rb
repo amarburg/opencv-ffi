@@ -63,6 +63,10 @@ module CVFFI
       Vector[*a]
     end
 
+    def to_a
+      to_Vector.to_a
+    end
+
     # This is somewhat awkward because the FFI::Struct-iness of
     # CvMat uses the Array-like API calls (at, [], size, etc)
     def at_f(i,j)
