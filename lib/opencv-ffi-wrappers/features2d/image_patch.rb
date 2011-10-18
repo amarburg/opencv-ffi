@@ -250,7 +250,7 @@ module CVFFI
           mxi /= patch_sum
           mxj /= patch_sum
 
-          puts "Medoids = " + [mxi,mxj].join(',')
+        #  puts "Medoids = " + [mxi,mxj].join(',')
 
           c11 = c12 = c22 = 0.0
           patch.each_index { |i|
@@ -264,14 +264,7 @@ module CVFFI
           }
 
           c = Matrix.rows( [ [c11,c12],[c12,c22] ] )
-          puts "c = "
-          c.to_a.each { |r| puts r.join(' ') }
           d,v = CVFFI::Eigen.eigen( c )
-
-          puts "d = "
-          puts d.to_Matrix
-          puts "v = "
-          puts v.to_Matrix
 
           d = d.to_a
           i = if d[0] == d[1]
@@ -281,7 +274,6 @@ module CVFFI
                 d.find_index( d.max )
               end
 
-          puts "eigenvalue #{i} is larger"
           vec = v.to_Matrix.column_vectors[i]
 
           # Eigenvector corresponding to larger eignvector defines orientation
@@ -289,10 +281,10 @@ module CVFFI
           #  Subtract from 2PI to put in mathematical (x-right, y-up) space
           angle = 2*Math::PI - Math::atan2( vec[0],vec[1] )
           angle %= 2*Math::PI
-          puts "Computed angle #{angle * 180.0/Math::PI}"
+          #puts "Computed angle #{angle * 180.0/Math::PI}"
 
             ## Pre-orient patch
-            puts "Pre-orienting patch"
+           i# puts "Pre-orienting patch"
             rotmat = CVFFI::CvMat.new CVFFI::cvCreateMat( 2,3, :CV_32F )
             CVFFI::cv2DRotationMatrix( kp.to_CvPoint2D32f, -angle*180.0/Math::PI, 1.0, rotmat )
 
