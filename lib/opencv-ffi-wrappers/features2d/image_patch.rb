@@ -113,8 +113,13 @@ module CVFFI
       end
 
       def to_a
-        [ center.x, center.y, angle, patch.to_a, mask.to_a ]
+        [ center.x, center.y, angle, oriented_patch.to_a, mask.to_a ]
       end
+
+      def self.from_a(a)
+        # Serialized results are always oriented
+        Result.new( CVFFI::Point.new( a[0],a[1] ), a[3],a[4],a[2], true )
+        end
     end
 
     class ResultsArray < Array
@@ -131,6 +136,14 @@ module CVFFI
         each.map { |r|
           r.to_a
         }
+      end
+
+      def self.from_a(a)
+        r = ResultsArray.new
+        a.each { |a|
+          r << Result.from_a a
+        }
+        r
       end
 
 
