@@ -69,7 +69,8 @@ module CVFFI
 
     def neighbor?( p, radius )
       return false if (x-p.x).abs > radius or (y-p.y).abs > radius
-      return false if l2distance > radius
+      return false if l2distance(p) > radius
+      true
     end
 
     def l2distance( b )

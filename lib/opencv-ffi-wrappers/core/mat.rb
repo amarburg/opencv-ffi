@@ -17,6 +17,71 @@ class Vector
   end
 end
 
+class ScalarMatrix
+  attr_accessor :column_size
+  attr_accessor :data
+
+  def initialize(data)
+    @data = data
+    raise "Hm, not array data" unless data.is_a? Array
+    raise "Hm, not array-in-array data" unless data[0].is_a? Array
+
+    @data.each { |d| d.map! { |d| d = d.to_i } }
+
+    @column_size = data[0].length
+    data.each_with_index { |d,idx|
+      raise "Hm, row #{idx} not the same length as others" unless d.length == @column_size
+    }
+  end
+
+  def self.rows(  data )
+    ScalarMatrix.new( data )
+  end
+
+  def row_size
+    @data.length
+  end
+
+  def check_bounds(x,y)
+    raise "x too small" if x < 0
+    raise "x too large" if x >= column_size
+    raise "y too small" if y < 0
+    raise "y too large" if y >= row_size
+  end
+
+  def [](x,y)
+    check_bounds(x,y)
+    @data[y][x]
+  end
+
+  def []=(x,y,d)
+    check_bounds(x,y)
+    @data[y][x] = d.to_i
+  end
+
+  def to_CvMat( opts = {} )
+    type = opts[:type] || :CV_32F
+    a = CVFFI::cvCreateMat( row_size, column_size, type )
+    @data.each_with_index { |d,j|
+      d.each_with_index { |d,i|
+        a.set_f( j,i,d )
+      }
+    }
+    a
+  end
+
+  def to_a
+    @data
+  end
+
+  def ==(b)
+    column_size == b.column_size and row_size == b.row_size and data == b.data
+
+  end
+
+end
+
+
 module CVFFI
 
   module CvMatFunctions
@@ -49,6 +114,15 @@ module CVFFI
     def to_Matrix
       Matrix.build( height, width ) { |i,j|
         at_f(i,j)
+      }
+    end
+
+    def to_ScalarMatrix
+      ScalarMatrix.rows Array.new( height ) { |y|
+        Array.new( width ) { |x|
+          d = CVFFI::cvGet2D( self, y,x )
+          d.w
+        }
       }
     end
 

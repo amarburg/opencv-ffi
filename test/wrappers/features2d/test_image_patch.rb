@@ -53,7 +53,6 @@ class TestImagePatch < Test::Unit::TestCase
     
     patch_index = patches.draw_index_image
     TestSetup::save_image( "test_cvExtractImagePatch", patch_index )
-
   end
 
   def test_cvExtractCircularOrientedImagePatch

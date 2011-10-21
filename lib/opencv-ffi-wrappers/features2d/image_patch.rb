@@ -12,6 +12,19 @@ module CVFFI
       def initialize(size)
         @size = size
       end
+
+      def self.make( params )
+        case params.shape
+        when :square
+          SquareMask.new( params.size )
+        when :circle, :circular
+          CircularMask.new(params.size )
+        else 
+          raise "Don't know how to make shape #{params.shape}"
+        end
+      end
+
+
     end
 
     class SquareMask < Mask
@@ -23,10 +36,7 @@ module CVFFI
         true
       end
       def to_a
-        Array.new(size) { |i|
-          Array.new(size) { |j| 1
-          }
-        }
+        Array.new(size) { |i| Array.new(size) { |j| true } }
       end
     end
 
@@ -57,28 +67,19 @@ module CVFFI
       end
 
       def to_a
-        @mask.map { |m| m.map { |m| m ? 1 : 0 } }
+        @mask.map { |m| m.map { |m| m ? true: false } }
       end
     end
 
     class Result 
 
       attr_accessor :center
-      attr_accessor :mask
       attr_accessor :angle
 
-      def initialize( center, patch, mask, angle = 0.0, isOriented = false )
+      def initialize( center, patch, angle = 0.0, isOriented = false )
         @center = CVFFI::Point.new center
-        case patch
-        when Matrix
-          @patch = patch
-        when Array
-          @patch = Matrix.rows( patch )
-        else 
-          raise "Don't know how to handle type #{patch.class}"
-        end
+          @patch = ScalarMatrix.rows( patch )
         @angle = angle
-        @mask = mask
 
         # Set this if the patch has already been rotated
         @oriented_patch = @patch if isOriented
@@ -99,8 +100,10 @@ module CVFFI
 
         dstimg = srcimg.twin
         CVFFI::cvWarpAffine( srcimg, dstimg, rotmat )
-        m = dstimg.to_Matrix
+        m = dstimg.to_ScalarMatrix
         CVFFI::cvReleaseImage( dstimg )
+
+        m
       end
 
       def oriented_patch
@@ -113,19 +116,21 @@ module CVFFI
       end
 
       def to_a
-        [ center.x, center.y, angle, oriented_patch.to_a, mask.to_a ]
+        [ center.x, center.y, angle, oriented_patch.to_a ]
       end
 
       def self.from_a(a)
         # Serialized results are always oriented
-        Result.new( CVFFI::Point.new( a[0],a[1] ), a[3],a[4],a[2], true )
+        Result.new( CVFFI::Point.new( a[0],a[1] ), a[3],a[2], true )
         end
     end
 
     class ResultsArray < Array
+      attr_reader :mask
 
-      def initialize( params )
+      def initialize( params, mask = nil )
         @params = params
+        @mask = mask || Mask::make( params )
       end
 
       def patch_size
@@ -140,12 +145,9 @@ module CVFFI
 
       def self.from_a(a)
         r = ResultsArray.new
-        a.each { |a|
-          r << Result.from_a a
-        }
+        a.each { |a| r << Result.from_a( a ) }
         r
       end
-
 
       def draw_index_image( opts = {} )
         border = 5
@@ -173,10 +175,10 @@ module CVFFI
 
       #    puts "Offsets: #{xoffset} x #{yoffset}"
 
-          a = patch.patch.to_a
+          a = patch.oriented_patch.to_a
           a.each_with_index { |row,i|
             row.each_with_index { |value,j|
-              if patch.mask.valid?(i,j)
+              if mask.valid?(i,j)
                 CVFFI::cvSet2D( img, yoffset+i, xoffset+j, CVFFI::CvScalar.new( [ value, 0, 0, 0 ] ) )
               end
             }
@@ -219,8 +221,12 @@ module CVFFI
       preOriented = false
 
       half_size = (params.size/2).floor
+
       results = ResultsArray.new( params )
-      keypoints.each { |kp|
+      mask = results.mask
+
+      puts "Extracting #{keypoints.length} keypoints"
+      keypoints.each_with_index { |kp,idx|
         next if kp.x < half_size or 
         kp.y < half_size or
         (img.width - kp.x) <= half_size or
@@ -229,16 +235,7 @@ module CVFFI
         angle = 0.0
         rect = Rect.new( [ kp.x-half_size, kp.y-half_size, params.size, params.size ] )
         CVFFI::cvSetImageROI( img, rect.to_CvRect )
-        
-        case params.shape
-        when :square
-          mask = SquareMask.new( params.size )
-        when :circle, :circular
-          mask = CircularMask.new(params.size )
-        else 
-          raise "Don't know how to make shape #{params.shape}"
-        end
-
+        #
         ## Simple single-channel implementation
         #  Patch is row-major (i == row == y, j = column == x)
         patch = Array.new( params.size ) { |i|
@@ -297,7 +294,7 @@ module CVFFI
           #puts "Computed angle #{angle * 180.0/Math::PI}"
 
             ## Pre-orient patch
-           i# puts "Pre-orienting patch"
+           # puts "Pre-orienting patch"
             rotmat = CVFFI::CvMat.new CVFFI::cvCreateMat( 2,3, :CV_32F )
             CVFFI::cv2DRotationMatrix( kp.to_CvPoint2D32f, -angle*180.0/Math::PI, 1.0, rotmat )
 
@@ -313,9 +310,11 @@ module CVFFI
             CVFFI::cvReleaseImage( dstimg )
             preOriented = true
 
+            GC.start if (idx % 5) == 0 
+
         end
 
-        results << Result.new( kp, patch, mask, angle, preOriented )
+        results << Result.new( kp, patch, angle, preOriented )
       }
 
       results
