@@ -119,6 +119,10 @@ module CVFFI
         [ center.x, center.y, angle, oriented_patch.to_a ]
       end
 
+      def distance_to( b )
+        patch.l2distance( b.patch )
+      end
+
       def self.from_a(a)
         # Serialized results are always oriented
         Result.new( CVFFI::Point.new( a[0],a[1] ), a[3],a[2], true )
@@ -143,8 +147,8 @@ module CVFFI
         }
       end
 
-      def self.from_a(a)
-        r = ResultsArray.new
+      def self.from_a(a, params = {} )
+        r = ResultsArray.new( Params.new params )
         a.each { |a| r << Result.from_a( a ) }
         r
       end

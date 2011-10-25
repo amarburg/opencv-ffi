@@ -79,6 +79,14 @@ class ScalarMatrix
 
   end
 
+  def l2distance(b)
+    # Pure ruby, for now
+    me = @data.flatten
+    them = b.data.flatten
+
+    raise "Hm, trying to compute distance between two ScalarMatrices of different sizes" unless me.length == them.length
+    me.inject_with_index(0.0) { |x,d,i| x + (d-them[i])**2 }
+  end
 end
 
 

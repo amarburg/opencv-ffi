@@ -41,4 +41,23 @@ class TestVectorMath < Test::Unit::TestCase
 
   end
 
+  def test_L2distance_8u
+    Benchmark.bm(10) do |x|
+      a = Array.new( 1000 ) { |i| rand(256) }
+      b = Array.new( 1000 ) { |i| rand(256) }
+
+      l2dist = 0.0
+      x.report("1000-entry uint8 in pure ruby") {
+        l2dist = a.inject_with_index(0.0) { |x,f,i| 
+        x + (f-b[i])**2
+      }
+      }
+
+      x.report("With libcv-ffi") {
+        assert_in_delta l2dist, CVFFI::VectorMath::L2distance_8u( a, b )
+      }
+      
+    end
+  end
+
 end

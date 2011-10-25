@@ -8,7 +8,7 @@ module CVFFI
     fill = opts[:fill] || true
 
     pts.each { |kp|
-      CVFFI::cvCircle( img, CVFFI::Point( kp ).to_CvPoint,
+      CVFFI::cvCircle( img, CVFFI::Point.new( kp ).to_CvPoint,
                       radius, color, (fill ? -1: 1), 8, 0 )
     }
     img
