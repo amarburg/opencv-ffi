@@ -10,7 +10,69 @@ module CVFFI
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
     load_library("cvffi", pathset)
 
+    
+    module NativeVectors
+      def self.included( base )
+        base.extend( ClassMethods)
+      end
+
+      module ClassMethods
+        def define_vector( type, length, name = nil )
+          name = name || "#{type}_#{length}_vector"
+          class_eval <<-eos
+          class #{name} < NiceFFI::Struct
+              layout :d, [:#{type}, #{length}]
+              def length; #{length}; end
+          end
+          eos
+          name
+        end
+      end
+
+      class ScalarVector
+
+        def define_vector( type, length, name = nil )
+          name = name || "Auto_#{type}_#{length}_vector"
+          instance_eval <<-eos
+          class #{name} < NiceFFI::Struct
+              layout :d, [:#{type}, #{length}]
+              def length; #{length}; end
+          end
+          eos
+          name
+        end
+
+        attr_accessor :data
+        def initialize( type, length )
+          name = define_vector( type, length )
+          instance_eval "@data = #{name}.new '\0'"
+        end
+
+        def [](i)
+          @data.d[i]
+        end
+
+        def []=(i,b)
+          @data.d[i] = b
+        end
+
+        def as_ScalarArray
+          ScalarArray.new( len: @data.length,
+                           data: @data )
+        end
+        alias :to_c :as_ScalarArray
+
+      end
+    end
+        
+
+
     class UcharArray < NiceFFI::Struct
+      layout :len, :uint,
+             :data, :pointer
+    end
+
+    class ScalarArray < NiceFFI::Struct
       layout :len, :uint,
              :data, :pointer
     end

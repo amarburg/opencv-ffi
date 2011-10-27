@@ -98,6 +98,9 @@ class TestImagePatch < Test::Unit::TestCase
     # Expect the first and last to be roughly the same
     assert_in_delta orientation.first, orientation.last, 0.1
 
+    # First and last should be relatively similar
+    puts "Distance = #{ patches.first.distance_to( patches.last ) }"
+
     patch_index = patches.draw_index_image
     TestSetup::save_image( "test_cvOrientedExtractImagePatch", patch_index )
   end

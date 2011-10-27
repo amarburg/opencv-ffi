@@ -78,7 +78,7 @@ module CVFFI
 
       def initialize( center, patch, angle = 0.0, isOriented = false )
         @center = CVFFI::Point.new center
-          @patch = ScalarMatrix.rows( patch )
+          @patch = CVFFI::Mat.rows( patch, :CV_8U )
         @angle = angle
 
         # Set this if the patch has already been rotated
@@ -94,16 +94,13 @@ module CVFFI
       # TODO:  Consider whether rotating just the patch is ever a good idea
       # or if you should always get the patch by rotating the original image
       def orient_patch
-        srcimg = @patch.to_CvMat
         rotmat = CVFFI::CvMat.new CVFFI::cvCreateMat( 2,3, :CV_32F )
-        CVFFI::cv2DRotationMatrix( CVFFI::CvPoint2D32f.new( [ @patch.column_size/2.0, @patch.row_size/2.0 ]), -@angle*180.0/Math::PI, 1.0, rotmat )
+        CVFFI::cv2DRotationMatrix( CVFFI::CvPoint2D32f.new( [ @patch.width/2.0, @patch.height/2.0 ]), -@angle*180.0/Math::PI, 1.0, rotmat )
 
-        dstimg = srcimg.twin
-        CVFFI::cvWarpAffine( srcimg, dstimg, rotmat )
-        m = dstimg.to_ScalarMatrix
-        CVFFI::cvReleaseImage( dstimg )
+        dstimg = @patch.twin
+        CVFFI::cvWarpAffine( @patch, dstimg, rotmat )
 
-        m
+         dstimg 
       end
 
       def oriented_patch
@@ -179,13 +176,10 @@ module CVFFI
 
       #    puts "Offsets: #{xoffset} x #{yoffset}"
 
-          a = patch.oriented_patch.to_a
-          a.each_with_index { |row,i|
-            row.each_with_index { |value,j|
+          patch.oriented_patch.each_with_indices { |value, i, j|
               if mask.valid?(i,j)
                 CVFFI::cvSet2D( img, yoffset+i, xoffset+j, CVFFI::CvScalar.new( [ value, 0, 0, 0 ] ) )
               end
-            }
           }
         }
 

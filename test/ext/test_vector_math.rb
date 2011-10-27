@@ -60,4 +60,26 @@ class TestVectorMath < Test::Unit::TestCase
     end
   end
 
+  class NativeUint8
+    include CVFFI::VectorMath::NativeVectors
+
+    define_vector :uint8, 10, :Uint8Vector
+
+    def self.new_vector 
+      Uint8Vector.new '\0'
+    end
+  end
+
+  def test_native_vectors
+    a = NativeUint8.new_vector
+    p a
+    puts a.length
+
+    b = CVFFI::VectorMath::NativeVectors::ScalarVector.new( :uint8, 5 )
+    p b
+    b[0] = 1
+    p b[0]
+    p b.to_c
+  end
+
 end

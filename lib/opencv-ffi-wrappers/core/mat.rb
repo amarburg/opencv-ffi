@@ -1,5 +1,6 @@
 require 'opencv-ffi/core/types'
 require 'opencv-ffi-wrappers/core'
+require 'opencv-ffi-wrappers/misc'
 
 require 'matrix'
 
@@ -85,7 +86,8 @@ class ScalarMatrix
     them = b.data.flatten
 
     raise "Hm, trying to compute distance between two ScalarMatrices of different sizes" unless me.length == them.length
-    me.inject_with_index(0.0) { |x,d,i| x + (d-them[i])**2 }
+ #   me.inject_with_index(0.0) { |x,d,i| x + (d-them[i])**2 }
+     CVFFI::VectorMath::L2distance_8u( me, them )
   end
 end
 
@@ -159,6 +161,14 @@ module CVFFI
       CVFFI::cvSetReal2D( self, i, j, f )
     end
 
+    def at_scalar(i,j)
+      CVFFI::cvGet2D( self, i, j )
+    end
+
+    def set_scalar( i,j, f )
+      CVFFI::cvSet2D( self, i, j, f )
+    end
+
     def clone
       CVFFI::cvCloneMat( self )
     end
@@ -181,8 +191,8 @@ module CVFFI
       CVFFI::cvSetZero( self )
     end
 
-    def print( opts = nil )
-
+    def print( opts = {} )
+      CVFFI::print_matrix( self, opts )
     end
 
     module ClassMethods 
@@ -191,6 +201,11 @@ module CVFFI
         CVFFI::cvSetIdentity( a, CVFFI::CvScalar.new( :w => 1, :x => 1, :y => 1, :z => 1 ) )
         a
       end
+
+      def print( m, opts = {} )
+        CVFFI::print_matrix( m, opts )
+      end
+
     end
 
 
@@ -198,5 +213,130 @@ module CVFFI
 
   class CvMat
     include CvMatFunctions
+  end
+  
+  class Mat
+    include CvMatFunctions
+
+    def self.wrap_function( s )
+      class_eval "def #{s}( *args ); Mat.new( mat.#{s}(*args) ); end"
+    end
+
+    def self.pass_function( s )
+      class_eval "def #{s}( *args ); mat.#{s}(*args); end"
+    end
+
+    [ :twin, :clone ].each { |f| wrap_function f }
+    
+    attr_accessor :mat
+    attr_accessor :type
+
+    def initialize( *args )
+      a1,a2,a3 = *args
+      case a1
+      when Mat
+        # Copy constructor
+        @mat = a1.mat
+      when CvMat
+        @mat = a1
+      else
+        rows,cols,opts = a1,a2,a3
+        opts ||= {}
+        opts = { type: opts } if opts.is_a? Symbol
+        doZero = opts[:zero] || true
+        @type = opts[:type] || :CV_32F
+        @mat = CVFFI::cvCreateMat( rows, cols, @type )
+
+        mat.zero if doZero
+      end
+
+      if block_given?
+      rows.times { |i|
+        cols.times { |j|
+          set(i,j, yield(i,j) )
+        }
+      }
+      end
+
+    end
+
+    def at=(i,j,v)
+      if type == :CV_32F
+      mat.set_f( i,j, v)
+      else
+        mat.set_scalar( i,j, CVFFI::CvScalar.new( { w: v, x: v, y: v, z: v } ) )
+      end
+    end
+    alias :[]= :at=
+    alias :set :at=
+
+    def at(i,j)
+      if type == :CV_32F
+        mat.at_f( i,j)
+      else
+        s = mat.at_scalar( i,j )
+        s.w
+      end
+    end
+    alias :[] :at
+
+    def each( &blk )
+      each_with_indices { |v,i,j| blk.call( v ) }
+    end
+
+    def each_with_indices( &blk )
+      height.times { |i|
+        width.times { |j|
+          blk.call at(i,j), i, j 
+        }
+      }
+    end
+
+
+    [ :height, :width ].each { |f| pass_function f }
+
+    def self.build( rows, cols, opts = {}, &blk )
+      Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
+    end
+
+    def self.eye( size, opts = {} )
+      m = Mat.new( size,size,opts )
+      size.times { |i| m[i,i] = 1 }
+      m
+    end
+
+    def self.rows( r, opts = {} )
+      height = r.length
+      width = r[0].length
+
+      Mat.build( height, width, opts ) { |i,j|
+        r[i][j]
+      }
+    end
+
+
+    # Should impedence match Mat anywhere a CvMat * is required...
+    # TODO: Figure out how to handler passing by_value
+    def to_ptr
+      @mat.pointer
+    end
+
+    def norm( b, type = :CV_L2 )
+      CVFFI::cvNorm( self, b, type )
+    end
+    def l2distance(b); norm(b, :CV_L2 ); end
+
+    def ==(b)
+      return false if width != b.width or height != b.height or type != b.type
+
+      cmpResult = Mat.new( height, width, :CV_8U )
+      # Fills cmpResults with 1 for each element which is not equal
+      CVFFI::cvCmp( self, b, cmpResult, :CV_CMP_NE )
+
+      # If results are equal, cmpResult will be all zeros
+      sum = CVFFI::cvSum( cmpResult )
+      sum.w == 0
+    end
+
   end
 end

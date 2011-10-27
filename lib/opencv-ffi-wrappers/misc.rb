@@ -3,7 +3,8 @@ require 'opencv-ffi/core/types'
 module CVFFI
 
   def self.print_matrix(m, opts={})
-
+    opts ||= {}
+    opts = { :caption=>opts } if opts.is_a? String
     puts opts[:caption] if opts[:caption]
 
     # Lots of potential to make this better...
