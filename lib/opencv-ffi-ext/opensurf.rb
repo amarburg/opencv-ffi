@@ -1,7 +1,7 @@
 
 require 'nice-ffi'
 
-require 'opencv-ffi-wrappers/surf'
+require 'opencv-ffi-wrappers/features2d/surf'
 
 module CVFFI
   module OpenSURF
