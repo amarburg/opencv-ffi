@@ -8,7 +8,7 @@ require 'opencv-ffi-wrappers/misc'
 class TestImgprocWrappers < Test::Unit::TestCase
 
   def setup
-        @img = CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+        @img = TestSetup::test_image
   end
 
   def test_getAffineTransform
@@ -40,8 +40,48 @@ class TestImgprocWrappers < Test::Unit::TestCase
 
     out = CVFFI::warp_affine( @img.to_IplImage, dst, warp )
 
-    CVFFI::save_image( TestSetup::output_filename("affineWarped.jpg"), dst )
+    TestSetup::save_image("affineWarped.jpg", dst )
 
   end
+
+
+  def corner_common_tests( corners, img, params = nil )
+
+    if params
+     assert corners.length <= params.max_corners
+    end
+   
+   # Hm, what can I test?
+    corners.each { |c|
+      assert c.x >= 0.0
+      assert c.x < img.width
+      assert c.y >= 0.0
+      assert c.y < img.height
+    }
+  end
+ 
+  def test_goodFeaturesToTrack_default_params
+    corners = CVFFI::goodFeaturesToTrack( @img )
+    corner_common_tests( corners, @img )
+
+    params = CVFFI::GoodFeaturesParams.new( use_harris: true )
+    harris_corners = CVFFI::goodFeaturesToTrack( @img, params )
+    corner_common_tests( harris_corners, @img, params )
+
+    assert harris_corners != corners
+ end
+
+  def test_goodFeaturesToTrack_shitomasi_with_params
+    params = CVFFI::GoodFeaturesParams.new( quality_level: 0.7,
+                                        min_distance: 10 )
+    corners = CVFFI::goodFeaturesToTrack( @img, params )
+    corner_common_tests( corners, @img, params )
+  end
+
+  def test_goodFeaturesToTrack_harris_with_params
+  end 
+  
+
+
 
 end

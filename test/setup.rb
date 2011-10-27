@@ -7,6 +7,7 @@ require 'test/unit'
 require 'pp'
 
 require 'opencv-ffi/highgui'
+require 'opencv-ffi/imgproc'
 
 
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
@@ -27,6 +28,15 @@ module TestSetup
 
   def self.test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+  end
+
+  def self.grey_test_image
+    img = test_image
+    greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => img.height, 
+                                                      :width => img.width }), 
+                                                      :IPL_DEPTH_8U, 1 )
+    CVFFI::cvCvtColor( img, greyImg, :CV_BGR2GRAY )
+    greyImg
   end
 
   def self.second_test_image

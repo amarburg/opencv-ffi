@@ -17,8 +17,17 @@ module CVFFI
       CVFFI::IplImage.new CVFFI::cvCloneImage( self )
     end
 
-    def twin
-      CVFFI::IplImage.new CVFFI::cvCreateImage( self.image_size.to_CvSize, self.depth, self.nChannels )
+    def twin( *opts )
+      depth,nChannels = if opts[0].is_a? Hash
+                          opts = opts.pop
+                          [opts[:depth], opts[:channels]]
+                        else
+                          opts
+                        end
+
+      depth ||= self.depth
+      nChannels ||= self.nChannels
+      CVFFI::IplImage.new CVFFI::cvCreateImage( self.image_size.to_CvSize, depth, nChannels )
     end
 
     def ensure_greyscale
