@@ -21,7 +21,7 @@ module CVFFI
       self.class.defaults.each_key { |k|
         @params[k] = (opts[k] or opts[k.to_s] or self.class.defaults[k])
         define_singleton_method( k ) { @params[k] }
-        instance_eval "def #{k}=(a); @params[#{k}] = a; end"
+        instance_eval "def #{k}=(a); @params[:#{k}] = a; end"
       }
     end
 
