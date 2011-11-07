@@ -81,6 +81,7 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
 
   def test_point
     p = CVFFI::Point.new( 10.0, 0.0 )
+    r = CVFFI::Point.new( 0.0, 0.0 )
 
     assert_equal 10.0, p.x
     assert_equal  0.0, p.y
@@ -92,6 +93,16 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     q = p.rotate( Math::PI/2.0 )
     assert_in_delta 0.0, q.x, TestSetup::EPSILON
     assert_in_delta 10.0, q.y, TestSetup::EPSILON
+
+    assert p.neighbor?( r, 10.01 )
+    assert p.neighbor?( r, 9.99 ) == false
+
+    assert p.neighbor_rsquared?( r, 100.01 )
+    assert p.neighbor_rsquared?( r, 99.9 ) == false
+
+    assert_in_delta 10.0, p.l2distance( r ),  TestSetup::EPSILON
+    assert_in_delta 100.0, p.l2_squared_distance( r ),  TestSetup::EPSILON
+
   end
 
   def test_iplimage

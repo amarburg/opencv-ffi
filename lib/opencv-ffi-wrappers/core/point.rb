@@ -73,10 +73,19 @@ module CVFFI
       true
     end
 
+    def neighbor_rsquared?( p, rsquared )
+      return false if l2_squared_distance(p) > rsquared
+      true
+    end
+
     def l2distance( b )
-      Math::sqrt( (x-b.x)*(x-b.x) + (y-b.y)*(y-b.y) )
+      Math::sqrt( l2_squared_distance(b) )
     end
     alias :distance_to :l2distance
+
+    def l2_squared_distance( b )
+      (x-b.x)**2 + (y-b.y)**2
+    end
  end
 
   module CvPointCastMethods
