@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 require "opencv-ffi/version"
-require "rake"
 
 Gem::Specification.new do |s|
   s.name        = "opencv-ffi"
