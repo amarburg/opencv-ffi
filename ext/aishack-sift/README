@@ -1,0 +1,20 @@
+This code is derived directly from Utkarsh Sinha's very good tutorial
+and demo at:
+
+http://www.aishack.in/2010/07/implementing-sift-in-opencv/
+
+As noted SIFT is patented, and as such this implementation cannot be
+used commercially.
+
+
+Utkarsh's oridinal ReadMe.txt follows:
+
+
+/****************************************************** 
+ *	Code by Utkarsh Sinha
+ *	Based on JIFT by Jun Liu
+ *	Visit http://aishack.in/ for more indepth articles and tutorials
+ *	on artificial intelligence
+ * Use, reuse, modify, hack, kick. Do whatever you want with
+ * this code :)
+ ******************************************************/
