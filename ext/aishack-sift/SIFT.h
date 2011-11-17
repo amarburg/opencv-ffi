@@ -65,6 +65,17 @@ class SIFT
     IplImage*** m_extrema;		// A 2D array to hold binary images. In the binary image, 1 = extrema, 0 = not extrema
     double**	m_absSigma;		// A 2D array to hold the sigma used to blur a particular image
 
+    class Extrema {
+      public:
+      int octave, interval, xi, yi;
+
+      def Extrema( oct, intv, x, y )
+        : octave( oct ), interval( intv ), xi( x ), yi( y )
+      {}
+    };
+
+    vector <Extrema> m_extrema;
+
     vector<Keypoint> m_keyPoints;	// Holds each keypoint's basic info
     vector<Descriptor> m_keyDescs;	// Holds each keypoint's descriptor
 };

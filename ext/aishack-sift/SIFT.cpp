@@ -395,6 +395,11 @@ void SIFT::DetectExtrema()
               justSet=false;
             }
           }
+
+         
+          // A bit roundabout
+          if( cvGetReal2D( m_extrema[i][j-1], yi, xi ) != 0 )
+                m_extrema.push_back Extrema( i, j, xi, yi );
         }
       }
 
@@ -407,6 +412,7 @@ void SIFT::DetectExtrema()
 
   m_numKeypoints = num;
   printf("Found %d keypoints\n", num);
+  printf("m_extrema contains %d keypoints\n", m_extrema.size() );
   printf("Rejected %d keypoints\n", numRemoved);
 }
 
