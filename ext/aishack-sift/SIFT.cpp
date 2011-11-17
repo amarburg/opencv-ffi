@@ -440,6 +440,8 @@ void SIFT::AssignOrientations()
     // Iterate through all scales
     for(j=1;j<m_numIntervals+1;j++)
     {
+      printf("Calculating magnitude and orientation for octave %d, interval %d\n", i, j );
+
       magnitude[i][j-1] = cvCreateImage(cvGetSize(m_gList[i][j]), 32, 1);
       orientation[i][j-1] = cvCreateImage(cvGetSize(m_gList[i][j]), 32, 1);
 
@@ -474,7 +476,7 @@ void SIFT::AssignOrientations()
     }
   }
 
-  // The histogram with 8 bins
+  // The histogram 
   double* hist_orient = new double[NUM_BINS];
 
   // Go through all octaves
@@ -510,6 +512,8 @@ void SIFT::AssignOrientations()
           // We're at a keypoint
           if(cvGetReal2D(m_extrema[i][j-1], yi, xi)!=0)
           {
+            printf("Calculating orientation for keypoint at %d,%d, octave %d, interval %d\n", xi, yi,i, j );
+
             // Reset the histogram thingy
             for(k=0;k<NUM_BINS;k++)
               hist_orient[k]=0.0;
@@ -656,6 +660,8 @@ void SIFT::AssignOrientations()
               }
             }
 
+            printf("Saving keypoint at %f,%f\n", xi*scale/2.0, yi*scale/2.0 );
+
             // Save this keypoint into the list
             m_keyPoints.push_back(Keypoint(xi*scale/2, yi*scale/2, mag, orien, i*m_numIntervals+j-1));
           }
@@ -667,6 +673,7 @@ void SIFT::AssignOrientations()
         sprintf(filename, "C:\\SIFT Test\\Orientation Region\\ori_region_oct_%d_scl_%d.jpg", i, j-1);
         cvSaveImage(filename, imgMask);*/
       cvReleaseImage(&imgMask);
+      cvReleaseImage(&imgWeight);
     }
   }
 
