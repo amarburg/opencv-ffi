@@ -69,13 +69,16 @@ class SIFT
       public:
       int octave, interval, xi, yi;
 
-      def Extrema( oct, intv, x, y )
+      Extrema( int oct, int intv, int x, int y )
         : octave( oct ), interval( intv ), xi( x ), yi( y )
       {}
     };
 
-    vector <Extrema> m_extrema;
+    vector<Extrema> extrema;
 
     vector<Keypoint> m_keyPoints;	// Holds each keypoint's basic info
     vector<Descriptor> m_keyDescs;	// Holds each keypoint's descriptor
+
+    IplImage *magnitude_mat( int i, int j );
+    double orientation_at( int i, int j, int xi, int yi );
 };
