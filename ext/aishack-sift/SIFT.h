@@ -13,6 +13,18 @@
 #include "KeyPoint.h"
 #include "Descriptor.h"
 
+#define SIGMA_ANTIALIAS			0.5
+#define SIGMA_PREBLUR			1.0
+#define CURVATURE_THRESHOLD		5.0
+#define CONTRAST_THRESHOLD		0.03		// in terms of 255
+#define NUM_BINS				36
+#define MAX_KERNEL_SIZE			20
+#define FEATURE_WINDOW_SIZE		16
+#define DESC_NUM_BINS			8
+#define FVSIZE					128
+#define	FV_THRESHOLD			0.2
+
+
 class SIFT
 {
   public:
@@ -21,9 +33,14 @@ class SIFT
     ~SIFT();
 
     void DoSift();
+    void DetectKeypoints();
+    void DescribeKeypoints();
 
     void ShowKeypoints();
     void ShowAbsSigma();
+
+    const vector<Keypoint> keypoints( void ) { return m_keyPoints; }
+    const vector<Descriptor> descriptor( void ) { return m_keyDescs; }
 
   private:
     void GenerateLists();

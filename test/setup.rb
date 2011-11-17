@@ -11,6 +11,7 @@ require 'opencv-ffi/imgproc'
 
 
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
+SMALL_TEST_IMAGE_FILE = "test/test_files/images/IMG_7089_small.JPG"
 TEST_IMAGE_FILE_TWO = "test/test_files/images/IMG_7088.JPG"
 
 def recursive_test name
@@ -29,6 +30,11 @@ module TestSetup
   def self.test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end
+
+  def self.small_test_image
+    CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+  end
+
 
   def self.grey_test_image
     img = test_image

@@ -16,17 +16,6 @@
 
 using namespace cv;
 
-#define SIGMA_ANTIALIAS			0.5
-#define SIGMA_PREBLUR			1.0
-#define CURVATURE_THRESHOLD		5.0
-#define CONTRAST_THRESHOLD		0.03		// in terms of 255
-#define NUM_BINS				36
-#define MAX_KERNEL_SIZE			20
-#define FEATURE_WINDOW_SIZE		16
-#define DESC_NUM_BINS			8
-#define FVSIZE					128
-#define	FV_THRESHOLD			0.2
-
 // SaveFloatingPointImage()
 // The standard HighGUI functions can save only 8bit images. This
 // function converts a floating point image (with values 0..1) into
@@ -132,9 +121,19 @@ SIFT::~SIFT()
 // This function does everything in sequence.
 void SIFT::DoSift()
 {
+  DetectKeypoints();
+  DescribeKeypoints();
+}
+
+void SIFT::DetectKeypoints()
+{
   BuildScaleSpace();
   DetectExtrema();
   AssignOrientations();
+}
+
+void SIFT::DescribeKeypoints()
+{
   ExtractKeypointDescriptors();
 }
 

@@ -6,6 +6,7 @@ module CVFFI
   class Params
 
     def self.defaults; @defaults ||= {}; end
+    def defaults;      self.class.defaults; end
 
     def self.param( *args )
       while args.length > 0
