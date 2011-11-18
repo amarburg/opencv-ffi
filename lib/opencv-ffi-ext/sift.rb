@@ -27,12 +27,21 @@ module CVFFI
              :scale, :uint
     end
 
-    class SiftKeypoints < NiceFFI::Struct
+    FV_LENGTH = 128
+    class SiftDescriptor < NiceFFI::Struct
+      layout :x, :float,
+             :y, :float,
+             :fv, [:float, FV_LENGTH],
+             :fv_length, :uint
+    end
+
+    class SiftResults< NiceFFI::Struct
       layout :kps, :pointer,
+             :descs, :pointer,
              :len, :uint
     end
 
-    attach_function :siftDetect_real, :siftDetect, [ :pointer, SiftParams.by_value ], SiftKeypoints.typed_pointer
+    attach_function :siftDetectDescribe_real, :siftDetectDescribe, [ :pointer, SiftParams.by_value ], SiftResults.typed_pointer
 
 
     class Params < CVFFI::Params
@@ -51,12 +60,21 @@ module CVFFI
 
       puts "Running SIFT algorithm with #{params.octaves} octaves and #{params.intervals} intervals."
 
-      kps = siftDetect_real( image, params )
+      kps = siftDetectDescribe_real( image, params )
 
       # Unwrap the SiftKeypoints to an Array.
-      Array.new( kps.len ) { |i|
+      keypoints = Array.new( kps.len ) { |i|
         SiftKeypoint.new( kps.kps + (i*SiftKeypoint.size))
       }
+      descs = Array.new( kps.len ) { |i|
+        SiftDescriptor.new( kps.descs + (i*SiftDescriptor.size) )
+      }
+
+      p keypoints[0]
+      p descs[0]
+
+      [keypoints,descs]
+
     end
 
 

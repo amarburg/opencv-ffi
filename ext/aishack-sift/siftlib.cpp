@@ -19,11 +19,19 @@ typedef struct {
 } SiftKeypoint_t;
 
 typedef struct {
-  SiftKeypoint_t *kps;
-  unsigned int len;
-} SiftKeypoints_t;
+  float xi, yi;
+  float fv[FVSIZE];
+  unsigned int fv_size;
+} SiftDescriptor_t;
 
-SiftKeypoints_t *KeypointToSiftKeypoints( const vector<Keypoint> kps )
+typedef struct {
+  SiftKeypoint_t *kps;
+  SiftDescriptor_t *descs;
+  unsigned int len;
+} SiftResults_t;
+
+
+SiftResults_t *buildSiftResults( const vector<Keypoint> kps, const vector<Descriptor> descs )
 {
   printf("Creating array for %d keypoints.\n", kps.size() );
   SiftKeypoint_t *kp_array = new SiftKeypoint_t[ kps.size() ];
@@ -45,23 +53,33 @@ SiftKeypoints_t *KeypointToSiftKeypoints( const vector<Keypoint> kps )
     idx++;
   }
 
-  SiftKeypoints_t *keypoints = new SiftKeypoints_t;
-  keypoints->kps = kp_array;
-  keypoints->len = kps.size();
+  printf("Creating array for %d descriptors.\n", descs.size() );
+  SiftDescriptor_t *desc_array = new SiftDescriptor_t[ descs.size() ];
+  idx = 0;
+  for( vector<Descriptor>::const_iterator itr = descs.begin(); itr != descs.end(); itr++ ) {
+    desc_array[idx].xi = (*itr).xi;
+    desc_array[idx].yi = (*itr).yi;
 
-  for( unsigned int i = 0; i < keypoints->len; i ++  ) {
-    printf("Keypoint %d at %f %f\n", i, keypoints->kps[i].xi, keypoints->kps[i].yi );
+    desc_array[idx].fv_size = FVSIZE;
+    for( unsigned int i = 0; i < FVSIZE; i++ ) {
+      desc_array[idx].fv[i] = (*itr).fv[i];
+    }
+    ++idx;
   }
 
-  return keypoints;
+  SiftResults_t *results= new SiftResults_t;
+  results->kps = kp_array;
+  results->descs = desc_array;
+  results->len = kps.size();
+
+  return results;
 }
 
 extern "C" 
-SiftKeypoints_t *siftDetect( IplImage *img, SiftParams_t params )
+SiftResults_t *siftDetectDescribe( IplImage *img, SiftParams_t params )
 {
   SIFT sift( img, params.octaves, params.intervals );
-  sift.DetectKeypoints();
+  sift.DoSift();
 
-  printf("Copying keypoint structures...\n");
-  return KeypointToSiftKeypoints( sift.keypoints() );
+  return buildSiftResults( sift.keypoints(), sift.descriptors() );
 }

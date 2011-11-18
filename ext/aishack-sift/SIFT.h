@@ -40,7 +40,7 @@ class SIFT
     void ShowAbsSigma();
 
     const vector<Keypoint> keypoints( void ) { return m_keyPoints; }
-    const vector<Descriptor> descriptor( void ) { return m_keyDescs; }
+    const vector<Descriptor> descriptors( void ) { return m_keyDescs; }
 
   private:
     void GenerateLists();
