@@ -53,10 +53,10 @@ module CVFFI
 
       kps = siftDetect_real( image, params )
 
-      p kps
-
-
-      kps
+      # Unwrap the SiftKeypoints to an Array.
+      Array.new( kps.len ) { |i|
+        SiftKeypoint.new( kps.kps + (i*SiftKeypoint.size))
+      }
     end
 
 

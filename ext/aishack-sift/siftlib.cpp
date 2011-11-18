@@ -25,6 +25,7 @@ typedef struct {
 
 SiftKeypoints_t *KeypointToSiftKeypoints( const vector<Keypoint> kps )
 {
+  printf("Creating array for %d keypoints.\n", kps.size() );
   SiftKeypoint_t *kp_array = new SiftKeypoint_t[ kps.size() ];
 
   unsigned int idx = 0;
@@ -47,6 +48,10 @@ SiftKeypoints_t *KeypointToSiftKeypoints( const vector<Keypoint> kps )
   SiftKeypoints_t *keypoints = new SiftKeypoints_t;
   keypoints->kps = kp_array;
   keypoints->len = kps.size();
+
+  for( unsigned int i = 0; i < keypoints->len; i ++  ) {
+    printf("Keypoint %d at %f %f\n", i, keypoints->kps[i].xi, keypoints->kps[i].yi );
+  }
 
   return keypoints;
 }
