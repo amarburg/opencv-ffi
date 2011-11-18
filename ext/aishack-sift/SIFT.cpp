@@ -10,6 +10,7 @@
 #include "SIFT.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgproc/imgproc_c.h>
@@ -472,7 +473,7 @@ void SIFT::AssignOrientations()
   {
     magnitude[i] = new IplImage*[m_numIntervals];
 
-    for( j = 1; j < m_numIntervals; j++ ) {
+    for( j = 1; j <= m_numIntervals; j++ ) {
       magnitude[i][j-1] = NULL;
     }
   }	
@@ -501,6 +502,7 @@ void SIFT::AssignOrientations()
     if( magnitude[i][j-1] == NULL ) {
       magnitude[i][j-1] = magnitude_mat( i, j );
     }
+    assert( magnitude[i][j-1] );
     IplImage* imgWeight = cvCreateImage(cvSize(width, height), 32, 1);
     cvSmooth(magnitude[i][j-1], imgWeight, CV_GAUSSIAN, 0, 0, 1.5*abs_sigma);
 
@@ -509,8 +511,8 @@ void SIFT::AssignOrientations()
 
     // Temporarily used to generate a mask of region used to calculate 
     // the orientations
-    IplImage* imgMask = cvCreateImage(cvSize(width, height), 8, 1);
-    cvZero(imgMask);
+    //IplImage* imgMask = cvCreateImage(cvSize(width, height), 8, 1);
+    //cvZero(imgMask);
 
     // Reset the histogram thingy
     for(k=0;k<NUM_BINS;k++)
@@ -535,7 +537,7 @@ void SIFT::AssignOrientations()
         // Convert to degrees
         unsigned int sampleOrientDegrees = sampleOrient * 180 / M_PI;
         hist_orient[(int)sampleOrientDegrees / (360/NUM_BINS)] += cvGetReal2D(imgWeight, yi+tt, xi+kk);
-        cvSetReal2D(imgMask, yi+tt, xi+kk, 255);
+        //cvSetReal2D(imgMask, yi+tt, xi+kk, 255);
       }
     }
 
@@ -666,7 +668,7 @@ void SIFT::AssignOrientations()
     /*char* filename = new char[200];
       sprintf(filename, "C:\\SIFT Test\\Orientation Region\\ori_region_oct_%d_scl_%d.jpg", i, j-1);
       cvSaveImage(filename, imgMask);*/
-    cvReleaseImage(&imgMask);
+    //cvReleaseImage(&imgMask);
     cvReleaseImage(&imgWeight);
   }
   
@@ -675,20 +677,17 @@ void SIFT::AssignOrientations()
   assert(m_keyPoints.size() == m_numKeypoints);
   for(i=0;i<m_numOctaves;i++)
   {
-    for(j=1;j<m_numIntervals+1;j++)
+    for(j=0 ; j<m_numIntervals ; j++)
     {
-      if( magnitude[i][j-1] != NULL ) {
-        cvReleaseImage(&magnitude[i][j-1]);
+      if( magnitude[i][j] != NULL ) {
+        cvReleaseImage(&magnitude[i][j]);
       }
-      //cvReleaseImage(&orientation[i][j-1]);
     }
 
     delete [] magnitude[i];
-    //delete [] orientation[i];
   }
 
   delete [] magnitude;
-  //delete [] orientation;
 }
 
 // ExtractKeypointDescriptors()

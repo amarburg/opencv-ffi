@@ -7,28 +7,23 @@
  * this code :)
  ******************************************************/
 
-#ifndef DESCRIPTOR_H
-#define DESCRIPTOR_H
+// MySIFT.cpp : Defines the entry point for the console application.
+//
 
-using namespace std;
+#include "SIFT.h"
 
-class Descriptor
+#include <opencv2/core/core.hpp>
+
+// The main function!
+int main()
 {
-  public:
-    float xi, yi;		// The location
-    vector<double> fv;			// The feature vector
+  // Create an instance of SIFT
+  SIFT *sift = new SIFT("IMG_7088_small.JPG", 1, 5);
 
-    Descriptor()
-    {
-    }
+  sift->DoSift();				// Find keypoints
 
-    Descriptor(float x, float y, vector<double> const& f)
-    {
-      xi = x;
-      yi = y;
-      fv = f;
-    }
-};
-
-#endif
+  // Cleanup and exit
+  delete sift;
+  return 0;
+}
 
