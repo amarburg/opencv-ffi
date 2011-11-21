@@ -20,25 +20,61 @@ module CVFFI
     NUM_BINS = 36
     class SiftKeypoint < NiceFFI::Struct
       layout :x, :float,
-             :y, :float,
-             :mag, [:float, NUM_BINS],
-             :orien, [:float, NUM_BINS],
-             :num_bins, :uint,
-             :scale, :uint
+        :y, :float,
+        :mag, [:float, NUM_BINS],
+        :orien, [:float, NUM_BINS],
+        :num_bins, :uint,
+        :scale, :uint
     end
 
     FV_LENGTH = 128
     class SiftDescriptor < NiceFFI::Struct
       layout :x, :float,
-             :y, :float,
-             :fv, [:float, FV_LENGTH],
-             :fv_length, :uint
+        :y, :float,
+        :fv, [:float, FV_LENGTH],
+        :fv_length, :uint
     end
 
     class SiftResults< NiceFFI::Struct
       layout :kps, :pointer,
-             :descs, :pointer,
-             :len, :uint
+        :descs, :pointer,
+        :len, :uint
+    end
+
+    class Results
+      attr_accessor :kps, :descs
+
+      def initialize( k, d )
+        @kps = k
+        @descs = d
+      end
+
+      def size
+        @kps.length
+      end
+      alias :length :size
+
+      def to_a
+        a = Array.new
+        a << Array.new( size ) { |i|
+          kp = kps[i]
+          [ kp.x, kp.y, kp.mag, kp.orien, kp.num_bins, kp.scale ]
+        }
+        a << Array.new( size ) { |i|
+          d = descs[i]
+          [d.x, d.y, d.fv, d.fv_length]
+        }
+      end
+
+      def self.from_a( a )
+        a = YAML::load(a) if a.is_a? String
+        raise "Don't know what to do" unless a.is_a? Array
+        raise "Result isn't a two-element array" unless a.length == 2
+
+        kps = a[0]
+        descs = a[1]
+      end
+
     end
 
     attach_function :siftDetectDescribe_real, :siftDetectDescribe, [ :pointer, SiftParams.by_value ], SiftResults.typed_pointer
@@ -50,8 +86,9 @@ module CVFFI
 
       def to_SiftParams
         SiftParams.new( octaves: octaves, 
-                        intervals: intervals )
+                       intervals: intervals )
       end
+
     end
 
 
@@ -73,8 +110,7 @@ module CVFFI
       p keypoints[0]
       p descs[0]
 
-      [keypoints,descs]
-
+      Results.new( keypoints, descs )
     end
 
 
