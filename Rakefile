@@ -16,7 +16,6 @@ CLEAN.include "lib/*.so"
 
 #Rake::ExtensionTask.new('fast')
 setup_extension "opencv-ffi", "libcvffi"
-setup_extension "fast", "libcvffi_fast"
 setup_extension "eigen", "libcvffi_eigen"
 setup_extension "opensurf", "libcvffi_opensurf"
 setup_extension "aishack-sift", "libcvffi_sift"

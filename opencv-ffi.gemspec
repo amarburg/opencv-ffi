@@ -7,9 +7,9 @@ Gem::Specification.new do |s|
   s.version     = Opencv::Ffi::VERSION
   s.authors     = ["Aaron Marburg"]
   s.email       = ["aaron.marburg@pg.canterbury.ac.nz"]
-  s.homepage    = ""
-  s.summary     = %q{Wrapper around OpenCV using FFI}
-  s.description = %q{Wrapper around OpenCV using FFI}
+  s.homepage    = "http://github.com/amarburg/opencv-ffi"
+  s.summary     = %q{A wrapper around OpenCV's C interface using Ruby FFI.  Very preliminary.}
+  s.description = %q{A wrapper around OpenCV's C interface using Ruby FFI.}
 
   s.rubyforge_project = "opencv-ffi"
 
