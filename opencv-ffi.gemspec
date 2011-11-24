@@ -4,7 +4,7 @@ require "opencv-ffi/version"
 
 Gem::Specification.new do |s|
   s.name        = "opencv-ffi"
-  s.version     = Opencv::Ffi::VERSION
+  s.version     = CVFFI::VERSION
   s.authors     = ["Aaron Marburg"]
   s.email       = ["aaron.marburg@pg.canterbury.ac.nz"]
   s.homepage    = "http://github.com/amarburg/opencv-ffi"
