@@ -1,6 +1,18 @@
 OpenCV-FFI
 ==========
 
+Status
+------
+
+I freely admit this is project is still in-development.  I am using it
+for day-to-day work and it will continue to get better, more stable, etc.
+It does not cover the whole OpenCV C API, by an stretch -- it needs more
+and better tests, really.
+
+I'm very happy to discuss how this project might grow and expand to
+become more useful to the Ruby community...
+
+
 Introduction
 ------------
 
