@@ -118,7 +118,7 @@ module CVFFI
       CVFFI::cvExtractMSER( img, nil, contour_ptr, mem_storage, params )
 
       contours = CVFFI::CvSeq.new( contour_ptr.read_pointer() )
-      ResultsArray.new( contour, mem_storage )
+      ResultsArray.new( contours, mem_storage )
 
     end
   end
