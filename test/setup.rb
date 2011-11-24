@@ -32,7 +32,7 @@ module TestSetup
   end
 
   def self.small_test_image
-    CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+    CVFFI::cvLoadImage( SMALL_TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end
 
 
