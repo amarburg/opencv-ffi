@@ -1,4 +1,3 @@
 
-
-require 'opencv-ffi-wrappers/features2d/image_patch'
+require 'opencv-ffi-wrappers/features2d/sift'
 
