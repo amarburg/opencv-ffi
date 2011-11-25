@@ -8,42 +8,60 @@ class TestSIFT < Test::Unit::TestCase
 
   def setup
     @img = CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
-  end
+    @kp_ptr = FFI::MemoryPointer.new :pointer
+    @mem_storage = CVFFI::cvCreateMemStorage( 0 )
 
-  def test_cvSIFTDetect
-    kp_ptr = FFI::MemoryPointer.new :pointer
-    mem_storage = CVFFI::cvCreateMemStorage( 0 )
-
-    greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height, 
+    @greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height, 
                                                          :width => @img.width }), 
                                     :IPL_DEPTH_8U, 1 )
-    CVFFI::cvCvtColor( @img, greyImg, :CV_RGB2GRAY )
+    CVFFI::cvCvtColor( @img, @greyImg, :CV_RGB2GRAY )
 
-    params = CVFFI::CvSIFTParams.new( nOctaves: 4,
+    @params = CVFFI::CvSIFTParams.new( nOctaves: 4,
                                       nOctaveLayers: 3,
                                       threshold: 0.04,
                                       edgeThreshold: 10.0,
                                       magnification: 3.0 )
-    CVFFI::cvSIFTDetect( greyImg, nil, kp_ptr, mem_storage, params )
+   end
 
-    assert_not_nil kp_ptr
-    assert_not_nil kp_ptr.read_pointer()
+  def test_cvSIFTDetect
+   CVFFI::cvSIFTDetect( @greyImg, nil, @kp_ptr, @mem_storage, @params )
 
-    keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
-    descriptors = CVFFI::CvSeq.new( desc_ptr.read_pointer() )
+    assert_not_nil @kp_ptr
+    assert_not_nil @kp_ptr.read_pointer()
 
-    puts "SIFT found #{keypoints.total} keypoints"
-    #puts "#{descriptors.total} descriptors"
+    keypoints = CVFFI::CvSeq.new( @kp_ptr.read_pointer() )
 
-    #(0...keypoints.total).each { |i|
-    #  kp = CVFFI::CvSURFPoint.new( CVFFI::cvGetSeqElem( keypoints.to_ptr, i ) )
+    puts "SIFT detect only found #{keypoints.total} keypoints"
+  end
 
-      # cvCircle takes a CvPoint(int), but the CvSURFPoint contains CvPoint2D32f, need 
-      # to manually typecast...
-    #  CVFFI::cvCircle( smallGreyImg, CVFFI::CvPoint.new( :x => kp.pt.x.to_i, :y => kp.pt.y.to_i ), 5,
-    #                  CVFFI::CvScalar.new( :w=>255, :x=>255, :y=>255, :z=>0 ), -1, 8, 0 )
-    #}
-    #CVFFI::cvSaveImage( TestSetup::output_filename("greyImagePts.jpg"), smallGreyImg )
+  def test_cvSIFTDetectDescribe
+
+    desc = CVFFI::CvMat.new CVFFI::cvCreateMat( 1,1, :CV_32F )
+    CVFFI::cvSIFTDetectDescribe( @greyImg, nil, @kp_ptr, desc, @mem_storage, @params )
+
+    assert_not_nil @kp_ptr
+    assert_not_nil @kp_ptr.read_pointer()
+
+    keypoints = CVFFI::CvSeq.new( @kp_ptr.read_pointer() )
+
+    assert_equal keypoints.total, desc.height
+
+    puts "SIFT detect and describe found #{keypoints.total} keypoints"
+  end
+
+
+  # Tests the "wrapper" version
+  def test_SIFTDetect
+    params = CVFFI::SIFT::Params.new
+    kps = CVFFI::SIFT::detect( @greyImg, params )
+
+    assert_not_nil kps
+
+    puts "The SIFT wrapper found #{kps.size} keypoints"
+
+    puts "here's the first keypoint:"
+    p kps[0]
+
   end
 
 end

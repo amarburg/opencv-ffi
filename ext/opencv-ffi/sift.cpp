@@ -1,4 +1,5 @@
 
+#include <assert.h>
 #include <opencv2/core/core_c.h>
 
 #include "keypoint.h"
@@ -11,6 +12,27 @@ typedef struct {
   double threshold, edgeThreshold;
   double magnification;
 } CvSIFTParams_t;
+
+
+CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
+{
+  CvSeq *seq = cvCreateSeq( 0, sizeof( CvSeq ), sizeof( CvKeyPoint_t ), storage );
+  
+  CvSeqWriter writer;
+  cvStartAppendToSeq( seq, &writer );
+  for( vector<KeyPoint>::iterator itr = kps.begin(); itr != kps.end(); itr++ ) {
+    CV_WRITE_SEQ_ELEM( KeyPointToKeyPoint_t( *itr ), writer );
+  }
+  cvEndWriteSeq( &writer );
+
+  assert( kps.size() == seq->total );
+
+  return seq;
+}
+
+
+// TODO:  The irony here is that the SIFT implementation is largely in
+//  C, and has a thin C++ wrapper around it, but no C API is exposed...
 
 
 
@@ -33,16 +55,7 @@ void cvSIFTDetect( const CvArr *img,
     maskMat = cvGetMat( mask, &stub );
 
   sift( imgMat, maskMat, kps );
-
-  CvSeq *seq = cvCreateSeq( 0, sizeof( CvSeq ), sizeof( CvKeyPoint_t ), storage );
-  
-  CvSeqWriter writer;
-  cvStartAppendToSeq( seq, &writer );
-  for( vector<KeyPoint>::iterator itr = kps.begin(); itr != kps.end(); itr++ ) {
-    CV_WRITE_SEQ_ELEM( KeyPointToKeyPoint_t( *itr ), writer );
-  }
-
-  *keypoints = seq;
+  *keypoints = KeyPointsToCvSeq( kps, storage );
 }
 
 // Both detection and description
@@ -65,10 +78,20 @@ void cvSIFTDetectDescribe( const CvArr *img,
   Mat descs;
   CvMat stub;
   Mat imgMat( cvGetMat( img, &stub ) );
-  Mat maskMat( cvGetMat( mask, &stub ) );
+  Mat maskMat;
+  if( mask )
+    maskMat = cvGetMat( mask, &stub );
+
   sift( imgMat, maskMat, kps, descs );
 
   // Unpack...
+  *keypoints = KeyPointsToCvSeq( kps, storage );
+  *descriptors  = descs;
 }
 
+
+
+//
+// There's a third option here, which is just describe (presumably using 
+// keypoints provided by the user...)
 
