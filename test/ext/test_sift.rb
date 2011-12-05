@@ -11,7 +11,8 @@ class TestSIFT < Test::Unit::TestCase
 
 
   def test_siftDetect
-    img = TestSetup::small_test_image
+    #img = TestSetup::small_test_image
+    img = TestSetup::test_image
 
     params = CVFFI::SIFT::Params.new( octaves: 1 )
 

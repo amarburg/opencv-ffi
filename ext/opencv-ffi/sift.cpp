@@ -1,17 +1,13 @@
 
+#include <stdio.h>
+
 #include <assert.h>
 #include <opencv2/core/core_c.h>
 
 #include "keypoint.h"
+#include "sift.h"
 
 using namespace cv;
-
-typedef struct {
-  int nOctaves, nOctaveLayers;
-
-  double threshold, edgeThreshold;
-  double magnification;
-} CvSIFTParams_t;
 
 
 CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
@@ -21,7 +17,8 @@ CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
   CvSeqWriter writer;
   cvStartAppendToSeq( seq, &writer );
   for( vector<KeyPoint>::iterator itr = kps.begin(); itr != kps.end(); itr++ ) {
-    CV_WRITE_SEQ_ELEM( KeyPointToKeyPoint_t( *itr ), writer );
+    CvKeyPoint_t kp = KeyPointToKeyPoint_t( *itr );
+    CV_WRITE_SEQ_ELEM( kp, writer );
   }
   cvEndWriteSeq( &writer );
 
@@ -33,7 +30,6 @@ CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
 
 // TODO:  The irony here is that the SIFT implementation is largely in
 //  C, and has a thin C++ wrapper around it, but no C API is exposed...
-
 
 
 // Keypoint detection only
@@ -54,7 +50,10 @@ void cvSIFTDetect( const CvArr *img,
   if( mask )
     maskMat = cvGetMat( mask, &stub );
 
+  printf("a\n");
+
   sift( imgMat, maskMat, kps );
+
   *keypoints = KeyPointsToCvSeq( kps, storage );
 }
 
