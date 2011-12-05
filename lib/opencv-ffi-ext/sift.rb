@@ -24,33 +24,51 @@ module CVFFI
     class SiftKeypoint < NiceFFI::Struct
       layout :x, :float,
         :y, :float,
-        :size, :float,
+        :featureSize, :float,
         :angle, :float,
         :response, :float,
         :octave, :int
     end
 
     class Keypoints
-      attr_accessor :kps
+      include Enumerable
 
-      def initialize( k, mem_storage )
-        @kps = k
-        @mem_storage = mem_storage
+      attr_reader :kps
 
-        destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @mem_storage ); cvReleaseMemStorage( poolPtr ) }
-        ObjectSpace.define_finalizer( self, destructor )
+      def initialize( k, mem_storage = nil)
+        if k.is_a? CvSeq
+          @kps = Sequence.new( k )
+          @results = Array.new( k.size )
+          @mem_storage = mem_storage
 
+          destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @mem_storage ); cvReleaseMemStorage( poolPtr ) }
+          ObjectSpace.define_finalizer( self, destructor )
+        else
+          @kps = nil
+          @results = k
+        end
       end
 
       def size
-        @kps.length
+        @results.size
       end
       alias :length :size
 
+      def each
+        size.times { |i|
+          yield at(i)
+        }
+      end
+
+      def [](i)
+        raise "Request for result out of bounds" if (i < 0 or i >= size)
+        @results[i] ||= SiftKeypoint.new( @kps[i] )
+      end
+      alias :at :[]
+
       def to_a
-        Array.new( size ) { |i|
-          kp = kps[i]
-         [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
+        map { |kp|
+          [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
         }
       end
 
@@ -58,7 +76,10 @@ module CVFFI
         a = YAML::load(a) if a.is_a? String
         raise "Don't know what to do" unless a.is_a? Array
 
-        kps = a
+        kps = a.map { |a|
+          SiftKeypoint.new( a )
+        }
+        Keypoints.new( kps )
       end
     end
 
@@ -89,14 +110,13 @@ module CVFFI
 
       kp_ptr = FFI::MemoryPointer.new :pointer
       storage = CVFFI::cvCreateMemStorage( 0 )
-
       image = image.ensure_greyscale
-      p image
+
       cvSIFTDetect( image, nil, kp_ptr, storage, params )
 
       keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
 
-      Keypoints.new( keypoints, mem_storage )
+      Keypoints.new( keypoints, storage )
     end
 
 

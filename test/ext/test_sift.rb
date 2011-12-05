@@ -14,7 +14,7 @@ class TestSIFT < Test::Unit::TestCase
     #img = TestSetup::small_test_image
     img = TestSetup::test_image
 
-    params = CVFFI::SIFT::Params.new( octaves: 1 )
+    params = CVFFI::SIFT::Params.new
 
     # This should test the auto=conversion to greyscale
     sift = CVFFI::SIFT::detect( img, params )
@@ -22,6 +22,17 @@ class TestSIFT < Test::Unit::TestCase
     assert_not_nil sift
 
     puts "SIFT detected #{sift.length} points."
- end
+    sift.each { |s|
+      puts "(%.2f %.2f), size = %.2f, angle = %.2f, response = %.2f, octave = %.2f" % [s.x, s.y, s.size, s.angle, s.response, s.octave]
+    }
+
+    # Test serialization/unserialization
+    asArray = sift.to_a
+    asYaml = asArray.to_yaml
+    unserialized = CVFFI::SIFT::Keypoints.from_a( asYaml )
+
+    assert_equal sift.length, unserialized.length
+
+  end
 
 end

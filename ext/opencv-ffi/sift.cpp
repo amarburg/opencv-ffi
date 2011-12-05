@@ -50,8 +50,6 @@ void cvSIFTDetect( const CvArr *img,
   if( mask )
     maskMat = cvGetMat( mask, &stub );
 
-  printf("a\n");
-
   sift( imgMat, maskMat, kps );
 
   *keypoints = KeyPointsToCvSeq( kps, storage );
