@@ -31,6 +31,7 @@ module CVFFI
     def [](i)
       CVFFI::cvGetSeqElem( @seq, i )
     end
+    alias :at :[]
 
   end
 

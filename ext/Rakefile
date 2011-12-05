@@ -1,5 +1,5 @@
 
-libs = [ "opencv-ffi", "eigen", "opensurf", "aishack-sift" ]
+libs = [ "opencv-ffi", "eigen", "opensurf" ]
 
 task :default => libs
 

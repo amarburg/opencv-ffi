@@ -6,6 +6,7 @@ require 'opencv-ffi-wrappers/core/iplimage'
 require 'opencv-ffi-wrappers/core/scalar'
 require 'opencv-ffi-wrappers/core/rect'
 require 'opencv-ffi-wrappers/core/misc_draw'
+require 'opencv-ffi-wrappers/core/sequence'
 
 require 'opencv-ffi-wrappers/matrix'
 
