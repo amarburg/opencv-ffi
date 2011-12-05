@@ -1,6 +1,7 @@
 
 require 'nice-ffi'
 
+require 'opencv-ffi-wrappers'
 require 'opencv-ffi-wrappers/misc/params'
 
 module CVFFI
@@ -8,45 +9,37 @@ module CVFFI
   module SIFT
     extend NiceFFI::Library
 
-    libs_dir = File.dirname(__FILE__) + "/../../ext/aishack-sift/"
+    libs_dir = File.dirname(__FILE__) + "/../../ext/opencv-ffi/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
-    load_library("cvffi_sift", pathset)
+    load_library("cvffi", pathset)
 
-    class SiftParams < NiceFFI::Struct
+    class CvSIFTParams < NiceFFI::Struct
       layout :octaves, :int,
-        :intervals, :int
+        :intervals, :int,
+        :threshold, :double,
+        :edgeThreshold, :double,
+        :magnification, :double
     end
 
-    NUM_BINS = 36
     class SiftKeypoint < NiceFFI::Struct
       layout :x, :float,
         :y, :float,
-        :mag, [:float, NUM_BINS],
-        :orien, [:float, NUM_BINS],
-        :num_bins, :uint,
-        :scale, :uint
+        :size, :float,
+        :angle, :float,
+        :response, :float,
+        :octave, :int
     end
 
-    FV_LENGTH = 128
-    class SiftDescriptor < NiceFFI::Struct
-      layout :x, :float,
-        :y, :float,
-        :fv, [:float, FV_LENGTH],
-        :fv_length, :uint
-    end
+    class Keypoints
+      attr_accessor :kps
 
-    class SiftResults< NiceFFI::Struct
-      layout :kps, :pointer,
-        :descs, :pointer,
-        :len, :uint
-    end
-
-    class Results
-      attr_accessor :kps, :descs
-
-      def initialize( k, d )
+      def initialize( k, mem_storage )
         @kps = k
-        @descs = d
+        @mem_storage = mem_storage
+
+        destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @mem_storage ); cvReleaseMemStorage( poolPtr ) }
+        ObjectSpace.define_finalizer( self, destructor )
+
       end
 
       def size
@@ -55,62 +48,55 @@ module CVFFI
       alias :length :size
 
       def to_a
-        a = Array.new
-        a << Array.new( size ) { |i|
+        Array.new( size ) { |i|
           kp = kps[i]
-          [ kp.x, kp.y, kp.mag, kp.orien, kp.num_bins, kp.scale ]
-        }
-        a << Array.new( size ) { |i|
-          d = descs[i]
-          [d.x, d.y, Array.new(d.fv_length) {|i| d.fv[i]}, d.fv_length]
+         [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
         }
       end
 
       def self.from_a( a )
         a = YAML::load(a) if a.is_a? String
         raise "Don't know what to do" unless a.is_a? Array
-        raise "Result isn't a two-element array" unless a.length == 2
 
-        kps = a[0]
-        descs = a[1]
+        kps = a
       end
-
     end
 
-    attach_function :siftDetectDescribe_real, :siftDetectDescribe, [ :pointer, SiftParams.by_value ], SiftResults.typed_pointer
-
+    attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
 
     class Params < CVFFI::Params
       param :octaves, 4
       param :intervals, 5 
+      param :threshold, 0.04
+      param :edgeThreshold, 10.0 
+      param :magnification, 3.0
 
-      def to_SiftParams
-        SiftParams.new( octaves: octaves, 
-                       intervals: intervals )
+      def to_CvSIFTParams
+        CvSIFTParams.new( octaves: octaves, 
+                       intervals: intervals,
+                      threshold: threshold,
+                      edgeThreshold: edgeThreshold,
+                      magnification: magnification )
       end
 
     end
 
 
     def self.detect( image, params )
-      params = params.to_SiftParams unless params.is_a?( SiftParams )
+      params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
 
       puts "Running SIFT algorithm with #{params.octaves} octaves and #{params.intervals} intervals."
 
-      kps = siftDetectDescribe_real( image, params )
+      kp_ptr = FFI::MemoryPointer.new :pointer
+      storage = CVFFI::cvCreateMemStorage( 0 )
 
-      # Unwrap the SiftKeypoints to an Array.
-      keypoints = Array.new( kps.len ) { |i|
-        SiftKeypoint.new( kps.kps + (i*SiftKeypoint.size))
-      }
-      descs = Array.new( kps.len ) { |i|
-        SiftDescriptor.new( kps.descs + (i*SiftDescriptor.size) )
-      }
+      image = image.ensure_greyscale
+      p image
+      cvSIFTDetect( image, nil, kp_ptr, storage, params )
 
-      p keypoints[0]
-      p descs[0]
+      keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
 
-      Results.new( keypoints, descs )
+      Keypoints.new( keypoints, mem_storage )
     end
 
 
