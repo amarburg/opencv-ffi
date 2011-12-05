@@ -524,7 +524,7 @@ void SIFT::AssignOrientations()
       for(tt=-hfsz;tt<=hfsz;tt++)
       {
         // Ensure we're within the image
-        if(xi+kk<0 || xi+kk>=width || yi+tt<0 || yi+tt>=height)
+        if(xi+kk<=0 || xi+kk>=(width-1) || yi+tt<=0 || yi+tt>=(height-1))
           continue;
 
         double sampleOrient = orientation_at( i,j, xi+kk, yi+tt ); //cvGetReal2D(orientation[i][j-1], yi+tt, xi+kk);

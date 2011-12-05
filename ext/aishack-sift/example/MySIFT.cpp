@@ -18,7 +18,7 @@
 int main()
 {
   // Create an instance of SIFT
-  SIFT *sift = new SIFT("IMG_7088_small.JPG", 1, 5);
+  SIFT *sift = new SIFT("foo.jpg", 4, 5);
 
   sift->DoSift();				// Find keypoints
 
