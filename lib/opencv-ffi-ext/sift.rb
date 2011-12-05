@@ -62,7 +62,7 @@ module CVFFI
         }
         a << Array.new( size ) { |i|
           d = descs[i]
-          [d.x, d.y, d.fv, d.fv_length]
+          [d.x, d.y, Array.new(d.fv_length) {|i| d.fv[i]}, d.fv_length]
         }
       end
 
