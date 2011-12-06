@@ -16,6 +16,7 @@ typedef struct {
 } CvKeyPoints_t;
 
 extern CvKeyPoint_t KeyPointToKeyPoint_t( const cv::KeyPoint &kp );
+extern cv::KeyPoint KeyPoint_tToKeyPoint( const CvKeyPoint_t &kp );
 
 #endif 
 

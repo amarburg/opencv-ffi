@@ -9,7 +9,7 @@ typedef struct {
 } SiftParams_t;
 
 typedef struct {
-  float xi;
+  f/loat xi;
   float yi;
   float mag[NUM_BINS];
   float orien[NUM_BINS];

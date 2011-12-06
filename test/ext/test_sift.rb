@@ -2,7 +2,7 @@
 require 'test/setup'
 
 require 'opencv-ffi'
-require 'opencv-ffi-ext/sift'
+require 'opencv-ffi-ext/features2d/sift'
 
 class TestSIFT < Test::Unit::TestCase
 
@@ -21,9 +21,9 @@ class TestSIFT < Test::Unit::TestCase
     assert_not_nil sift
 
     puts "SIFT detected #{sift.length} points."
-    sift.each { |s|
-      puts "(%.2f %.2f), size = %.2f, angle = %.2f, response = %.2f, octave = %.2f" % [s.x, s.y, s.size, s.angle, s.response, s.octave]
-    }
+    #sift.each { |s|
+    #  puts "(%.2f %.2f), size = %.2f, angle = %.2f, response = %.2f, octave = %.2f" % [s.x, s.y, s.size, s.angle, s.response, s.octave]
+    #}
 
     # Test serialization/unserialization
     asArray = sift.to_a
@@ -42,16 +42,13 @@ class TestSIFT < Test::Unit::TestCase
     assert_not_nil sift
 
     puts "SIFT detected #{sift.length} points."
-    sift.each { |s|
-      puts "(%.2f %.2f), size = %.2f, angle = %.2f, response = %.2f, octave = %.2f" % [s.x, s.y, s.size, s.angle, s.response, s.octave]
-    }
+    #sift.each { |s|
+    #  puts "(%.2f %.2f), size = %.2f, angle = %.2f, response = %.2f, octave = %.2f" % [s.x, s.y, s.size, s.angle, s.response, s.octave]
+    #}
 
     # Test serialization/unserialization
     asArray = sift.to_a
     asYaml = asArray.to_yaml
-    
-p asYaml
-
     unserialized = CVFFI::SIFT::Keypoints.from_a( asYaml )
 
     assert_equal sift.length, unserialized.length
