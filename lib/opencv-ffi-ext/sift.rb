@@ -21,7 +21,13 @@ module CVFFI
         :magnification, :double
     end
 
+    module SiftKeypointWithDescriptor
+      attr_accessor :descriptor
+    end
+
     class SiftKeypoint < NiceFFI::Struct
+      include SiftKeypointWithDescriptor
+
       layout :x, :float,
         :y, :float,
         :featureSize, :float,
@@ -30,12 +36,14 @@ module CVFFI
         :octave, :int
     end
 
+
     class Keypoints
       include Enumerable
 
       attr_reader :kps
+      attr_reader :desc
 
-      def initialize( k, mem_storage = nil)
+      def initialize( k, mem_storage = nil, descriptors = nil)
         if k.is_a? CvSeq
           @kps = Sequence.new( k )
           @results = Array.new( k.size )
@@ -47,6 +55,8 @@ module CVFFI
           @kps = nil
           @results = k
         end
+
+        @desc = descriptors if descriptors
       end
 
       def size
@@ -62,28 +72,49 @@ module CVFFI
 
       def [](i)
         raise "Request for result out of bounds" if (i < 0 or i >= size)
-        @results[i] ||= SiftKeypoint.new( @kps[i] )
+        unless @results[i]
+          @results[i] = SiftKeypoint.new( @kps[i] )
+          if @desc
+            @results[i].descriptor =  @desc[i]
+          end
+        end
+        @results[i]
       end
       alias :at :[]
 
       def to_a
-        map { |kp|
-          [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
+        ary = []
+        # Would work better with map_with_index
+        each_with_index { |kp,i|
+          a = [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
+           a << @desc[i].to_a if @desc
+          ary << a
         }
+        ary
       end
 
       def self.from_a( a )
         a = YAML::load(a) if a.is_a? String
         raise "Don't know what to do" unless a.is_a? Array
 
+        descriptors = []
         kps = a.map { |a|
-          SiftKeypoint.new( a )
+          kp = SiftKeypoint.new( a[0..6] )
+          if a[7]
+            ## Extract descriptors as well
+            kp.descriptors << a[7]
+          end
+          kp
         }
-        Keypoints.new( kps )
+
+        if descriptors.length > 0
+          Keypoints.new( kps, nil, descriptors )
+        else
+          Keypoints.new( kps )
+        end
       end
     end
 
-    attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
 
     class Params < CVFFI::Params
       param :octaves, 4
@@ -94,19 +125,19 @@ module CVFFI
 
       def to_CvSIFTParams
         CvSIFTParams.new( octaves: octaves, 
-                       intervals: intervals,
-                      threshold: threshold,
-                      edgeThreshold: edgeThreshold,
-                      magnification: magnification )
+                         intervals: intervals,
+                         threshold: threshold,
+                         edgeThreshold: edgeThreshold,
+                         magnification: magnification )
       end
 
     end
 
+    attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
+    attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
 
     def self.detect( image, params )
       params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
-
-      puts "Running SIFT algorithm with #{params.octaves} octaves and #{params.intervals} intervals."
 
       kp_ptr = FFI::MemoryPointer.new :pointer
       storage = CVFFI::cvCreateMemStorage( 0 )
@@ -119,6 +150,23 @@ module CVFFI
       Keypoints.new( keypoints, storage )
     end
 
+    def self.detect_describe( image, params )
+      params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
+
+      # I believe this is re-shaped by the function
+      descriptors = CVFFI::CvMat.new( CVFFI::cvCreateMat( 1,1, :CV_32F ) )
+      kp_ptr = FFI::MemoryPointer.new :pointer
+      storage = CVFFI::cvCreateMemStorage( 0 )
+      image = image.ensure_greyscale
+
+      descriptors = CvMat.new( cvSIFTDetectDescribe( image, nil, kp_ptr, storage, params ))
+
+      keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
+
+      descs = descriptors.to_Matrix.row_vectors
+
+      Keypoints.new( keypoints, storage, descs )
+    end
 
   end
 end

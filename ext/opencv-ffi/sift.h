@@ -18,6 +18,13 @@ void cvSIFTDetect( const CvArr *img,
                     CvMemStorage *storage,
                     CvSIFTParams_t params );
 
+extern "C"
+CvMat *cvSIFTDetectDescribe( const CvArr *img, 
+    const CvArr *mask, 
+    CvSeq **keypoints,
+    CvMemStorage *storage,
+    CvSIFTParams_t params );
+
 #endif
 
 

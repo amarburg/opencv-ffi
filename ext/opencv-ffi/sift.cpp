@@ -57,10 +57,9 @@ void cvSIFTDetect( const CvArr *img,
 
 // Both detection and description
 extern "C"
-void cvSIFTDetectDescribe( const CvArr *img, 
+CvMat *cvSIFTDetectDescribe( const CvArr *img, 
     const CvArr *mask, 
     CvSeq **keypoints,
-    CvMat *descriptors,
     CvMemStorage *storage,
     CvSIFTParams_t params )
 {
@@ -72,18 +71,21 @@ void cvSIFTDetectDescribe( const CvArr *img,
   SIFT sift( commonParams, detectorParams, descriptorParams );
 
   vector <KeyPoint> kps;
-  Mat descs;
+  Mat descs(1,1,CV_32FC1);
   CvMat stub;
   Mat imgMat( cvGetMat( img, &stub ) );
   Mat maskMat;
   if( mask )
     maskMat = cvGetMat( mask, &stub );
 
-  sift( imgMat, maskMat, kps, descs );
+  sift( imgMat, maskMat, kps, descs, false );
+
+  printf("Keypoints %d, descriptors %d x %d\n", kps.size(), descs.rows, descs.cols );
 
   // Unpack...
   *keypoints = KeyPointsToCvSeq( kps, storage );
-  *descriptors  = descs;
+  CvMat desc_mat = descs;
+  return cvCloneMat( &desc_mat );
 }
 
 
