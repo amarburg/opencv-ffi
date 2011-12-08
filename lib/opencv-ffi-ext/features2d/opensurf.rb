@@ -7,7 +7,7 @@ module CVFFI
   module OpenSURF
     extend NiceFFI::Library
 
-    libs_dir = File.dirname(__FILE__) + "/../../ext/opensurf/"
+    libs_dir = File.dirname(__FILE__) + "/../../../ext/opensurf/"
     pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
     load_library("cvffi_opensurf", pathset)
 
