@@ -22,7 +22,7 @@ CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
   }
   cvEndWriteSeq( &writer );
 
-  printf("After conversion, vector size = %d, CvSeq size = %d\n", kps.size(), seq->total );
+  //printf("After conversion, vector size = %d, CvSeq size = %d\n", kps.size(), seq->total );
 
   assert( kps.size() == seq->total );
 
@@ -68,8 +68,8 @@ void cvSIFTDetect( const CvArr *img,
   sift( imgMat, maskMat, kps );
 
   *keypoints = KeyPointsToCvSeq( kps, storage );
-  printf("cvSIFTDetect found %d %d keypoints\n", kps.size(), (*keypoints)->total );
-  printf("keypoints = %p; *keypoints = %p\n", keypoints, *keypoints );
+  //printf("cvSIFTDetect found %d %d keypoints\n", kps.size(), (*keypoints)->total );
+  //printf("keypoints = %p; *keypoints = %p\n", keypoints, *keypoints );
 }
 
 // Both detection and description
@@ -97,7 +97,7 @@ CvMat *cvSIFTDetectDescribe( const CvArr *img,
 
   sift( imgMat, maskMat, kps, descs, false );
 
-  printf("Keypoints %d, descriptors %d x %d\n", kps.size(), descs.rows, descs.cols );
+  //printf("Keypoints %d, descriptors %d x %d\n", kps.size(), descs.rows, descs.cols );
 
   // Unpack...
   *keypoints = KeyPointsToCvSeq( kps, storage );
