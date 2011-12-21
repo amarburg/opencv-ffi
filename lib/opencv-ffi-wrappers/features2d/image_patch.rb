@@ -153,6 +153,7 @@ module CVFFI
       def draw_index_image( opts = {} )
         border = 5
         max_cols = opts[:max_cols] || 20 
+        offset = opts[:offset] || 0
 
         # Aim for square index
         cols = Math::sqrt(size).ceil
@@ -178,7 +179,7 @@ module CVFFI
 
           patch.oriented_patch.each_with_indices { |value, i, j|
               if mask.valid?(i,j)
-                CVFFI::cvSet2D( img, yoffset+i, xoffset+j, CVFFI::CvScalar.new( [ value, 0, 0, 0 ] ) )
+                CVFFI::cvSet2D( img, yoffset+i, xoffset+j, CVFFI::CvScalar.new( [ value + offset, 0, 0, 0 ] ) )
               end
           }
         }
@@ -191,6 +192,7 @@ module CVFFI
 
       DEFAULTS = { size: 9,
         oriented: false,
+        normalize: :mean,
         shape: :square }
 
       def initialize( opts = {} )
@@ -203,6 +205,7 @@ module CVFFI
 
         # Ensure the shape is a symbol
         @params[:shape] = @params[:shape].to_sym
+        @params[:normalize] = @params[:normalize].to_sym
       end
 
       def check_params
@@ -310,6 +313,34 @@ module CVFFI
 
             GC.start if (idx % 5) == 0 
 
+        end
+
+        case params.normalize
+        when :mean
+
+          mean = 0.0
+          size = 0
+
+          # TODO.  This is absolutely brutal.   Fix it.
+         patch.each_index { |i|
+            patch[i].each_index { |j|
+              if mask.valid?(i,j)
+                mean += patch[i][j]
+                size += 1
+              end
+            }
+          }
+          mean = (mean*1.0/size).to_i
+
+          patch.each_index { |i|
+            patch[i].each_index { |j|
+              if mask.valid?(i,j)
+                patch[i][j] -= mean
+              end
+            }
+          }
+
+  
         end
 
         results << Result.new( kp, patch, angle, preOriented )

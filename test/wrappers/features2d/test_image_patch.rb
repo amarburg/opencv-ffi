@@ -77,11 +77,7 @@ class TestImagePatch < Test::Unit::TestCase
   end
 
 
-
-
   def test_cvExtractOrientedImagePatch
-
-    TestSetup::save_image( "oriented_image_patch", @testimg )
 
     kp = [ [100,100], [150,150], [199,199] ].map { |i| CVFFI::Point.new i }
     orientation = [ 5.35, 4.712, 5.35 ]
@@ -104,5 +100,23 @@ class TestImagePatch < Test::Unit::TestCase
     patch_index = patches.draw_index_image
     TestSetup::save_image( "test_cvOrientedExtractImagePatch", patch_index )
   end
+
+
+  def test_cvExtractNormalizedImagePatch
+
+    kp = [ [100,100], [150,150], [199,199] ].map { |i| CVFFI::Point.new i }
+
+    params = CVFFI::ImagePatch::Params.new( size: 15,
+                                            normalize: :mean )
+
+    patches = CVFFI::ImagePatch.describe( @testimg, kp, params )
+
+    # First and last should be relatively similar
+    puts "Distance = #{ patches.first.distance_to( patches.last ) }"
+
+    patch_index = patches.draw_index_image( offset: 127 )
+    TestSetup::save_image( "test_cvOrientedNormalizedImagePatch", patch_index )
+  end
+
 
 end
