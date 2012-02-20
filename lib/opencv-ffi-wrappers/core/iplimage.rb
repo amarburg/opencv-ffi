@@ -40,6 +40,21 @@ module CVFFI
       greyImg
     end
     alias :ensure_grayscale :ensure_greyscale
+
+    def save(fname)
+      CVFFI::cvSaveImage( fname, self )
+    end
+
+
+    module ClassMethods
+      def load( fname, color = true )
+        CVFFI::cvLoadImage( fname, color ? CV_LOAD_IMAGE_COLOR : CV_LOAD_IMAGE_GRAYSCALE )
+      end
+    end
+
+    def self.included( base )
+      base.extend( ClassMethods)
+    end
   end
 
   class IplImage
