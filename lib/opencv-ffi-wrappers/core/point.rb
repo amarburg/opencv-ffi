@@ -130,9 +130,15 @@ module CVFFI
     attr_accessor :w, :y, :x
 
     def initialize( *args )
+      @w = 1.0
+
       if args.length == 2 and args[1] != nil
         @x = args[0]
         @y = args[1]
+      elsif args.length == 3
+        @x = args[0]
+        @y = args[1]
+        @w = args[2]
       else
         args = args.shift
 
@@ -140,26 +146,33 @@ module CVFFI
         when Hash
           @y = args[:y]
           @x = args[:x]
+          @w = args[:w] if args[:w]
         when Array
           @x = args[0]
           @y = args[1]
-      else
-        @x = args.x
-        @y = args.y
-      end
+          if args.length > 2
+            @w = args[2]
+          end
+        else
+          @x = args.x
+          @y = args.y
+          if args.respond_to? :w
+            @w = args.w
+          end
+        end
       end
 
-      @x = @x.to_f
-      @y = @y.to_f
-      @w = 1
+      @x = @x.to_f / @w.to_f
+      @y = @y.to_f / @w.to_f
+      @w = 1.0
     end
 
     def area
       @y*@x
     end
- end
+  end
 
-#===========================================================
+  #===========================================================
   module CvPoint3DMethods
     def got_what_i_need(a)
       a.method_defined?(:x) and a.method_defined?(:y) and a.method_defined(:z)

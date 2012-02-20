@@ -4,51 +4,62 @@ require 'opencv-ffi-wrappers'
 
 module CVFFI
 
-  class FundamentalResults
-    attr_accessor :f, :status, :retval
+  class FundamentalOrHomographyResults
+    attr_accessor :status
 
-    def initialize( f, status, retval )
-      @f = f
-      @status = status.to_Vector
-      @retval = retval
+    def initialize(  inliers )
+      @status = inliers.to_a.map { |v| (v > 0.0) ? true : false }
+      status.extend CVFFI::AddMapWithIndex
     end
 
     def count_inliers
-      a = status.to_a
-      count = a.reduce(0.0) { |m,obj|
-        m += ( obj > 0 ) ? 1 : 0
+      count = status.reduce(0.0) { |m,obj|
+        m += ( obj ) ? 1 : 0
       }
+    end
+
+    def inliers
+      status.map_with_index { |s,i| s ? i : nil }.reject { |s| s.nil? }
+    end
+
+    def outliers
+      status.map_with_index { |s,i| s ? nil : i }.reject { |s| s.nil? }
+    end
+  end
+
+  class Fundamental < FundamentalOrHomographyResults
+    attr_accessor :f, :retval
+
+    def initialize( f, status, retval )
+      super(status)
+      @f = f
+      @retval = retval
     end
   end
 
   # This is a "thin" wrapper -- just some niceties
-  def self.findFundamentalMat( points1, points2, method = :CV_FM_RANSAC, param1 = 3.0, param2 = 0.99 )
+  def self.findFundamentalMat( points1, points2, 
+                                method = :CV_FM_RANSAC, param1 = 3.0, param2 = 0.99 )
+
     fundamental = CVFFI::cvCreateMat( 3,3, :CV_32F )
     status = CVFFI::cvCreateMat( points1.height, 1, :CV_8U )
 
     ret = CVFFI::cvFindFundamentalMat( points1, points2, fundamental, method, param1, param2, status )
 
     if ret> 0
-      FundamentalResults.new( fundamental, status, ret )
+      Fundamental.new( fundamental, status, ret )
     else
       nil
     end
   end
 
 
-  class Homography
-    attr_accessor :h, :status
+  class Homography < FundamentalOrHomographyResults
+    attr_accessor :h
 
     def initialize( h, status )
+      super(status)
       @h = h
-      @status = status
-    end
-
- def count_inliers
-      a = status.to_a
-      count = a.reduce(0.0) { |m,obj|
-        m += ( obj > 0 ) ? 1 : 0
-      }
     end
   end
 

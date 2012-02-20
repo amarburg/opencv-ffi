@@ -2,6 +2,16 @@ require 'opencv-ffi/core/types'
 
 module CVFFI
 
+  module AddMapWithIndex
+
+    def map_with_index( &blk )
+      a = []
+      each_with_index { |k,i| a << blk.yield( k,i ) }
+      a
+    end
+  end
+
+
   def self.print_matrix(m, opts={})
     opts ||= {}
     opts = { :caption=>opts } if opts.is_a? String
