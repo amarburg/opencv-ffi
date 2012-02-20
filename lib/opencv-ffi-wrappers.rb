@@ -5,3 +5,5 @@ require 'opencv-ffi-wrappers/misc'
 require 'opencv-ffi-wrappers/highgui'
 require 'opencv-ffi-wrappers/imgproc'
 require 'opencv-ffi-wrappers/features2d'
+require 'opencv-ffi-wrappers/calib3d'
+

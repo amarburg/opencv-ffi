@@ -18,7 +18,7 @@ module CVFFI
   end
 
 
-  def self.draw_line( img, aPoint, bPoint, opts )
+  def self.draw_line( img, aPoint, bPoint, opts  = {} )
     color = opts[:color] || CVFFI::CvScalar.new( {:w=>255, :x=>255, :y=>255, :z=>0} )
     thickness = opts[:thickness] || 5
 
