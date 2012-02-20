@@ -35,14 +35,31 @@ module CVFFI
     end
   end
 
-  # CVAPI(int) cvFindFundamentalMat( const CvMat* points1, 
-  #                                  const CvMat* points2,
-  #                                  CvMat* fundamental_matrix,
-  #                                  int method CV_DEFAULT(CV_FM_RANSAC),
-  #                                  double param1 CV_DEFAULT(3.), 
-  #                                  double param2 CV_DEFAULT(0.99),
-  #                                  CvMat* status CV_DEFAULT(NULL) );
-  attach_function :cvFindFundamentalMat, [ :pointer, :pointer, :pointer, 
-                                           :int, :double, :double, :pointer ], :int
+
+  class Homography
+    attr_accessor :h, :status
+
+    def initialize( h, status )
+      @h = h
+      @status = status
+    end
+
+ def count_inliers
+      a = status.to_a
+      count = a.reduce(0.0) { |m,obj|
+        m += ( obj > 0 ) ? 1 : 0
+      }
+    end
+  end
+
+  def self.findHomography( points1, points2, method = 0, reprojThreshold = 3 )
+    homography = CVFFI::cvCreateMat( 3,3,:CV_32F)
+    status = CVFFI::cvCreateMat( points1.height, 1, :CV_8U )
+
+    CVFFI::cvFindHomography( points1, points2, homography, method, reprojThreshold, status )
+
+    Homography.new( homography, status )
+  end
+
 
 end

@@ -8,7 +8,9 @@ module CVFFI
   enum :cvRansacMethod, [ :CV_FM_7POINT, 1,
                           :CV_FM_8POINT, 2,
                           :CV_FM_LMEDS,  4,
-                          :CV_FM_RANSAC, 8 ]
+                          :CV_LMEDS, 4,
+                          :CV_FM_RANSAC, 8,
+                          :CV_RANSAC, 8 ]
 
   # CVAPI(int) cvFindFundamentalMat( const CvMat* points1, 
   #                                  const CvMat* points2,
@@ -20,6 +22,8 @@ module CVFFI
   attach_function :cvFindFundamentalMat, [ :pointer, :pointer, :pointer, 
                                            :int, :double, :double, :pointer ], :int
 
+  attach_function :cvFindHomography, [ :pointer, :pointer, :pointer, :int,
+                                        :double, :pointer ], :void
 
 end
 
