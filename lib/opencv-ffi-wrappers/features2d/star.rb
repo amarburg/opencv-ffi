@@ -25,10 +25,17 @@ module CVFFI
       def to_vector( homogeneous = true )
         homogeneous ?  Vector.[]( x, y, 1 ) : Vector.[](x,y)
       end
+      alias :to_Vector :to_vector
       
       def to_Point
         pt.to_Point
       end
+
+      def to_CvPoint
+        pt.to_CvPoint
+      end
+
+
    end
 
     class ResultsArray
@@ -86,7 +93,6 @@ module CVFFI
       def to_CvStarDetectorParams
         par = @params
         par.delete_if { |k,v| DEFAULTS.keys.include? k == false }
-        p par
         CVFFI::CvStarDetectorParams.new( par )
       end
 
