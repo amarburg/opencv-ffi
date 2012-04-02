@@ -26,18 +26,23 @@ module CVFFI
   end
 
   def self.draw_homogeneous_line( img, line, opts = {} )
-    ## TODO: This algorithm is ... not very good.  Should at least select
-    #  between solving for x and solving for y to handle (near-)vertical lines
+    ## TODO: This algorithm is ... not very good.  
 
-    x = [-1000,img.width + 1000]
-    y = x.map { |x|
-      (-line[0]*x - line[2])/line[1]
-    }
+    x = y = nil
+    if (line[0]/line[1]).abs < 1.0
+      x = [-1000,img.width + 1000]
+      y = x.map { |x|
+        -(line[0]*x + line[2])/line[1]
+      }
+    else
+      y = [-1000,img.height+1000 ]
+      x = y.map { |y|
+        -(line[1]*y + line[2])/line[0]
+      }
+    end
     ep = [x,y].transpose
 
     CVFFI::draw_line( img, CVFFI::Point.new( *(ep[0]) ), CVFFI::Point.new( *(ep[1]) ), opts )
-
-
   end
 
   def self.put_text( img, text, point, opts = {} )
