@@ -8,7 +8,9 @@ module CVFFI
 
     load_library("cvffi", pathset)
 
-    enum :cvColorInvariance, [ :CV_COLOR_INVARIANCE_FOO, 0 ]
+    enum :cvColorInvariance, [ :CV_COLOR_INVARIANCE_PASSTHROUGH, 0,
+                               :CV_COLOR_INVARIANCE_RGB2GAUSSIAN_OPPONENT, 1,
+                               :CV_COLOR_INVARIANCE_BGR2GAUSSIAN_OPPONENT, 2 ]
 
     #  void cvCvtColorInvariants( const CvArr *srcarr, CvArr *dstarr, int code )
     attach_function :cvCvtColorInvariants, [ :pointer, :pointer, :int ], :void
