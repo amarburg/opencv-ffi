@@ -1,0 +1,9 @@
+
+#ifndef __OPENCV_FFI_COLOR_INVARIANCE__
+#define __OPENCV_FFI_COLOR_INVARIANCE__
+
+enum {
+  COLOR_INVARIANCE_FOO = 0
+};
+
+#endif
