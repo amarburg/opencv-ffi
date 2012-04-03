@@ -104,6 +104,7 @@ module CVFFI
   attach_function :cvSetZero, [ :pointer ], :void
 
   attach_function :cvSolveCubic, [:pointer, :pointer ], :void
+  attach_function :cvSplit, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
 
   attach_function :cvSum, [:pointer], CvScalar.by_value
 

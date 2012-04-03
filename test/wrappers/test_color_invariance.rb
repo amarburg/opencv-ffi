@@ -24,6 +24,11 @@ class TestColorInvariance < Test::Unit::TestCase
     cvCvtColorInvariants( @img_one, out, :CV_COLOR_INVARIANCE_BGR2GAUSSIAN_OPPONENT )
     assert_not_nil out
     TestSetup::save_image("color_invariance_gaussian_opponent.jpg", out )
+
+    e, el, ell = out.split
+    TestSetup::save_image("color_invariance_gaussian_opponent_e", e )
+    TestSetup::save_image("color_invariance_gaussian_opponent_el", el )
+    TestSetup::save_image("color_invariance_gaussian_opponent_ell", ell )
   end
 
 end

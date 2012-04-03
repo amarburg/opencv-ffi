@@ -108,13 +108,21 @@ module CVFFI
     end
 
     def transpose
-      a = twin
+      a = CVFFI::cvCreateMat( self.width, self.height, self.type )
       CVFFI::cvTranspose( self, a )
       a
     end
 
     def zero
       CVFFI::cvSetZero( self )
+    end
+
+    def split
+      nchannels =  CVFFI::matChannels( self )
+      out = Array.new( nchannels ) { |i| CVFFI::cvCreateMat( self.width, self.height, self.type ) }
+      
+      CVFFI::cvSplit( self, out[0], out[1], out[2], out[3] );
+      out[0,nchannels]
     end
 
     def print( opts = {} )

@@ -30,6 +30,15 @@ module CVFFI
       CVFFI::IplImage.new CVFFI::cvCreateImage( self.image_size.to_CvSize, depth, nChannels )
     end
 
+    def split
+      nchannels = self.nChannels
+      out = Array.new( nchannels ) { |i| CVFFI::cvCreateImage( self.image_size.to_CvSize, depth, 1 ) }
+      
+      CVFFI::cvSplit( self, out[0], out[1], out[2], out[3] );
+      out[0,nchannels]
+    end
+
+
     def ensure_greyscale
       return self if nChannels == 1
 
