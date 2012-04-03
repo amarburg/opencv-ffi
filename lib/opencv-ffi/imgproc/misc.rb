@@ -22,7 +22,11 @@ module CVFFI
                      :CV_GRAY2BGRA,
                      :CV_GRAY2RGBA, 9,
                      :CV_BGRA2GRAY,
-                     :CV_RGBA2GRAYa ]
+                     :CV_RGBA2GRAYa,
+                     :CV_BGR2HSV, 40,
+                     :CV_RGB2HSV, 41,
+                     :CV_BGR2Lab, 44,
+                     :CV_RGB2Lab, 45 ]
 
   attach_function :cvCvtColor, [ :pointer, :pointer, :cvCvtCodes ], :void
 

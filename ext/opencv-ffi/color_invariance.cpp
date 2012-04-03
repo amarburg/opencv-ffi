@@ -23,11 +23,71 @@ namespace cv {
       cvt((const _Tp*)src, (_Tp*)dst, sz.width);
   }
 
+  template<typename _Tp> struct Gray2YB
+  {
+    typedef _Tp channel_type;
+
+    Gray2YB( int _scaler ) : scaler(_scaler)
+    { }
+
+    void operator()(const _Tp* src, _Tp* dst, int n) const
+    {
+      int scn = 1, dcn = 3;
+
+      // Takes a 1- channel image, always returns a 3-channel 8U BGR image
+      n *= scn;
+
+      for( int i = 0; i < n; i += scn, dst += 3 )
+      {
+        float b = (2.0*src[i]/(1.0*scaler))-1.0;
+        float g = -b;
+        float r = -b;
+
+        dst[0] = saturate_cast<uint>(b*256); 
+        dst[1] = saturate_cast<uint>(g*256);
+        dst[2] = saturate_cast<uint>(r*256);
+      }
+    }
+
+    int scaler;
+  };
+
+  template<typename _Tp> struct Gray2RG
+  {
+    typedef _Tp channel_type;
+
+    Gray2RG( int _scaler ) : scaler(_scaler)
+    { }
+
+    void operator()(const _Tp* src, _Tp* dst, int n) const
+    {
+      int scn = 1, dcn = 3;
+
+      // Takes a 1- channel image, always returns a 3-channel 8U BGR image
+      n *= scn;
+
+      for( int i = 0; i < n; i += scn, dst += 3 )
+      {
+        float r = (2.0*src[i]/(1.0*scaler))-1.0;
+        float g = -r;
+        float b = 0;
+
+        dst[0] = saturate_cast<uint>(b*256); 
+        dst[1] = saturate_cast<uint>(g*256);
+        dst[2] = saturate_cast<uint>(r*256);
+      }
+    }
+
+    int scaler;
+  };
+
+
   template<typename _Tp> struct GaussianOpponent
   {
     typedef _Tp channel_type;
 
-    GaussianOpponent( int _srccn, int _dstcn, int _blueIdx ) : srccn(_srccn), dstcn(_dstcn), blueIdx(_blueIdx )
+    GaussianOpponent( int _srccn, int _dstcn, int _blueIdx, int _scaler ) 
+      : srccn(_srccn), dstcn(_dstcn), blueIdx(_blueIdx ), scaler( _scaler )
     { }
 
     void operator()(const _Tp* src, _Tp* dst, int n) const
@@ -41,16 +101,17 @@ namespace cv {
       for( int i = 0; i < n; i += scn, dst += 3 )
       {
         _Tp b = src[i+blueIdx], g = src[i+1], r = src[i+redIdx], t3 = src[i+3];
-        float E   = 0.06*r + 0.63*g + 0.27*b;
-        float El  = 0.30*r + 0.04*g + -0.35*b;
-        float Ell = 0.34*r + -0.60*g + 0.17*b;
-        dst[0] = saturate_cast<_Tp>(E); 
-        dst[1] = saturate_cast<_Tp>(El); 
-        dst[2] = saturate_cast<_Tp>(Ell);
+        float rf = r/(1.0*scaler), bf = b/(1.0*scaler), gf = g/(1.0*scaler);
+        float E   = 0.06*rf + 0.63*gf + 0.27*bf;
+        float El  = 0.30*rf + 0.04*gf + -0.35*bf;
+        float Ell = 0.34*rf + -0.60*gf + 0.17*bf;
+        dst[0] = saturate_cast<_Tp>(E*scaler); 
+        dst[1] = saturate_cast<_Tp>(El*scaler); 
+        dst[2] = saturate_cast<_Tp>(Ell*scaler);
       }
     }
 
-    int srccn, dstcn, blueIdx;
+    int srccn, dstcn, blueIdx, scaler;
   };
 
   void cvtColorInvariants(InputArray _src, OutputArray _dst, int code, int dcn )
@@ -76,11 +137,39 @@ namespace cv {
         dst = _dst.getMat();
 
         if( depth == CV_8U )
-          CvtColorLoop(src, dst, GaussianOpponent<uchar>(scn, dcn, blueIdx));
+          CvtColorLoop(src, dst, GaussianOpponent<uchar>(scn, dcn, blueIdx,256));
         else if( depth == CV_16U )
-          CvtColorLoop(src, dst, GaussianOpponent<ushort>(scn, dcn, blueIdx));
+          CvtColorLoop(src, dst, GaussianOpponent<ushort>(scn, dcn, blueIdx, 2<<16 ) );
         else
-          CvtColorLoop(src, dst, GaussianOpponent<float>(scn, dcn, blueIdx));
+          CvtColorLoop(src, dst, GaussianOpponent<float>(scn, dcn, blueIdx, 1 ));
+        break;
+      case COLOR_INVARIANCE_Gray2YB:
+        CV_Assert( scn == 1 );
+        dcn = 3;
+
+        _dst.create( sz, CV_MAKETYPE(CV_8U, 3));
+        dst = _dst.getMat();
+
+        if( depth == CV_8U )
+          CvtColorLoop(src, dst, Gray2YB<uchar>( 256 ) );
+        else if( depth == CV_16U )
+          CvtColorLoop(src, dst, Gray2YB<ushort>( 2<<16 ) );
+        else
+          CvtColorLoop(src, dst, Gray2YB<float>( 1 ) );
+        break;
+      case COLOR_INVARIANCE_Gray2RG:
+        CV_Assert( scn == 1 );
+        dcn = 3;
+
+        _dst.create( sz, CV_MAKETYPE(CV_8U, 3));
+        dst = _dst.getMat();
+
+        if( depth == CV_8U )
+          CvtColorLoop(src, dst, Gray2RG<uchar>( 256 ) );
+        else if( depth == CV_16U )
+          CvtColorLoop(src, dst, Gray2RG<ushort>( 2<<16 ) );
+        else
+          CvtColorLoop(src, dst, Gray2RG<float>( 1 ) );
         break;
       default:
         CV_Error( CV_StsBadFlag, "Unknown/unsupported color conversion code" );
