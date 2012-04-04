@@ -1,3 +1,122 @@
+Index: src/detectors.cpp
+===================================================================
+--- src/detectors.cpp	(revisione 5053)
++++ src/detectors.cpp	(copia locale)
+@@ -132,6 +132,14 @@
+         pos += string("Dynamic").size();
+         fd = new DynamicAdaptedFeatureDetector( AdjusterAdapter::create(detectorType.substr(pos)) );
+     }
++    else if( !detectorType.compare( "HarrisLaplace" ) )
++    {
++        fd = new HarrisLaplaceFeatureDetector();
++    }
++    else if( !detectorType.compare( "HarrisAffine" ) )
++    {
++        fd = new HarrisAffineFeatureDetector();
++    }
+ 
+     return fd;
+ }
+@@ -567,4 +575,98 @@
+     }
+ }
+ 
++/*
++ *  HarrisLaplaceFeatureDetector
++ */
++HarrisLaplaceFeatureDetector::Params::Params(int _numOctaves, float _corn_thresh, float _DOG_thresh, int _maxCorners, int _num_layers) :
++    numOctaves(_numOctaves), corn_thresh(_corn_thresh), DOG_thresh(_DOG_thresh), maxCorners(_maxCorners), num_layers(_num_layers)
++{}
++HarrisLaplaceFeatureDetector::HarrisLaplaceFeatureDetector( int numOctaves, float corn_thresh, float DOG_thresh, int maxCorners, int num_layers)
++  : harris( numOctaves, corn_thresh, DOG_thresh, maxCorners, num_layers)
++{}
++
++HarrisLaplaceFeatureDetector::HarrisLaplaceFeatureDetector(  const Params& params  )
++ : harris( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers)
++ 
++{}
++
++void HarrisLaplaceFeatureDetector::read (const FileNode& fn)
++{
++	int numOctaves = fn["numOctaves"];
++	float corn_thresh = fn["corn_thresh"];
++	float DOG_thresh = fn["DOG_thresh"];
++	int maxCorners = fn["maxCorners"];
++	int num_layers = fn["num_layers"];
++	
++    harris = HarrisLaplace( numOctaves, corn_thresh, DOG_thresh, maxCorners,num_layers );
+ }
++
++void HarrisLaplaceFeatureDetector::write (FileStorage& fs) const
++{
++
++    fs << "numOctaves" << harris.numOctaves;
++    fs << "corn_thresh" << harris.corn_thresh;
++    fs << "DOG_thresh" << harris.DOG_thresh;
++    fs << "maxCorners" << harris.maxCorners;
++    fs << "num_layers" << harris.num_layers;
++
++    
++}
++
++
++void HarrisLaplaceFeatureDetector::detectImpl( const Mat& image, vector<KeyPoint>& keypoints, const Mat& mask ) const
++{
++	       
++	harris.detect(image, keypoints);
++}
++
++/*
++ *  HarrisAffineFeatureDetector
++ */
++HarrisAffineFeatureDetector::Params::Params(int _numOctaves, float _corn_thresh, float _DOG_thresh, int _maxCorners, int _num_layers) :
++    numOctaves(_numOctaves), corn_thresh(_corn_thresh), DOG_thresh(_DOG_thresh), maxCorners(_maxCorners), num_layers(_num_layers)
++{}
++HarrisAffineFeatureDetector::HarrisAffineFeatureDetector( int numOctaves, float corn_thresh, float DOG_thresh, int maxCorners, int num_layers)
++  : harris( numOctaves, corn_thresh, DOG_thresh, maxCorners, num_layers)
++{}
++
++HarrisAffineFeatureDetector::HarrisAffineFeatureDetector(  const Params& params  )
++ : harris( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers)
++ 
++{}
++
++void HarrisAffineFeatureDetector::read (const FileNode& fn)
++{
++	int numOctaves = fn["numOctaves"];
++	float corn_thresh = fn["corn_thresh"];
++	float DOG_thresh = fn["DOG_thresh"];
++	int maxCorners = fn["maxCorners"];
++	int num_layers = fn["num_layers"];
++	
++    harris = HarrisLaplace( numOctaves, corn_thresh, DOG_thresh, maxCorners,num_layers );
++}
++
++void HarrisAffineFeatureDetector::write (FileStorage& fs) const
++{
++
++    fs << "numOctaves" << harris.numOctaves;
++    fs << "corn_thresh" << harris.corn_thresh;
++    fs << "DOG_thresh" << harris.DOG_thresh;
++    fs << "maxCorners" << harris.maxCorners;
++    fs << "num_layers" << harris.num_layers;
++
++    
++}
++void HarrisAffineFeatureDetector::detect( const Mat& image, vector<Elliptic_KeyPoint>& ekeypoints, const Mat& mask ) const
++{
++	vector<KeyPoint> keypoints;
++	harris.detect(image, keypoints);
++	Mat fimage;
++    image.convertTo(fimage, CV_32F, 1.f/255);
++	calcAffineCovariantRegions(fimage, keypoints, ekeypoints, "HarrisLaplace");
++	}
++
++void HarrisAffineFeatureDetector::detectImpl( const Mat& image, vector<KeyPoint>& ekeypoints, const Mat& mask ) const
++{
++}
++}
+I
 //
 // Taken from Delia Passalacqua's HarrisLaplace.patch
 //  http://code.opencv.org/attachments/609/HarrisLaplace.patch
