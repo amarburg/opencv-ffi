@@ -2,8 +2,9 @@
  * Functions to perform affine adaptation of keypoint and to calculate descriptors of elliptic regions
  */
 
-#include "precomp.hpp"
 #include <opencv2/highgui/highgui.hpp>
+#include "harris_laplace.hpp"
+
 namespace cv
 {
 
