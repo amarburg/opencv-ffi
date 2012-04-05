@@ -10,7 +10,7 @@ using namespace cv;
 // The main function!
 int main()
 {
-  IplImage *img = cvLoadImage("../../../test/test_files/images/IMG_7088_small.JPG", CV_LOAD_IMAGE_GRAYSCALE );
+  IplImage *img = cvLoadImage("../../../../test/test_files/images/IMG_7088_small.JPG", CV_LOAD_IMAGE_GRAYSCALE );
   CvSeq *kps;
   CvMemStorage *mem_storage = cvCreateMemStorage( 0 );
   CvSIFTParams_t params;

@@ -1,10 +1,10 @@
 
 CXX = g++
 BIN = sift
-OBJS = sift.o ../sift.o ../keypoint.o
+OBJS = sift.o ../../sift.o ../../keypoint.o
 
-CFLAGS = -ggdb -I.. -I/localhome/amm299/usr/include
-LFLAGS = -L/localhome/amm299/usr/lib 
+CFLAGS = -ggdb -I../.. -I$(HOME)/usr/include
+LFLAGS = -L$(HOME)/usr/lib 
 LIBS = -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_features2d
 
 
