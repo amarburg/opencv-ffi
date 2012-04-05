@@ -2,7 +2,9 @@
 CXX = g++
 BIN = harris_laplace
 OBJS = harris_laplace.o ../../harris_laplace/harris_laplace.o ../../harris_laplace/gaussian_pyramid.o ../../harris_laplace/affine_adaptation.o \
-       ../../harris_laplace/elliptic_keypoint.o
+       ../../harris_laplace/elliptic_keypoint.o \
+       ../../sift.o \
+       ../../keypoint.o
 
 CFLAGS = -ggdb -I../.. -I/home/amarburg/usr/include -I/localhome/amm299/usr/include -I../../harris_laplace
 LFLAGS = -L$(HOME)/usr/lib 

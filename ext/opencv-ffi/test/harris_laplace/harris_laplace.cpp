@@ -18,7 +18,28 @@ static void harrisLaplaceCpp( Mat &image )
 
   laplace.detect( image, keypoints );
 
-  cout << "Harris-Laplace detected " << keypoints.size() << endl;
+  cout << "C++ Harris-Laplace detected " << keypoints.size() << endl;
+}
+
+static void harrisLaplaceC( Mat &image )
+{
+  CvMat _image = image;
+  CvMemStorage *storage = cvCreateMemStorage(0);
+
+  CvHarrisLaplaceParams params;
+  params.numOctaves = 6;
+  params.corn_thresh = 0.01;
+  params.DOG_thresh = 0.01;
+  params.maxCorners = 5000;
+  params.num_layers = 4;
+
+  CvSeq *seq = cvHarrisLaplaceDetector( &_image, storage, params );
+
+
+  cout << "C Harris-Laplace detected " << seq->total << endl;
+
+  cvClearSeq( seq );
+  cvReleaseMemStorage( &storage );
 }
 
 static void harrisAffineCpp( Mat &image )
@@ -28,7 +49,7 @@ static void harrisAffineCpp( Mat &image )
 
   affine.detect( image, elliptic_keypoints );
 
-  cout << "Harris-Affine detected " << elliptic_keypoints.size() << endl;
+  cout << "C++ Harris-Affine detected " << elliptic_keypoints.size() << endl;
 }
 
 
@@ -38,6 +59,7 @@ int main()
   Mat image = imread("../../../../test/test_files/images/IMG_7088_small.JPG", 0 );
 
   harrisLaplaceCpp( image );
+  harrisLaplaceC( image );
   harrisAffineCpp( image );
 
   // Cleanup and exit

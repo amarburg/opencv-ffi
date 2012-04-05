@@ -20,6 +20,7 @@
 
 #include "harris_laplace.hpp"
 #include <gaussian_pyramid.hpp>
+#include "sift.h"
 
 
 namespace cv {
@@ -324,4 +325,35 @@ bool sort_func(KeyPoint kp1, KeyPoint kp2)
 }
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  CvSeq *cvHarrisLaplaceDetector( const CvArr *image, CvMemStorage *storage, CvHarrisLaplaceParams params )
+
+  {
+    vector<KeyPoint> kps;
+    CvMat stub;
+    Mat imgMat( cvGetMat( image, &stub ) );
+    //Mat maskMat;
+    //if( mask )
+    //  maskMat = cvGetMat( mask, &stub );
+
+    // HarrisLaplace exists as a standalone class, as well as a FeatureDetector
+    // use the standalone ... 
+    HarrisLaplace harrislaplace( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers );
+    harrislaplace.detect( imgMat, kps );
+
+    return KeyPointsToCvSeq( kps, storage );
+  }
+
+  CvSeq *cvHarrisAffineDetector( const CvArr *image, CvMemStorage *storage, CvHarrisAffineParams params ){
+    return NULL;
+
+  }
+
+
+#ifdef __cplusplus
+}
+#endif
 } // namespace cv

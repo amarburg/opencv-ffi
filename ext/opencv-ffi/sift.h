@@ -3,6 +3,7 @@
 #define _SIFT_H_
 
 #include <opencv2/core/types_c.h>
+#include <vector>
 
 typedef struct {
   int nOctaves, nOctaveLayers;
@@ -25,6 +26,7 @@ CvMat *cvSIFTDetectDescribe( const CvArr *img,
     CvMemStorage *storage,
     CvSIFTParams_t params );
 
+CvSeq *KeyPointsToCvSeq( std::vector<cv::KeyPoint> kps, CvMemStorage *storage );
 #endif
 
 

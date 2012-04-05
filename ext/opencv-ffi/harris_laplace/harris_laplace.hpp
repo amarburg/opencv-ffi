@@ -115,5 +115,29 @@ void calcAffineCovariantDescriptors( const Ptr<DescriptorExtractor>& dextractor,
 
 } /* namespace cv */
  
+extern "C" {
 #endif /* __cplusplus */
+  // How's the DRY now?
+  typedef struct CvHarrisLaplaceParams {
+    int numOctaves;
+    float corn_thresh;
+    float DOG_thresh;
+    int maxCorners;
+    int num_layers;
+  } CvHarrisLaplaceParams;
+
+  typedef struct CvHarrisAffineParams {
+    int numOctaves;
+    float corn_thresh;
+    float DOG_thresh;
+    int maxCorners;
+    int num_layers;
+  } CvHarrisAffineParams;
+
+  CvSeq *cvHarrisLaplaceDetector( const CvArr *image, CvMemStorage *storage, CvHarrisLaplaceParams params );
+  CvSeq *cvHarrisAffineDetector( const CvArr *image, CvMemStorage *storage, CvHarrisAffineParams params );
+
+#ifdef __cplusplus
+}
+#endif
 
