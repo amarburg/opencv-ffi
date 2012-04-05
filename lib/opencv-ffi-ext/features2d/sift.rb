@@ -4,167 +4,79 @@ require 'nice-ffi'
 require 'opencv-ffi-wrappers'
 require 'opencv-ffi-wrappers/misc/params'
 
+require 'opencv-ffi-ext/features2d/keypoint'
+
 module CVFFI
 
-  module SIFT
-    extend NiceFFI::Library
+  module Features2D
 
-    libs_dir = File.dirname(__FILE__) + "/../../../ext/opencv-ffi/"
-    pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
-    load_library("cvffi", pathset)
+    # This module calls the cvffi extension library's SIFT functions.
+    # These functions, in turn, are just thin C wrappers around OpenCV's
+    # SIFT functions ... which are written in C++
+    module SIFT
+      extend NiceFFI::Library
 
-    class CvSIFTParams < NiceFFI::Struct
-      layout :octaves, :int,
-        :intervals, :int,
-        :threshold, :double,
-        :edgeThreshold, :double,
-        :magnification, :double
-    end
+      libs_dir = File.dirname(__FILE__) + "/../../../ext/opencv-ffi/"
+      pathset = NiceFFI::PathSet::DEFAULT.prepend( libs_dir )
+      load_library("cvffi", pathset)
 
-    module SiftKeypointWithDescriptor
-      attr_accessor :descriptor
-    end
+      class CvSIFTParams < NiceFFI::Struct
+        layout :octaves, :int,
+          :intervals, :int,
+          :threshold, :double,
+          :edgeThreshold, :double,
+          :magnification, :double
+      end
 
-    class SiftKeypoint < NiceFFI::Struct
-      include SiftKeypointWithDescriptor
+      class Params < CVFFI::Params
+        param :octaves, 4
+        param :intervals, 5 
+        param :threshold, 0.04
+        param :edgeThreshold, 10.0 
+        param :magnification, 3.0
 
-      layout :x, :float,
-        :y, :float,
-        :featureSize, :float,
-        :angle, :float,
-        :response, :float,
-        :octave, :int
-    end
-
-
-    class Keypoints
-      include Enumerable
-
-      attr_reader :kps
-      attr_reader :desc
-
-      def initialize( k, mem_storage = nil, descriptors = nil)
-        if k.is_a? CvSeq
-          @kps = Sequence.new( k )
-          @results = Array.new( @kps.size )
-          @mem_storage = mem_storage
-
-          destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @mem_storage ); cvReleaseMemStorage( poolPtr ) }
-          ObjectSpace.define_finalizer( self, destructor )
-        else
-          @kps = nil
-          @results = k
+        def to_CvSIFTParams
+          CvSIFTParams.new( @params  )
         end
 
-        @desc = descriptors if descriptors
       end
 
-      def size
-        @results.size
-      end
-      alias :length :size
+      attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
+      attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
 
-      def each
-        size.times { |i|
-          yield at(i)
-        }
-      end
+      def self.detect( image, params )
+        params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
 
-      def [](i)
-        raise "Request for result out of bounds" if (i < 0 or i >= size)
-        unless @results[i]
-          @results[i] = SiftKeypoint.new( @kps[i] )
-          if @desc
-            @results[i].descriptor =  @desc[i]
-          end
-        end
-        @results[i]
-      end
-      alias :at :[]
+        kp_ptr = FFI::MemoryPointer.new :pointer
+        storage = CVFFI::cvCreateMemStorage( 0 )
+        image = image.ensure_greyscale
 
-      def to_a
-        ary = []
-        # Would work better with map_with_index
-        each_with_index { |kp,i|
-          a = [ kp.x, kp.y, kp.size, kp.angle, kp.response, kp.octave ]
-           a << @desc[i].to_a if @desc
-          ary << a
-        }
-        ary
+        cvSIFTDetect( image, nil, kp_ptr, storage, params )
+
+        seq_ptr = kp_ptr.read_pointer()
+        keypoints = CVFFI::CvSeq.new( seq_ptr )
+
+        Keypoints.new( keypoints, storage )
       end
 
-      def self.from_a( a )
-        a = YAML::load(a) if a.is_a? String
-        raise "Don't know what to do" unless a.is_a? Array
+      def self.detect_describe( image, params )
+        params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
 
-        descriptors = []
-        kps = a.map { |a|
-          kp = SiftKeypoint.new( a[0..6] )
-          if a[7]
-            ## Extract descriptors as well
-            kp.descriptors << a[7]
-          end
-          kp
-        }
+        # I believe this is re-shaped by the function
+        descriptors = CVFFI::CvMat.new( CVFFI::cvCreateMat( 1,1, :CV_32F ) )
+        kp_ptr = FFI::MemoryPointer.new :pointer
+        storage = CVFFI::cvCreateMemStorage( 0 )
+        image = image.ensure_greyscale
 
-        if descriptors.length > 0
-          Keypoints.new( kps, nil, descriptors )
-        else
-          Keypoints.new( kps )
-        end
-      end
-    end
+        descriptors = CvMat.new( cvSIFTDetectDescribe( image, nil, kp_ptr, storage, params ))
 
+        keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
 
-    class Params < CVFFI::Params
-      param :octaves, 4
-      param :intervals, 5 
-      param :threshold, 0.04
-      param :edgeThreshold, 10.0 
-      param :magnification, 3.0
+        descs = descriptors.to_Matrix.row_vectors
 
-      def to_CvSIFTParams
-        CvSIFTParams.new( @params  )
+        Keypoints.new( keypoints, storage, descs )
       end
 
     end
-
-    attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
-    attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
-
-    def self.detect( image, params )
-      params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
-
-      kp_ptr = FFI::MemoryPointer.new :pointer
-      storage = CVFFI::cvCreateMemStorage( 0 )
-      image = image.ensure_greyscale
-
-      cvSIFTDetect( image, nil, kp_ptr, storage, params )
-
-      seq_ptr = kp_ptr.read_pointer()
-      keypoints = CVFFI::CvSeq.new( seq_ptr )
-      puts "Dereferenced pointer #{keypoints.total}"
-
-      Keypoints.new( keypoints, storage )
-    end
-
-    def self.detect_describe( image, params )
-      params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
-
-      # I believe this is re-shaped by the function
-      descriptors = CVFFI::CvMat.new( CVFFI::cvCreateMat( 1,1, :CV_32F ) )
-      kp_ptr = FFI::MemoryPointer.new :pointer
-      storage = CVFFI::cvCreateMemStorage( 0 )
-      image = image.ensure_greyscale
-
-      descriptors = CvMat.new( cvSIFTDetectDescribe( image, nil, kp_ptr, storage, params ))
-
-      keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
-
-      descs = descriptors.to_Matrix.row_vectors
-
-      Keypoints.new( keypoints, storage, descs )
-    end
-
   end
 end

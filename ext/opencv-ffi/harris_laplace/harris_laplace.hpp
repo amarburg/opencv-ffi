@@ -120,7 +120,7 @@ extern "C" {
 
   typedef struct CvEllipticKeyPoint {
     CvPoint centre;
-    CvSize axes;
+    CvSize2D32f axes;
     double phi;
     float size, si;
     CvMat transf;

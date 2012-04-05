@@ -5,63 +5,48 @@ require 'opencv-ffi'
 require 'opencv-ffi-ext/features2d/sift'
 
 class TestSIFT < Test::Unit::TestCase
+  include CVFFI::Features2D
 
   def setup
-    @img = CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
-    @kp_ptr = FFI::MemoryPointer.new :pointer
-    @mem_storage = CVFFI::cvCreateMemStorage( 0 )
-
-    @greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => @img.height, 
-                                                         :width => @img.width }), 
-                                    :IPL_DEPTH_8U, 1 )
-    CVFFI::cvCvtColor( @img, @greyImg, :CV_RGB2GRAY )
-
-    @params = CVFFI::CvSIFTParams.new( nOctaves: 4,
-                                      nOctaveLayers: 3,
-                                      threshold: 0.04,
-                                      edgeThreshold: 10.0,
-                                      magnification: 3.0 )
-   end
-
-  def test_cvSIFTDetect
-   CVFFI::cvSIFTDetect( @greyImg, nil, @kp_ptr, @mem_storage, @params )
-
-    assert_not_nil @kp_ptr
-    assert_not_nil @kp_ptr.read_pointer()
-
-    keypoints = CVFFI::CvSeq.new( @kp_ptr.read_pointer() )
-
-    puts "SIFT detect only found #{keypoints.total} keypoints"
+    @img = TestSetup::small_test_image
   end
 
-  def test_cvSIFTDetectDescribe
-
-    desc = CVFFI::CvMat.new CVFFI::cvCreateMat( 1,1, :CV_32F )
-    CVFFI::cvSIFTDetectDescribe( @greyImg, nil, @kp_ptr, desc, @mem_storage, @params )
-
-    assert_not_nil @kp_ptr
-    assert_not_nil @kp_ptr.read_pointer()
-
-    keypoints = CVFFI::CvSeq.new( @kp_ptr.read_pointer() )
-
-    assert_equal keypoints.total, desc.height
-
-    puts "SIFT detect and describe found #{keypoints.total} keypoints"
-  end
-
-
-  # Tests the "wrapper" version
   def test_SIFTDetect
-    params = CVFFI::SIFT::Params.new
-    kps = CVFFI::SIFT::detect( @greyImg, params )
+    params = SIFT::Params.new
+    kps = SIFT::detect( @img, params )
 
     assert_not_nil kps
 
-    puts "The SIFT wrapper found #{kps.size} keypoints"
+    puts "SIFT detected #{kps.size} keypoints"
 
     puts "here's the first keypoint:"
     p kps[0]
 
+    # Test serialization/unserialization
+    asYaml = kps.to_yaml
+    unserialized = Keypoints.from_a( asYaml )
+
+    assert_equal kps.length, unserialized.length
   end
+
+  def test_SIFTDetectDescribe
+    img = TestSetup::test_image
+    params = SIFT::Params.new
+
+#    sift = SIFT::detect_describe( img, params )
+
+#    assert_not_nil sift
+
+#    puts "SIFT detected and described #{sift.length} points."
+
+    # Test serialization/unserialization
+#    asArray = sift.to_a
+#   asYaml = asArray.to_yaml
+#   unserialized = Keypoints.from_a( asYaml )
+
+#   assert_equal sift.length, unserialized.length
+
+  end
+
 
 end
