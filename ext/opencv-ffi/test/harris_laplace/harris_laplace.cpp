@@ -38,7 +38,6 @@ static void harrisLaplaceC( Mat &image )
 
   cout << "C Harris-Laplace detected " << seq->total << endl;
 
-  cvClearSeq( seq );
   cvReleaseMemStorage( &storage );
 }
 
@@ -68,7 +67,6 @@ static void harrisAffineC( Mat &image )
 
   cout << "C Harris-Affine detected " << seq->total << endl;
 
-  cvClearSeq( seq );
   cvReleaseMemStorage( &storage );
 }
 
@@ -78,9 +76,9 @@ int main()
 {
   Mat image = imread("../../../../test/test_files/images/IMG_7088_small.JPG", 0 );
 
-  harrisLaplaceCpp( image );
-  harrisLaplaceC( image );
-  harrisAffineCpp( image );
+//  harrisLaplaceCpp( image );
+//  harrisLaplaceC( image );
+//  harrisAffineCpp( image );
   harrisAffineC( image );
 
   // Cleanup and exit

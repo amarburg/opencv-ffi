@@ -11,7 +11,7 @@ require 'opencv-ffi/imgproc'
 
 
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
-SMALL_TEST_IMAGE_FILE = "test/test_files/images/IMG_7089_small.JPG"
+SMALL_TEST_IMAGE_FILE = "test/test_files/images/IMG_7088_small.JPG"
 TEST_IMAGE_FILE_TWO = "test/test_files/images/IMG_7088.JPG"
 
 def recursive_test name

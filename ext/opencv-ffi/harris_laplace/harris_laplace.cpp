@@ -19,7 +19,7 @@
  } */
 
 #include "harris_laplace.hpp"
-#include <gaussian_pyramid.hpp>
+#include "gaussian_pyramid.hpp"
 #include "sift.h"
 
 
