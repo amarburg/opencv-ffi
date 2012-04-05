@@ -117,6 +117,15 @@ void calcAffineCovariantDescriptors( const Ptr<DescriptorExtractor>& dextractor,
  
 extern "C" {
 #endif /* __cplusplus */
+
+  typedef struct CvEllipticKeyPoint {
+    CvPoint centre;
+    CvSize axes;
+    double phi;
+    float size, si;
+    CvMat transf;
+  } CvEllipticKeyPoint_t;
+
   // How's the DRY now?
   typedef struct CvHarrisLaplaceParams {
     int numOctaves;

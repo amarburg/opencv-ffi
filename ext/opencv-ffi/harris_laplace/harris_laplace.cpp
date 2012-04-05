@@ -268,9 +268,9 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
                         float succVal = succDOG.at<float> (y, x);
 
                         KeyPoint kp(
-                                Point(x * pow(2, octave - 1) + pow(2, octave - 1) / 2,
-                                        y * pow(2, octave - 1) + pow(2, octave - 1) / 2),
-                                3 * pow(2, octave - 1) * si * 2, 0, val, octave);
+                            Point(x * pow(2, octave - 1) + pow(2, octave - 1) / 2,
+                              y * pow(2, octave - 1) + pow(2, octave - 1) / 2),
+                            3 * pow(2, octave - 1) * si * 2, 0, val, octave);
 
                         /*Check whether keypoint size is inside the image*/
                         float start_kp_x = kp.pt.x - kp.size / 2;
@@ -279,9 +279,9 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
                         float end_kp_y = start_kp_y + kp.size;
 
                         if (curVal > prevVal && curVal > succVal && curVal >= DOG_thresh
-                                && start_kp_x > 0 && start_kp_y > 0 && end_kp_x < image.cols
-                                && end_kp_y < image.rows)
-                            keypoints.push_back(kp);
+                            && start_kp_x > 0 && start_kp_y > 0 && end_kp_x < image.cols
+                            && end_kp_y < image.rows)
+                          keypoints.push_back(kp);
 
                     }
                 }
@@ -295,39 +295,37 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
     sort(keypoints.begin(), keypoints.end(), sort_func);
     for (size_t i = 1; i < keypoints.size(); i++)
     {
-        float max_diff = pow(2, keypoints[i].octave + 1.f / 2);
-       
+      float max_diff = pow(2, keypoints[i].octave + 1.f / 2);
 
-        if (keypoints[i].response == keypoints[i - 1].response && norm(
-                keypoints[i].pt - keypoints[i - 1].pt) <= max_diff)
-        {
 
-            float x = (keypoints[i].pt.x + keypoints[i - 1].pt.x) / 2;
-            float y = (keypoints[i].pt.y + keypoints[i - 1].pt.y) / 2;
+      if (keypoints[i].response == keypoints[i - 1].response && norm(
+            keypoints[i].pt - keypoints[i - 1].pt) <= max_diff)
+      {
 
-            keypoints[i].pt = Point(x, y);
-            --i;
-            keypoints.erase(keypoints.begin() + i);
+        float x = (keypoints[i].pt.x + keypoints[i - 1].pt.x) / 2;
+        float y = (keypoints[i].pt.y + keypoints[i - 1].pt.y) / 2;
 
-        }
+        keypoints[i].pt = Point(x, y);
+        --i;
+        keypoints.erase(keypoints.begin() + i);
+
+      }
     }
 
     /*Select strongest keypoints*/
     if (maxCorners > 0 && maxCorners < (int) keypoints.size())
-        keypoints.resize(maxCorners);
-    
+      keypoints.resize(maxCorners);
+
 
 }
 
 bool sort_func(KeyPoint kp1, KeyPoint kp2)
 {
-    return (kp1.response > kp2.response);
+  return (kp1.response > kp2.response);
 }
 
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
   CvSeq *cvHarrisLaplaceDetector( const CvArr *image, CvMemStorage *storage, CvHarrisLaplaceParams params )
 
@@ -341,19 +339,63 @@ extern "C" {
 
     // HarrisLaplace exists as a standalone class, as well as a FeatureDetector
     // use the standalone ... 
-    HarrisLaplace harrislaplace( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers );
+    HarrisLaplaceFeatureDetector harrislaplace( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers );
     harrislaplace.detect( imgMat, kps );
 
     return KeyPointsToCvSeq( kps, storage );
   }
 
-  CvSeq *cvHarrisAffineDetector( const CvArr *image, CvMemStorage *storage, CvHarrisAffineParams params ){
-    return NULL;
+  static CvEllipticKeyPoint_t EllipticKeyPointToEllipticKeyPoint_t( const Elliptic_KeyPoint &kp )
+  {
+    CvEllipticKeyPoint_t keypoint;
 
+    keypoint.centre.x = kp.centre.x;
+    keypoint.centre.y = kp.centre.y;
+    keypoint.axes.width = kp.axes.width;
+    keypoint.axes.height = kp.axes.height;
+    keypoint.phi = kp.phi;
+    keypoint.size = kp.size;
+    keypoint.si = kp.si;
+    keypoint.transf = kp.transf;
+
+    return keypoint;
+  }
+
+  static CvSeq *EllipticKeyPointsToCvSeq( vector<Elliptic_KeyPoint> kps, CvMemStorage *storage )
+  {
+    CvSeq *seq = cvCreateSeq( 0, sizeof( CvSeq ), sizeof( CvEllipticKeyPoint_t ), storage );
+
+    CvSeqWriter writer;
+    cvStartAppendToSeq( seq, &writer );
+    for( vector<Elliptic_KeyPoint>::iterator itr = kps.begin(); itr != kps.end(); itr++ ) {
+      CvEllipticKeyPoint_t kp = EllipticKeyPointToEllipticKeyPoint_t( *itr );
+      CV_WRITE_SEQ_ELEM( kp, writer );
+    }
+    cvEndWriteSeq( &writer );
+
+    //printf("After conversion, vector size = %d, CvSeq size = %d\n", kps.size(), seq->total );
+
+    assert( kps.size() == seq->total );
+
+    return seq;
   }
 
 
-#ifdef __cplusplus
+  CvSeq *cvHarrisAffineDetector( const CvArr *image, CvMemStorage *storage, CvHarrisAffineParams params ){
+    vector<Elliptic_KeyPoint> kps;
+    CvMat stub;
+    Mat imgMat( cvGetMat( image, &stub ) );
+    //Mat maskMat;
+    //if( mask )
+    //  maskMat = cvGetMat( mask, &stub );
+
+    HarrisAffineFeatureDetector harrisaffine( params.numOctaves, params.corn_thresh, params.DOG_thresh, params.maxCorners, params.num_layers );
+    harrisaffine.detect( imgMat, kps );
+
+    return EllipticKeyPointsToCvSeq( kps, storage ); 
+  }
+
+
 }
-#endif
+
 } // namespace cv
