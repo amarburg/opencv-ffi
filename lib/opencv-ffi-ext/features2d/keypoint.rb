@@ -15,6 +15,13 @@ module CVFFI
         :angle, :float,
         :response, :float,
         :octave, :int
+
+      def ==(b)
+        members.reduce(true) { |memo, member| memo and self[member] == b[member] }
+      end
+      def ===(b)
+        members.reduce(true) { |memo, member| memo and self[member] === b[member] }
+      end
     end
 
     class CvEllipticKeyPoint < NiceFFI::Struct
@@ -24,6 +31,13 @@ module CVFFI
         :kp_size, :float,
         :si, :float,
         :transf, CvMat
+
+      def ==(b)
+        members.reduce(true) { |memo, member| 
+          #puts "Member #{member} doesn't match #{self[member].to_s}, #{self[member].to_s}" unless self[member] == b[member]
+          memo and (member == :transf ? true : self[member] == b[member] )
+        }
+      end
     end
 
     class Keypoints

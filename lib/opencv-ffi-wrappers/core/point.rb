@@ -48,10 +48,10 @@ module CVFFI
     end
     
     def ==(b)
-      @x == b.x and @y == b.y
+      x == b.x and y == b.y
     end
     def ===(b)
-      @x === b.x and @y === b.y
+      x === b.x and y === b.y
     end
 
     def to_Vector( homogeneous = true )
@@ -86,9 +86,13 @@ module CVFFI
     def l2_squared_distance( b )
       (x-b.x)**2 + (y-b.y)**2
     end
- end
 
-  module CvPointCastMethods
+    def to_s
+      "(%.3f %.3f)" % [x,y]
+    end
+ #end
+
+ # module CvPointCastMethods
     def to_CvPoint2D64f
       CvPoint2D64f.new( :x => x, :y => y )
     end
@@ -116,7 +120,7 @@ module CVFFI
 
   class CvPointBase
     include CvPointMethods
-    include CvPointCastMethods
+#    include CvPointCastMethods
   end
 
   class CvPoint; def to_CvPoint; self; end; end
@@ -124,7 +128,7 @@ module CVFFI
   class CvPoint2D64f; def to_CvPoint2D64f; self; end; end
 
   class Point 
-    include CvPointCastMethods
+#    include CvPointCastMethods
     include CvPointMethods
 
     attr_accessor :w, :y, :x
@@ -230,9 +234,9 @@ module CVFFI
       end
     end
 
-end
+#end
   
-  module CvPoint3DCastMethods
+#  module CvPoint3DCastMethods
     def to_CvPoint3D64f
       CvPoint3D64f.new( :x => x, :y => y, :z => z )
     end
@@ -252,14 +256,14 @@ end
 
   class CvPoint3DBase
     include CvPoint3DMethods
-    include CvPoint3DCastMethods
+#    include CvPoint3DCastMethods
   end
 
   class CvPoint3D32f; def to_CvPoint3D32f; self; end; end
   class CvPoint3D64f; def to_CvPoint3D64f; self; end; end
 
   class Point3D
-    include CvPoint3DCastMethods
+#    include CvPoint3DCastMethods
     include CvPoint3DMethods
 
     attr_accessor :w, :z, :y, :x

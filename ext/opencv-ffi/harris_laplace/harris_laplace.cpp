@@ -22,7 +22,6 @@
 #include "gaussian_pyramid.hpp"
 #include "sift.h"
 
-#define POW2(x) ( 0x1 << x )
 
 namespace cv {
 
@@ -183,7 +182,7 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
 
             Mat Lxm2smooth, Lxmysmooth, Lym2smooth;
 
-            si = pow((float)2.0, layer / (float) num_layers);
+            si = pow(2, layer / (float) num_layers);
             sd = si * 0.7;
 
             Mat curr_layer;
@@ -269,9 +268,9 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
                         float succVal = succDOG.at<float> (y, x);
 
                         KeyPoint kp(
-                            Point(x * POW2( octave - 1) + POW2( octave - 1) / 2,
-                              y * POW2( octave - 1) + POW2( octave - 1) / 2),
-                            3 * POW2( octave - 1) * si * 2, 0, val, octave);
+                            Point(x * pow(2, octave - 1) + pow(2, octave - 1) / 2,
+                              y * pow(2, octave - 1) + pow(2, octave - 1) / 2),
+                            3 * pow(2, octave - 1) * si * 2, 0, val, octave);
 
                         /*Check whether keypoint size is inside the image*/
                         float start_kp_x = kp.pt.x - kp.size / 2;
@@ -296,7 +295,7 @@ void HarrisLaplace::detect(const Mat & image, vector<KeyPoint>& keypoints) const
     sort(keypoints.begin(), keypoints.end(), sort_func);
     for (size_t i = 1; i < keypoints.size(); i++)
     {
-      float max_diff = pow((float)2.0, keypoints[i].octave + 1.f / 2);
+      float max_diff = pow(2.0, keypoints[i].octave + 1.f / 2);
 
 
       if (keypoints[i].response == keypoints[i - 1].response && norm(
