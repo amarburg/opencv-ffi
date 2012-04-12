@@ -1,6 +1,5 @@
 require 'opencv-ffi/features2d'
 require 'opencv-ffi-wrappers/core'
-require 'opencv-ffi-wrappers/enumerable'
 require 'opencv-ffi-wrappers/vectors'
 require 'opencv-ffi-ext/vector_math'
 

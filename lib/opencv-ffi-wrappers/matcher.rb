@@ -1,6 +1,6 @@
 
-
 require 'opencv-ffi-wrappers'
+require 'opencv-ffi-wrappers/misc/map_with_index'
 
 module CVFFI
 
@@ -58,7 +58,7 @@ module CVFFI
       @match_cache = []
 
       @by_train = []
-      @by_train.extend( AddMapWithIndex )
+      @by_train.extend MapWithIndex 
 
       @by_query = []
 

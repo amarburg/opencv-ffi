@@ -1,5 +1,6 @@
 
 require 'opencv-ffi-wrappers'
+require 'opencv-ffi-wrappers/misc/map_with_index'
 
 
 module CVFFI
@@ -9,7 +10,7 @@ module CVFFI
 
     def initialize(  inliers )
       @status = inliers.to_a.map { |v| (v > 0.0) ? true : false }
-      status.extend CVFFI::AddMapWithIndex
+      status.extend MapWithIndex
     end
 
     def count_inliers

@@ -4,14 +4,8 @@ require 'test/setup'
 require 'opencv-ffi'
 require 'opencv-ffi-ext/features2d/harris_laplace'
 
-module EachTwo
-  def each_two( other )
-    raise "Called each_two when lists are different lengths" unless length == other.length
-    length.times { |i|
-      yield at(i),other.at(i)
-    }
-  end
-end
+require 'opencv-ffi-wrappers/misc/each_two'
+
 
 class TestHarrisLaplace < Test::Unit::TestCase
   include CVFFI::Features2D

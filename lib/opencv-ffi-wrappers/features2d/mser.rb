@@ -2,8 +2,7 @@
 require 'opencv-ffi/features2d/mser'
 require 'opencv-ffi-wrappers/core/iplimage'
 require 'opencv-ffi-wrappers/core/misc_draw'
-require 'opencv-ffi-wrappers/sequence'
-require 'opencv-ffi-wrappers/enumerable'
+require 'opencv-ffi-wrappers/core/sequence'
 require 'opencv-ffi-wrappers/vectors'
 
 require 'opencv-ffi-wrappers/misc/params'

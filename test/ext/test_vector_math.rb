@@ -1,7 +1,7 @@
 
 require 'test/setup'
 require 'opencv-ffi-ext/vector_math'
-require 'opencv-ffi-wrappers/enumerable'
+require 'opencv-ffi-wrappers/misc/inject_with_index'
 require 'benchmark'
 
 class TestVectorMath < Test::Unit::TestCase

@@ -1,10 +1,12 @@
 
 require 'nice-ffi'
+require 'opencv-ffi-wrappers/misc/inject_with_index'
 
 module CVFFI
 
   class FloatArrayCommon < NiceFFI::Struct
     include Enumerable
+    include InjectWithIndex
 
     class << self; attr_accessor :nElem; end
 
