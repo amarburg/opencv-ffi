@@ -109,6 +109,7 @@ module CVFFI
     # TODO:  Combine with above
     class EllipticKeypoints
       include Enumerable
+      include MapWithIndex
 
       attr_reader :kps
       attr_reader :desc
@@ -153,35 +154,37 @@ module CVFFI
       alias :at :[]
 
       def to_a
-        ary = []
-        # Would work better with map_with_index
-        each_with_index { |kp,i|
-          a = [ kp.x, kp.y, kp.kp_size, kp.angle, kp.response, kp.octave ]
-          a << @desc[i].to_a if @desc
-          ary << a
+        map_with_index { |kp,i|
+          # TODO: Need to save affine transfer function as well (kp.transf)
+          [ kp.centre.x, kp.centre.y, kp.axes.width, kp.axes.height, kp.phi, kp.kp_size, kp.si ]
+
+          # TODO: I removed the descriptor storing functionality. Is it necessary?
         }
-        ary
+      end
+
+      def to_yaml
+        to_a.to_yaml
       end
 
       def self.from_a( a )
         a = YAML::load(a) if a.is_a? String
-        raise "Don't know what to do" unless a.is_a? Array
+        raise "Don't know what to do with #{a}" unless a.is_a? Array
 
-        descriptors = []
         kps = a.map { |a|
-          kp = CvEllipticKeyPoint.new( a[0,6] )
-          if a[7]
-            ## Extract descriptors as well
-            kp.descriptors << a[7]
-          end
+          ## This won't work with the nested structures...
+          kp = CvEllipticKeyPoint.new( nil )
+          kp[:centre][:x] = a.shift
+          kp[:centre][:y] = a.shift
+          kp[:axes][:width] = a.shift
+          kp[:axes][:height] = a.shift
+          kp[:phi] = a.shift
+          kp[:kp_size] = a.shift
+          kp[:si] = a.shift
+
           kp
         }
 
-        if descriptors.length > 0
-          EllipticKeypoints.new( kps, nil, descriptors )
-        else
-          EllipticKeypoints.new( kps )
-        end
+        EllipticKeypoints.new( kps )
       end
     end
 

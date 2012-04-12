@@ -13,6 +13,7 @@ require 'opencv-ffi/imgproc'
 TEST_IMAGE_FILE = "test/test_files/images/IMG_7089.JPG"
 SMALL_TEST_IMAGE_FILE = "test/test_files/images/IMG_7088_small.JPG"
 TEST_IMAGE_FILE_TWO = "test/test_files/images/IMG_7088.JPG"
+DULL_IMAGE_FILE = "test/test_files/images/dull_image.jpg"
 
 def recursive_test name
   dirname = [ 'test', name] .join('/')
@@ -27,6 +28,9 @@ module TestSetup
   
   @dirname = "/tmp/opencv-ffi-test"
 
+  def self.dull_image
+    CVFFI::cvLoadImage( DULL_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+  end
   def self.test_image
     CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
   end

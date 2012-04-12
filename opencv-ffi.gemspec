@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.has_rdoc = true
 
+  s.add_dependency "ffi"
   s.add_dependency "nice-ffi"
   s.add_dependency "mkrf"
 end

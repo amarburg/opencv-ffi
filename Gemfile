@@ -10,6 +10,7 @@ group :development do
   gem "yard"
 
 #  gem "nice-ffi", :git=>"git@github.com:amarburg/nice-ffi.git"
-#  gem "ffi", :git=>'git@github.com:amarburg/ffi.git'
+  gem "nice-ffi", :path=>'../nice-ffi'
+  gem "ffi"
 end
 

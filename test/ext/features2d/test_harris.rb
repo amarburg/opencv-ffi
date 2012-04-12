@@ -8,7 +8,7 @@ class TestHarrisLaplace < Test::Unit::TestCase
   include CVFFI::Features2D
 
   def setup
-    @img = TestSetup::small_test_image
+    @img = TestSetup::dull_image
     @kp_ptr = FFI::MemoryPointer.new :pointer
     @mem_storage = CVFFI::cvCreateMemStorage( 0 )
   end
@@ -28,6 +28,9 @@ class TestHarrisLaplace < Test::Unit::TestCase
     asYaml = kps.to_yaml
     unserialized = Keypoints.from_a( asYaml )
 
+    puts "And after serialization:"
+    p unserialized[0]
+
     assert_equal kps.length, unserialized.length
   end
 
@@ -45,6 +48,8 @@ def test_HarrisAffine
     asYaml = kps.to_yaml
     unserialized = EllipticKeypoints.from_a( asYaml )
 
+    puts "And after serialization:"
+    p unserialized[0]
     assert_equal kps.length, unserialized.length
   end
 
