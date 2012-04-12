@@ -3,7 +3,7 @@
 require 'test/setup'
 
 require 'opencv-ffi'
-require 'opencv-ffi-ext/opensurf'
+require 'opencv-ffi-ext/features2d/opensurf'
 
 class TestOpenSURF < Test::Unit::TestCase
 
