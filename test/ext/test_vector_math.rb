@@ -44,6 +44,7 @@ class TestVectorMath < Test::Unit::TestCase
   def test_L2distance_8u
     Benchmark.bm(10) do |x|
       a = Array.new( 1000 ) { |i| rand(256) }
+      a.extend InjectWithIndex
       b = Array.new( 1000 ) { |i| rand(256) }
 
       l2dist = 0.0

@@ -47,10 +47,9 @@ module TestSetup
   image_accessor :tiny_test
   image_accessor :second
 
-  #def self.dull_image; image( :dull ); end;
-  #def self.test_image; image( :one ); end;
-  #def self.small_test_image; image( :one_small ); end;
-  #def self.second_test_image; image( :two ); end;
+  def self.test_mat
+    CVFFI::cvLoadImageM( IMAGES[:test], CVFFI::CV_LOAD_IMAGE_COLOR )
+  end
 
   def self.grey_test_image
     img = test_image

@@ -8,6 +8,7 @@ require 'opencv-ffi-wrappers/features2d/surf'
 class TestSURF < Test::Unit::TestCase
 
   def setup
+    @img = TestSetup::test_image
   end
 
 
