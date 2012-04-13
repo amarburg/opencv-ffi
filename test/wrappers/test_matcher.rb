@@ -9,7 +9,7 @@ class TestMatchers < Test::Unit::TestCase
 
   def setup
     @img_one = TestSetup::test_image
-    @img_two = TestSetup::second_test_image
+    @img_two = TestSetup::second_image
   end
 
   def extract_surf(img)

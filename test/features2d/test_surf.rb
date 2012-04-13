@@ -7,7 +7,7 @@ require 'opencv-ffi'
 class TestSURF < Test::Unit::TestCase
 
   def setup
-    @img = CVFFI::cvLoadImage( TEST_IMAGE_FILE, CVFFI::CV_LOAD_IMAGE_COLOR  )
+    @img = TestSetup.test_image
   end
 
 
