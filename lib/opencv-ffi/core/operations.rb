@@ -56,7 +56,8 @@ module CVFFI
   end
 
   attach_function :cvAddWeighted, [ :pointer, :double, :pointer, :double, :double, :pointer ], :void
-
+  attach_function :cvAvg, [:pointer, :pointer], CvScalar.by_value
+  attach_function :cvAvgSdv, [:pointer, :pointer, :pointer, :pointer], :void
   attach_function :cvCloneImage, [ :pointer ], IplImage.typed_pointer
   attach_function :cvCloneMat,   [ :pointer ], CvMat.typed_pointer
 

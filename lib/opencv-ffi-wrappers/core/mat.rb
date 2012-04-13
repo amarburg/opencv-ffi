@@ -151,6 +151,7 @@ module CVFFI
   
   class Mat
     include CvMatFunctions
+    include Enumerable
 
     def self.wrap_function( s )
       class_eval "def #{s}( *args ); Mat.new( mat.#{s}(*args) ); end"
@@ -248,6 +249,36 @@ module CVFFI
       }
     end
 
+    def mean( opts = {} )
+      mask = opts[:mask] || nil
+
+      # "cast" mask to 8U
+      if mask and mask.type != :CV_8U
+        raise "Mask not same size as self" unless height == mask.height
+        mm = mask
+        mask = Mat.build( height, width, :CV_8U ) { |i,j|
+          mm[i,j] > 0 ? 1 : 0
+        }
+      end
+
+      CVFFI::avg( self, mask )
+    end
+  
+    def mean_variance( opts = {} )
+      mask = opts[:mask] || nil
+
+      # "cast" mask to 8U
+      if mask and mask.type != :CV_8U
+        raise "Mask not same size as self" unless height == mask.height
+        mm = mask
+        mask = Mat.build( height, width, :CV_8U ) { |i,j|
+          mm[i,j] > 0 ? 1 : 0
+        }
+      end
+
+    mean,stddev = CVFFI::avgSdv( self, mask )
+    [mean, stddev*stddev]
+    end
 
     # Should impedence match Mat anywhere a CvMat * is required...
     # TODO: Figure out how to handler passing by_value
@@ -258,6 +289,7 @@ module CVFFI
     def norm( b, type = :CV_L2 )
       CVFFI::cvNorm( self, b, type )
     end
+
     def l2distance(b); norm(b, :CV_L2 ); end
 
     def ==(b)

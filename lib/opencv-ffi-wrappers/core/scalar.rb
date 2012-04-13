@@ -20,11 +20,9 @@ module CVFFI
 
   end
 
-  class CvMat
-    include CvMatFunctions
+  class CvScalar
+    include CvScalarFunctions
   end
-
-
 
   class Scalar
 
@@ -32,18 +30,21 @@ module CVFFI
       @order = :BGR
       w=x=y=z=0
 
-      if args[0].is_a?( Hash )
-        args = args[0]
+      unless args.length == 0
+        #Use the default values;
+        if args[0].is_a?( Hash )
+          args = args[0]
 
-        @order = args[:channel_order] if args[:channel_order]
-        a,b,c,d = color_symbols
+          @order = args[:channel_order] if args[:channel_order]
+          a,b,c,d = color_symbols
 
-        w = args[:w] || args[a] || args[a.upcase] || 0
-        x = args[:x] || args[b] || args[b.upcase] || 0
-        y = args[:y] || args[c] || args[c.upcase] || 0
-        z = args[:z] || args[d] || args[d.upcase] || 0
-      else
-        w,x,y,z = args
+          w = args[:w] || args[a] || args[a.upcase] || 0
+          x = args[:x] || args[b] || args[b.upcase] || 0
+          y = args[:y] || args[c] || args[c.upcase] || 0
+          z = args[:z] || args[d] || args[d.upcase] || 0
+        else
+          w,x,y,z = args
+        end
       end
 
       @s = CVFFI::CvScalar.new( :w => w, :x => x, :y => y, :z => z )

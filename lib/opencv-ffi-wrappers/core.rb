@@ -21,5 +21,20 @@ module CVFFI
 
     roots.coerce( coeffs )[1]
   end
+
+  def self.avgSdv( mat, mask = nil )
+    mean = CVFFI::CvScalar.new
+    stddev = CVFFI::CvScalar.new
+
+    CVFFI::cvAvgSdv( mat.to_CvMat, mean, stddev, mask.to_CvMat )
+
+    [ mean.w, stddev.w ]
+  end
+
+  def self.avg( mat, mask = nil )
+    mean = CVFFI::cvAvg( mat.to_CvMat, mask.to_CvMat )
+    mean.w
+  end
+
 end
 
