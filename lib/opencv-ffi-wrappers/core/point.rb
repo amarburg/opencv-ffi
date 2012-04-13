@@ -174,6 +174,19 @@ module CVFFI
     def area
       @y*@x
     end
+
+    def [](i)
+      case i
+      when 0
+        x
+      when 1
+        y
+      when 2
+        w
+      else
+        raise "Attempting to access invalid index in Point."
+      end
+    end
   end
 
   #===========================================================
