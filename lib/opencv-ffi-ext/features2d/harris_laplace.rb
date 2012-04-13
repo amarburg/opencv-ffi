@@ -44,7 +44,7 @@ module CVFFI
 
       attach_function :cvHarrisLaplaceDetector, [:pointer, :pointer, CvHarrisParams.by_value ], CvSeq.typed_pointer
 
-      def self.detect( image, params )
+      def self.detect( image, params = HarrisCommon::Params.new )
         params = params.to_CvHarrisParams unless params.is_a?( CvHarrisParams )
 
         kp_ptr = FFI::MemoryPointer.new :pointer
@@ -72,7 +72,7 @@ module CVFFI
 
       attach_function :cvHarrisAffineDetector, [:pointer, :pointer, CvHarrisParams.by_value ], CvSeq.typed_pointer
 
-      def self.detect( image, params )
+      def self.detect( image, params = HarrisCommon::Params.new )
         params = params.to_CvHarrisParams unless params.is_a?( CvHarrisParams )
 
         kp_ptr = FFI::MemoryPointer.new :pointer

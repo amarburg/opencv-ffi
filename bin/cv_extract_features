@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'opencv-ffi-wrappers'
+require 'opencv-ffi-ext'
+
+
+ARGV.each { |fname|
+  raise "File \"#{fname}\" doesn't exist!" unless FileTest::exists? fname
+  img = CVFFI::cvLoadImage( fname, CVFFI::CV_LOAD_IMAGE_COLOR )
+
+
+  kps = CVFFI::Features2D::HarrisLaplace.detect( img )
+
+  puts "For filename \"#{fname}\""
+  kps.each { |kp|
+    puts "%.3f %.3f" % [kp.x, kp.y]
+  }
+}
+
