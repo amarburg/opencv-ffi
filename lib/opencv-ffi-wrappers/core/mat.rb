@@ -88,7 +88,7 @@ module CVFFI
     end
 
     def at_scalar(i,j)
-      CVFFI::cvGet2D( self, i, j )
+      CVFFI::cvGet2D( self, i.to_i, j.to_i )
     end
 
     def set_scalar( i,j, f )
@@ -164,7 +164,9 @@ module CVFFI
     [ :twin, :clone ].each { |f| wrap_function f }
     
     attr_accessor :mat
-    attr_accessor :type
+    #attr_accessor :type
+    
+    def type; mat.type; end
 
     def initialize( *args )
       a1,a2,a3 = *args
@@ -179,8 +181,8 @@ module CVFFI
         opts ||= {}
         opts = { type: opts } if opts.is_a? Symbol
         doZero = opts[:zero] || true
-        @type = opts[:type] || :CV_32F
-        @mat = CVFFI::cvCreateMat( rows, cols, @type )
+        type = opts[:type] || :CV_32F
+        @mat = CVFFI::cvCreateMat( rows, cols, type )
 
         mat.zero if doZero
       end
@@ -197,9 +199,9 @@ module CVFFI
 
     def at=(i,j,v)
       if type == :CV_32F
-      mat.set_f( i,j, v)
+        mat.set_f( i,j, v)
       else
-        mat.set_scalar( i,j, CVFFI::CvScalar.new( { w: v, x: v, y: v, z: v } ) )
+        mat.set_scalar( i,j, v) # CVFFI::CvScalar.new( { w: v, x: v, y: v, z: v } ) )
       end
     end
     alias :[]= :at=
@@ -210,7 +212,6 @@ module CVFFI
         mat.at_f( i,j)
       else
         s = mat.at_scalar( i,j )
-        s.w
       end
     end
     alias :[] :at
@@ -302,6 +303,10 @@ module CVFFI
       # If results are equal, cmpResult will be all zeros
       sum = CVFFI::cvSum( cmpResult )
       sum.w == 0
+    end
+
+    def save( fname )
+      CVFFI::cvSaveImage( fname, to_CvMat )
     end
 
   end
