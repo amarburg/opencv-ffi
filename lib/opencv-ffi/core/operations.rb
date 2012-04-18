@@ -65,6 +65,7 @@ module CVFFI
   attach_function :cvCmp, [:pointer, :pointer, :pointer, :int], :void
 
   attach_function :cvCreateMat, [ :int, :int, :cvMatType ], CvMat.typed_pointer
+  attach_function :cvCreateMatHeader, [:int, :int, :cvMatType ], CvMat.typed_pointer
   attach_function :cvCreateImage, [ CvSize.by_value, :int, :int ], IplImage.typed_pointer
 
   attach_function :cvCopy, [ :pointer, :pointer, :pointer ], :void
@@ -78,6 +79,8 @@ module CVFFI
   attach_function :cvGet1D, [ :pointer, :int ], CvScalar.by_value
   attach_function :cvGet2D, [ :pointer, :int, :int ], CvScalar.by_value
   attach_function :cvGet3D, [ :pointer, :int, :int, :int ], CvScalar.by_value
+
+  attach_function :cvGetMat, [ :pointer, :pointer, :pointer, :int ], CvMat.typed_pointer
 
   attach_function :cvGetReal1D, [ :pointer, :int ], :double
   attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double

@@ -22,6 +22,12 @@ module CVFFI
     roots.coerce( coeffs )[1]
   end
 
+  ## Convenience wrappers around trickier CV functions
+  def self.avg( mat, mask = nil )
+    mean = CVFFI::cvAvg( mat.to_CvMat, mask.to_CvMat )
+    mean.w
+  end
+
   def self.avgSdv( mat, mask = nil )
     mean = CVFFI::CvScalar.new
     stddev = CVFFI::CvScalar.new
@@ -31,9 +37,9 @@ module CVFFI
     [ mean.w, stddev.w ]
   end
 
-  def self.avg( mat, mask = nil )
-    mean = CVFFI::cvAvg( mat.to_CvMat, mask.to_CvMat )
-    mean.w
+  def self.getMat( mat )
+    header = CVFFI::cvCreateMatHeader( 1,1, :CV_32F )
+    CVFFI::cvGetMat( mat, header, nil, 0 )
   end
 
 end

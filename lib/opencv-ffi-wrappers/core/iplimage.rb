@@ -13,6 +13,14 @@ module CVFFI
       self
     end
 
+    def to_Mat
+      Mat.new( CVFFI::getMat( self.to_IplImage ) )
+    end
+
+    def to_CvMat
+      CvMat.new( CVFFI::getMat( self.to_IplImage ) )
+    end
+
     def clone
       CVFFI::IplImage.new CVFFI::cvCloneImage( self )
     end
