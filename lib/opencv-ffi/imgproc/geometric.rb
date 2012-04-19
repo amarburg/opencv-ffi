@@ -34,6 +34,14 @@ module CVFFI
   end
 
 
+  attach_function :cvWarpPerspectiveReal, :cvWarpPerspective, [ :pointer, :pointer, :pointer, :int, CvScalar.by_value], :void
+  def self.cvWarpPerspective( src, dst, map_matrix, flags = nil, fillval = nil )
+    flags ||= @cvWarpFlags[:CV_INTER_LINEAR]+@cvWarpFlags[:CV_WARP_FILL_OUTLIERS]
+    fillval ||= CVFFI::CvScalar.new( [0,0,0,0] )
+
+    cvWarpPerspectiveReal( src, dst, map_matrix, flags, fillval )
+  end
+
   # CVAPI(CvMat*)  cv2DRotationMatrix( CvPoint2D32f center, 
   #                                    double angle,
   #                                    double scale, 

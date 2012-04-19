@@ -151,7 +151,7 @@ module CVFFI
           @y = args[:y]
           @x = args[:x]
           @w = args[:w] if args[:w]
-        when Array
+        when Array, Vector
           @x = args[0]
           @y = args[1]
           if args.length > 2

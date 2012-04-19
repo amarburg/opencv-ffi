@@ -403,6 +403,14 @@ module CVFFI
       dest
     end
 
+    def warp_perspective( m )
+      dest = twin
+
+      CVFFI::cvWarpPerspective( self.to_CvMat, dest.to_CvMat, m.to_CvMat )
+
+      dest
+    end
+
     alias :ensure_grayscale :ensure_greyscale
     alias :to_gray :ensure_greyscale
     alias :to_gray :ensure_greyscale
