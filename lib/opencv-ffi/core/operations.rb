@@ -84,6 +84,8 @@ module CVFFI
   attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
   attach_function :cvGetReal3D, [ :pointer, :int, :int, :int ], :double
 
+  attach_function :cvLog, [ :pointer, :pointer ], :void
+
   attach_function :cvMinMaxLoc, [:pointer, :pointer, :pointer, :pointer,:pointer,:pointer], :void
 
   enum :cvNormTypes, [ :CV_C, 1,

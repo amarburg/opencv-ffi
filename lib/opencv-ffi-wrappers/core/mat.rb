@@ -411,6 +411,12 @@ module CVFFI
       dest
     end
 
+    def log
+      dest = twin
+      CVFFI::cvLog( self.to_CvMat, dest.to_CvMat )
+      dest
+    end
+
     alias :ensure_grayscale :ensure_greyscale
     alias :to_gray :ensure_greyscale
     alias :to_gray :ensure_greyscale

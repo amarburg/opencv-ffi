@@ -26,6 +26,7 @@ module CVFFI
   #                            CvScalar fillval CV_DEFAULT(cvScalarAll(0)) );
   attach_function :cvWarpAffineReal, :cvWarpAffine, [ :pointer, :pointer, :pointer, :int, CvScalar.by_value ], :void
 
+  # Thin wrapper to handling the somewhat tricky default flags
   def self.cvWarpAffine( src, dst, map_matrix, flags = nil, fillval = nil )
     flags ||= @cvWarpFlags[:CV_INTER_LINEAR]+@cvWarpFlags[:CV_WARP_FILL_OUTLIERS]
     fillval ||= CVFFI::CvScalar.new( [0,0,0,0] )
@@ -35,6 +36,8 @@ module CVFFI
 
 
   attach_function :cvWarpPerspectiveReal, :cvWarpPerspective, [ :pointer, :pointer, :pointer, :int, CvScalar.by_value], :void
+
+  # Thin wrapper to handling the somewhat tricky default flags
   def self.cvWarpPerspective( src, dst, map_matrix, flags = nil, fillval = nil )
     flags ||= @cvWarpFlags[:CV_INTER_LINEAR]+@cvWarpFlags[:CV_WARP_FILL_OUTLIERS]
     fillval ||= CVFFI::CvScalar.new( [0,0,0,0] )
