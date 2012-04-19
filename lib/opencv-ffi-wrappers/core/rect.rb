@@ -36,5 +36,28 @@ module CVFFI
       CvRect.new( :x => @origin.x, :y => @origin.y,
               :width => @size.width, :height => @size.height )
     end
+
+    def each( &blk )
+      size.width.to_i.times { |x|
+        size.height.to_i.times { |y|
+          pt = Point.new(origin.x+x, origin.y+y ) 
+          blk.call( pt )
+        }
+      }
+    end
+
+    def width; size.width; end
+    def height; size.height; end
+
+    def each_with_relative( &blk )
+      size.width.to_i.times { |x|
+        size.height.to_i.times { |y|
+          pt = Point.new(x,y)
+          blk.call( pt+origin, pt )
+        }
+      }
+    end
+
+
   end
 end

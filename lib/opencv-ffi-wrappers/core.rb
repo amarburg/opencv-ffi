@@ -24,15 +24,17 @@ module CVFFI
 
   ## Convenience wrappers around trickier CV functions
   def self.avg( mat, mask = nil )
-    mean = CVFFI::cvAvg( mat.to_CvMat, mask.to_CvMat )
+    maskmat = mask ? mask.to_CvMat : nil
+    mean = CVFFI::cvAvg( mat.to_CvMat, maskmat )
     mean.w
   end
 
   def self.avgSdv( mat, mask = nil )
     mean = CVFFI::CvScalar.new
     stddev = CVFFI::CvScalar.new
+    maskmat = mask ? mask.to_CvMat : nil
 
-    CVFFI::cvAvgSdv( mat.to_CvMat, mean, stddev, mask.to_CvMat )
+    CVFFI::cvAvgSdv( mat.to_CvMat, mean, stddev, maskmat )
 
     [ mean.w, stddev.w ]
   end
@@ -42,5 +44,18 @@ module CVFFI
     CVFFI::cvGetMat( mat, header, nil, 0 )
   end
 
+  def self.minMaxLoc( mat, mask = nil )
+    maskmat = mask ? mask.to_CvMat : nil
+
+    min_ptr = FFI::MemoryPointer.new :double
+    max_ptr = FFI::MemoryPointer.new :double
+    min_loc = CVFFI::CvPoint.new
+    max_loc = CVFFI::CvPoint.new
+
+    # Doesn't actually do loc at this point...
+    CVFFI::cvMinMaxLoc( mat, min_ptr, max_ptr, min_loc, max_loc, maskmat )
+
+    [ min_ptr.read_double, max_ptr.read_double, min_loc, max_loc ]
+  end
 end
 

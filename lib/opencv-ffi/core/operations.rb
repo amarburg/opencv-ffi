@@ -48,14 +48,11 @@ module CVFFI
 
   # A bit clumsy
   def self.matType( m )
-    case m.type & 0x7
-    when :CV_8U; :CV_8U
-    else
-      assert RuntimeError, "This shouldn't happen!"
-    end
+    CvMatType[ CVFFI::matMagicType( m ) ]
   end
 
   attach_function :cvAddWeighted, [ :pointer, :double, :pointer, :double, :double, :pointer ], :void
+  attach_function :cvAddS, [:pointer, CvScalar.by_value, :pointer, :pointer], :void
   attach_function :cvAvg, [:pointer, :pointer], CvScalar.by_value
   attach_function :cvAvgSdv, [:pointer, :pointer, :pointer, :pointer], :void
   attach_function :cvCloneImage, [ :pointer ], IplImage.typed_pointer
@@ -63,6 +60,7 @@ module CVFFI
 
   enum :cvCmpTypes, [ :CV_CMP_EQ, :CV_CMP_GT, :CV_CMP_GE, :CV_CMP_LT, :CV_CMP_LE, :CV_CMP_NE ]
   attach_function :cvCmp, [:pointer, :pointer, :pointer, :int], :void
+  attach_function :cvConvertScale, [:pointer, :pointer, :double, :double], :void
 
   attach_function :cvCreateMat, [ :int, :int, :cvMatType ], CvMat.typed_pointer
   attach_function :cvCreateMatHeader, [:int, :int, :cvMatType ], CvMat.typed_pointer
@@ -86,6 +84,8 @@ module CVFFI
   attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
   attach_function :cvGetReal3D, [ :pointer, :int, :int, :int ], :double
 
+  attach_function :cvMinMaxLoc, [:pointer, :pointer, :pointer, :pointer,:pointer,:pointer], :void
+
   enum :cvNormTypes, [ :CV_C, 1,
                        :CV_L1, 2,
                        :CV_L2, 4 ]
@@ -94,6 +94,7 @@ module CVFFI
     real_cvNorm( arr1, arr2, normType, mask )
   end
 
+  attach_function :cvScaleAdd, [ :pointer, CvScalar.by_value, :pointer, :pointer ], :void
   attach_function :cvSet,  [ :pointer, CvScalar.by_value, :pointer ], :void
 
   attach_function :cvSet1D, [ :pointer, :int, CvScalar.by_value ], :void
@@ -110,6 +111,7 @@ module CVFFI
   attach_function :cvSolveCubic, [:pointer, :pointer ], :void
   attach_function :cvSplit, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
 
+  attach_function :cvSub, [:pointer, :pointer, :pointer, :pointer], :void
   attach_function :cvSum, [:pointer], CvScalar.by_value
 
   attach_function :cvTranspose, [:pointer, :pointer], :void

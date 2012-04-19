@@ -47,6 +47,10 @@ module CVFFI
       self
     end
 
+    def to_Mat
+      CVFFI::Mat.new( self )
+    end
+
     def to_Matrix
       Matrix.build( height, width ) { |i,j|
         at_f(i,j)
@@ -166,7 +170,7 @@ module CVFFI
     attr_accessor :mat
     #attr_accessor :type
     
-    def type; mat.type; end
+    def type; CVFFI::matType(mat); end
 
     def initialize( *args )
       a1,a2,a3 = *args
@@ -176,6 +180,13 @@ module CVFFI
         @mat = a1.mat
       when CvMat
         @mat = a1
+      when Size
+        opts = a2 || {}
+        opts = { type: opts } if opts.is_a? Symbol
+        doZero = opts[:zero] || true
+        type = opts[:type] || :CV_32F
+        @mat = CVFFI::cvCreateMat( args[0].height, args[0].width, type )
+        mat.zero if doZero
       else
         rows,cols,opts = a1,a2,a3
         opts ||= {}
@@ -211,7 +222,7 @@ module CVFFI
       if type == :CV_32F
         mat.at_f( i,j)
       else
-        s = mat.at_scalar( i,j )
+        mat.at_scalar( i,j )
       end
     end
     alias :[] :at
@@ -308,6 +319,94 @@ module CVFFI
     def save( fname )
       CVFFI::cvSaveImage( fname, to_CvMat )
     end
+
+    def ensure_greyscale
+      greyImg = CVFFI::cvCreateMat( height, width, :CV_8U )
+      CVFFI::cvCvtColor( self.to_CvMat, greyImg, :CV_BGR2GRAY )
+      Mat.new(greyImg)
+    end
+
+    def to_float
+      float = CVFFI::cvCreateMat( height, width, :CV_32F )
+      CVFFI::cvConvertScale( self.to_CvMat, float, 1, 0 )
+      Mat.new( float )
+    end
+
+    def to_uint( scale = 1 )
+      uint = CVFFI::cvCreateMat( height, width, :CV_8U )
+      CVFFI::cvConvertScale( self.to_CvMat, uint, scale, 0 )
+      Mat.new( uint )
+    end
+
+
+    def +(b)
+      case b
+      when Numeric
+        other = CVFFI::Scalar.new( b,b,b,b )
+        dest = twin
+        CVFFI::cvAddS( self.to_CvMat, other.to_CvScalar, dest.to_CvMat, nil )
+        dest
+      when Mat, CvMat
+        dest = twin
+        CVFFI::cvAdd( self.to_CvMat, other.to_CvMat, dest.to_CvMat, nil )
+        dest
+      else
+        raise "Don't know how to add #{b} to a Mat"
+      end
+    end
+
+
+    def -(b)
+      case b
+      when Numeric
+        other = CVFFI::Scalar.new( -b,-b,-b,-b )
+        dest = twin
+        CVFFI::cvAddS( self.to_CvMat, other.to_CvScalar, dest.to_CvMat, nil )
+        dest
+      when Mat, CvMat
+        dest = twin
+        CVFFI::cvSub( self.to_Cvmat, other.to_CvMat, dest.to_CvMat, nil )
+        dest
+      else
+        raise "Don't know how to subtract #{b} from a Mat"
+      end
+    end
+
+    def minMaxLoc
+      CVFFI::minMaxLoc( self.to_CvMat )
+    end
+
+    def minMax
+      (minMaxLoc)[0,2]
+    end
+
+    def max; min,max = minMax; max; end
+    def min; min,max = minMax; min; end
+
+    def scale_add( s, a )
+      a = case a
+          when Numeric
+            adder = twin
+            CVFFI::cvSet( adder.to_CvMat, 
+                         CVFFI::Scalar.new( a,a,a,a ).to_CvScalar, nil )
+            adder
+          when Mat, CvMat
+            a
+          else
+            raise "Don't know how to add #{a} to an array"
+          end
+
+      scalar = CVFFI::Scalar.new( s,s,s,s )
+      dest = twin
+
+      CVFFI::cvScaleAdd( self.to_CvMat, scalar.to_CvScalar, a.to_CvMat, dest )
+      dest
+    end
+
+    alias :ensure_grayscale :ensure_greyscale
+    alias :to_gray :ensure_greyscale
+    alias :to_gray :ensure_greyscale
+
 
   end
 end
