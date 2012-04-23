@@ -88,6 +88,8 @@ module CVFFI
   attach_function :cvGetReal2D, [ :pointer, :int, :int ], :double
   attach_function :cvGetReal3D, [ :pointer, :int, :int, :int ], :double
 
+  attach_function :cvGetSubRect, [ :pointer, :pointer, CvRect.by_value ], CvMat.typed_pointer
+
   attach_function :cvLog, [ :pointer, :pointer ], :void
 
   attach_function :cvMinMaxLoc, [:pointer, :pointer, :pointer, :pointer,:pointer,:pointer], :void

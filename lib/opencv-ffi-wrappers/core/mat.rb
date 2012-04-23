@@ -455,7 +455,7 @@ module CVFFI
       sz = CVFFI::Size.new( size )
 
       rect = CVFFI::CvRect.new( x: o.x, y: o.y, width: size.width, height: size.height )
-      dst = CVFFI::cvCreateMatHeader( 0, 0, :CV_32F )
+      dst = CVFFI::cvCreateMatHeader( size.width, size.height, :CV_32F )
       Mat.new( CVFFI::cvGetSubRect( self.to_CvMat, dst, rect ) )
     end
 
