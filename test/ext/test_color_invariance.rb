@@ -32,10 +32,10 @@ class TestColorInvariance < Test::Unit::TestCase
     }.transpose
     min = min.min; max = max.max
 
-    puts min, max
+    puts "Old min %.2f max %.2f" [min,max]
 
-    diff = 1.0/(max-min)
-    offset = -min/diff
+    diff = 256.0/(max-min)
+    offset = -min*diff
 
     puts "Scale by %.2f, offset by %.2f" % [diff, offset]
     scaled_scx = scx.scale_add( diff, offset )
@@ -46,6 +46,33 @@ class TestColorInvariance < Test::Unit::TestCase
 
     TestSetup::save_image( "scx.jpg", scaled_scx )
     TestSetup::save_image( "scy.jpg", scaled_scy )
+  end
+
+  def test_color_invariance
+    img = TestSetup::test_image
+    scx = CVFFI::Mat.new( img.image_size, :CV_32FC3 )
+    scy = CVFFI::Mat.new( img.image_size, :CV_32FC3 )
+
+    CVFFI::ColorInvariance::cvGenerateSQuasiInvariant( img, scx, scy )
+
+    params = CVFFI::GoodFeaturesParams.new
+    params.max_corners = 10
+    params.use_harris = true
+    corners = CVFFI::ColorInvariance::quasiInvariantFeaturesToTrack( scx, scy, params )
+
+    puts "Found #{corners.length} corners."
+
+    display = [corners.length, 10].min
+    puts "Only listing first #{display} corners" unless display == corners.length
+    display.times { |i|
+      puts "%d  % 4d, % 4d" % [i, corners[i].x, corners[i].y]
+    }
+
+    annotated = img.clone
+    corners.each { |corner|
+      CVFFI::draw_circle( annotated, corner, { color: CVFFI::CvScalar.new( x: 255, y: 255, z: 0, w: 0 ) } )
+    }
+    TestSetup::save_image( "invariant_corners.jpg", annotated )
   end
 
 
