@@ -59,17 +59,40 @@ class TestImgprocWrappers < Test::Unit::TestCase
       assert c.y < img.height
     }
   end
+
+  def list_corners( corners, name = "" )
+puts "#{name} found #{corners.length} points"
+    display = [corners.length, 10].min
+    puts "Only listing first #{display} corners" unless display == corners.length
+    display.times { |i|
+      puts "%d  % 4d, % 4d" % [i, corners[i].x, corners[i].y]
+    }
+  end
+
+  def save_corners( corners, filename )
+    annotated = @img.clone
+    corners.each { |corner|
+      CVFFI::draw_circle( annotated, corner, { color: CVFFI::CvScalar.new( x: 255, y: 255, z: 0, w: 0 ) } )
+    }
+    TestSetup::save_image( filename, annotated )
+  end
+
+
  
   def test_goodFeaturesToTrack_default_params
     corners = CVFFI::goodFeaturesToTrack( @img )
     corner_common_tests( corners, @img )
+    list_corners( corners, "Shi-Tomasi" )
+    save_corners( corners, "greyscale_shitomasi.jpg" )
 
     params = CVFFI::GoodFeaturesParams.new( use_harris: true )
     harris_corners = CVFFI::goodFeaturesToTrack( @img, params )
     corner_common_tests( harris_corners, @img, params )
+    list_corners( harris_corners, "Harris" )
+    save_corners( harris_corners, "greyscale_haris.jpg" )
 
     assert harris_corners != corners
- end
+  end
 
   def test_goodFeaturesToTrack_shitomasi_with_params
     params = CVFFI::GoodFeaturesParams.new( quality_level: 0.7,

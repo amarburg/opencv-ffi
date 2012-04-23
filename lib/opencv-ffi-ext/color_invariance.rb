@@ -19,6 +19,7 @@ module CVFFI
     attach_function :cvCvtColorInvariants, [ :pointer, :pointer, :int ], :void
 
 
+    attach_function :cvGenerateColorTensor, [ :pointer, :pointer, :pointer ], :void
     attach_function :cvGenerateSQuasiInvariant, [ :pointer, :pointer, :pointer ], :void
 
   #cvQuasiInvariantFeaturesToTrack( const Mat *_quasiX, const Mat *_quasiY, 
@@ -42,8 +43,6 @@ module CVFFI
                                  params.use_harris ? 1 : 0, params.k )
 
     max_corners = max_corners.read_int 
-    puts max_corners
-
     points = Array.new( max_corners ) {|i|
       CVFFI::CvPoint2D32f.new( corners + CVFFI::CvPoint2D32f.size * i )
     }

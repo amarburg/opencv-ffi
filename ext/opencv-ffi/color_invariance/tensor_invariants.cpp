@@ -22,6 +22,24 @@ double sdot( const Pixel &a, const Pixel &b )
 // "Robust Photometric Invariant Features From the Color Tensor"
 // DOI:  10.1109/TIP.2005.860343
 //
+void generateColorTensor( Mat &src, Mat &fx, Mat &fy )
+{
+  Size sz = src.size();
+
+  CV_Assert( src.channels() == 3 );
+  CV_Assert( src.depth() == CV_32F );
+
+  fx.create( sz, CV_MAKETYPE( CV_32F, 3 ) );
+  fy.create( sz, CV_MAKETYPE( CV_32F, 3 ) );
+
+  //Ptr<FilterEngine> filter_x = createDerivFilter( src.type(), fx.type(), 1, 0,  KSIZE );
+  //Ptr<FilterEngine> filter_y = createDerivFilter( src.type(), fy.type(), 0, 1,  KSIZE );
+  //filter_x->apply( src, fx );
+  //filter_y->apply( src, fy );
+
+  Sobel( src, fx, CV_32F, 1, 0, CV_SCHARR );
+  Sobel( src, fy, CV_32F, 0, 1, CV_SCHARR );
+}
 void generateSQuasiInvariant( Mat &src, Mat &scx, Mat &scy )
 {
   Size sz = src.size();
@@ -72,8 +90,6 @@ void generateSQuasiInvariant( Mat &src, Mat &scx, Mat &scy )
       scy.at<Pixel>(i,j ) = (fy.at<Pixel>(i,j) - sy.at<Pixel>(i,j)); 
     }
   }
-
-  cout << "Complete" << endl;
 }
 
 static void quasiInvariantHarris( const Mat &quasiX, const Mat &quasiY, Mat &_dst, double k )
@@ -106,6 +122,36 @@ static void quasiInvariantHarris( const Mat &quasiX, const Mat &quasiY, Mat &_ds
 
 }
 
+static void quasiInvariantMinEigen( const Mat &quasiX, const Mat &quasiY, Mat &_dst )
+{
+  _dst.create( quasiX.size(), CV_32F );
+  CV_Assert( quasiX.size() == quasiY.size() );
+
+  Size size = quasiX.size();
+
+  // Eschew the faster pointer access for the more understandable .at<>()
+  // for now...
+  //
+  //if( quasiX.isContinuous() && quasiY.isContinuous() && _dst.isContinuous() )
+  //{
+  //  size.width *= size.height;
+  //  size.height = 1;
+  // }
+
+  for( int i = 0; i < size.height; i++ )
+  {
+    for( int j = 0; j < size.width; j++ )
+    {
+      Pixel x = quasiX.at<Pixel>(i,j);
+      Pixel y = quasiY.at<Pixel>(i,j);
+
+      float xx = sdot( x, x )*0.5f, yy = sdot( y,y )*0.5f, xy = sdot(x,y);
+      _dst.at<float>(i,j) = (xx+yy) - std::sqrt( (xx-yy)*(xx-yy) + xy*xy );
+    }
+  }
+
+}
+
 template<typename T> struct greaterThanPtr
 {
       bool operator()(const T* a, const T* b) const { return *a > *b; }
@@ -128,8 +174,8 @@ void quasiInvariantFeaturesToTrack( const Mat &quasiX,
 
   if( useHarrisDetector )
     quasiInvariantHarris( quasiX, quasiY, eig, harrisK );
-  //else
-  //  cornerMinEigenVal( image, eig, blockSize, 3 );
+  else
+    quasiInvariantMinEigen( quasiX, quasiY, eig );
 
   double maxVal = 0;
   minMaxLoc( eig, 0, &maxVal, 0, 0, mask );
@@ -284,6 +330,46 @@ using namespace cv;
 
 
 extern "C" {
+  void cvGenerateColorTensor( CvMat *srcarr, CvMat *scx, CvMat *scy )
+  {
+    Mat src = cvarrToMat(srcarr);
+    Mat cvtSrc;
+
+    // Input must be cast to 32FC3
+    CV_Assert( src.channels() == 3 );
+    switch( src.depth() ) {
+      case CV_8U:
+        src.convertTo( cvtSrc, CV_32F, 1.0, 0 );
+        break;
+      case CV_32F:
+        cvtSrc = src;
+        break;
+      default:
+        cout << "cvGenerateColorTensor cannot deal with type " << src.depth() << endl;
+    }
+
+    Mat scxMat = cvarrToMat(scx), dstx;
+    Mat scyMat = cvarrToMat(scy), dsty;
+
+    cv::generateColorTensor( cvtSrc, dstx, dsty );
+
+    // Cast back to scx, scy type
+    switch( scxMat.depth() ) {
+      case CV_8U:
+        dstx.convertTo( scxMat, CV_8U, 256.0, 0 );
+        dsty.convertTo( scyMat, CV_8U, 256.0, 0 );
+        break;
+      case CV_32F:
+        // Strictly speaking, you should be able to set scx.data == dstx
+        // but the syntax escapes me...
+        dstx.copyTo( scxMat );
+        dsty.copyTo( scyMat );
+        break;
+      default:
+        cout << "cvGenerateColorTensor cannot deal with type " << scxMat.depth() << endl;
+    }
+  }
+
   void cvGenerateSQuasiInvariant( CvMat *srcarr, CvMat *scx, CvMat *scy )
   {
     Mat src = cvarrToMat(srcarr);
