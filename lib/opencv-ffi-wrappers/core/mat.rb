@@ -443,8 +443,6 @@ module CVFFI
       sz = CVFFI::Size.new( size )
       dest = CVFFI::Mat.new( sz,  {type: type} )
 
-      puts "Resizing to #{dest.width} x #{dest.height}"
-
       CVFFI::cvResize( self.to_CvMat, dest.to_CvMat, interpolation ) 
 
       dest
