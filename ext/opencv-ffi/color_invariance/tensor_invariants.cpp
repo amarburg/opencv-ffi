@@ -77,14 +77,14 @@ void generateSQuasiInvariant( Mat &src, Mat &scx, Mat &scy )
 
       sx.at<Pixel>( i,j ) = fhat * sdot( fx.at<Pixel>(i,j), fhat );
       scx.at<Pixel>(i,j ) = (fx.at<Pixel>(i,j) - sx.at<Pixel>(i,j)); 
-      if( i == 100 and j == 108 ) {
-        Pixel s = sx.at<Pixel>(i,j), sc = scx.at<Pixel>(i,j), f = fx.at<Pixel>(i,j);
+//      if( i == 100 and j == 108 ) {
+//        Pixel s = sx.at<Pixel>(i,j), sc = scx.at<Pixel>(i,j), f = fx.at<Pixel>(i,j);
 
-        cout << "fhat " << fhat[0] << "," << fhat[1] << "," << fhat[2] <<endl;
-        cout << "fx " << f[0] << "," << f[1] << "," << f[2] <<endl;
-        cout << "sx  " << s[0] << "," << s[1] << "," << s[2] << endl;
-        cout << "scx " << sc[0] << "," << sc[1] << "," << sc[2] << endl;
-      }
+//        cout << "fhat " << fhat[0] << "," << fhat[1] << "," << fhat[2] <<endl;
+//        cout << "fx " << f[0] << "," << f[1] << "," << f[2] <<endl;
+//        cout << "sx  " << s[0] << "," << s[1] << "," << s[2] << endl;
+//        cout << "scx " << sc[0] << "," << sc[1] << "," << sc[2] << endl;
+//      }
 
       sy.at<Pixel>( i,j ) = fhat * sdot( fy.at<Pixel>(i,j), fhat );
       scy.at<Pixel>(i,j ) = (fy.at<Pixel>(i,j) - sy.at<Pixel>(i,j)); 
