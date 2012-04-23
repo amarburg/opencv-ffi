@@ -438,6 +438,27 @@ module CVFFI
       dest
     end
 
+    def resize( size, opts = {} )
+      interpolation = opts[:interpolation] || :CV_INTER_LINEAR
+      sz = CVFFI::Size.new( size )
+      dest = CVFFI::Mat.new( sz,  {type: type} )
+
+      puts "Resizing to #{dest.width} x #{dest.height}"
+
+      CVFFI::cvResize( self.to_CvMat, dest.to_CvMat, interpolation ) 
+
+      dest
+    end
+
+    def subRect( origin, size )
+      o = CVFFI::Point.new( origin )
+      sz = CVFFI::Size.new( size )
+
+      rect = CVFFI::CvRect.new( x: o.x, y: o.y, width: size.width, height: size.height )
+      dst = CVFFI::cvCreateMatHeader( 0, 0, :CV_32F )
+      Mat.new( CVFFI::cvGetSubRect( self.to_CvMat, dst, rect ) )
+    end
+
     alias :ensure_grayscale :ensure_greyscale
     alias :to_gray :ensure_greyscale
     alias :to_gray :ensure_greyscale

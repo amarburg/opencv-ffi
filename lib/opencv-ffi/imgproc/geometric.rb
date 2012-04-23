@@ -7,7 +7,11 @@ module CVFFI
 
   attach_function :cvGetAffineTransform, [ :pointer, :pointer, :pointer ], CvMat.typed_pointer
 
-  @cvWarpFlags = enum :cvWarpFlags, [ :CV_INTER_LINEAR, 1,
+  @cvWarpFlags = enum :cvWarpFlags, [ :CV_INTER_NN, 0,
+                                      :CV_INTER_LINEAR, 1,
+                                      :CV_INTER_CUBIC, 2,
+                                      :CV_INTER_AREA, 3,
+                                      :CV_INTER_LANCZOS, 4,
                                       :CV_WARP_FILL_OUTLIERS, 8,
                                       :CV_WARP_INVERSE_MAP, 16  ]
   
@@ -18,6 +22,8 @@ module CVFFI
       raise ::RuntimeError, "Undefined cvWarpFlags value #{a.inspect}"
     end
   end
+
+  attach_function :cvResize, [:pointer, :pointer, :int], :void
 
   # CVAPI(void)  cvWarpAffine( const CvArr* src, 
   #                            CvArr* dst, 

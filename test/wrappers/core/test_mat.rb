@@ -37,4 +37,16 @@ class TestCoreMat < Test::Unit::TestCase
       assert_equal ( i==j ? 1 : 0 ),  d
     }
   end
+
+  def test_resize
+    img = TestSetup::test_image
+
+    mat = img.to_Mat
+
+    smaller = mat.resize( [640,480] )
+
+    p smaller
+
+    TestSetup::save_image( "smaller.jpg",  smaller)
+  end
 end

@@ -30,14 +30,14 @@ module CVFFI
 
   ## As present, the type encodes 9 bits of nChannels and 3 bits of typ
   def self.matMagicType( m )
-    type = case m.type
-           when Fixnum
-             m.type
-           when Symbol
-             CvMatType[m.type]
-           else
-             raise "Can't convert #{m} to a numeric OpenCV type"
-           end
+    type = m.type #case m.type
+           #when Fixnum
+           #  m.type
+           #when Symbol
+           #  CvMatType[m.type]
+           #else
+           #  raise "Can't convert #{m} to a numeric OpenCV type"
+           #end
 
     type & 0xFFF
   end
