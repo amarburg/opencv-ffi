@@ -49,8 +49,8 @@ module CVFFI
 
     min_ptr = FFI::MemoryPointer.new :double
     max_ptr = FFI::MemoryPointer.new :double
-    min_loc = CVFFI::CvPoint.new
-    max_loc = CVFFI::CvPoint.new
+    min_loc = CVFFI::CvPoint.new( x: 0.0, y: 0.0 )
+    max_loc = CVFFI::CvPoint.new( x: 0.0, y: 0.0 )
 
     # Doesn't actually do loc at this point...
     CVFFI::cvMinMaxLoc( mat, min_ptr, max_ptr, min_loc, max_loc, maskmat )

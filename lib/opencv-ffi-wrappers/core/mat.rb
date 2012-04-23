@@ -122,15 +122,22 @@ module CVFFI
     end
 
     def split
-      nchannels =  CVFFI::matChannels( self )
-      out = Array.new( nchannels ) { |i| CVFFI::cvCreateMat( self.width, self.height, self.type ) }
+      out = Array.new( channels ) { |i| CVFFI::cvCreateMat( self.height, self.width, self.depth ) }
       
       CVFFI::cvSplit( self, out[0], out[1], out[2], out[3] );
-      out[0,nchannels]
+      out[0,channels]
     end
 
     def print( opts = {} )
       CVFFI::print_matrix( self, opts )
+    end
+
+    def channels
+      CVFFI::matChannels( self )
+    end
+
+    def depth
+      CVFFI::matDepth( self )
     end
 
     module ClassMethods 
@@ -355,7 +362,6 @@ module CVFFI
       end
     end
 
-
     def -(b)
       case b
       when Numeric
@@ -372,8 +378,22 @@ module CVFFI
       end
     end
 
+    def *(b)
+      case b
+      when Numeric
+        scale_add( b, 0.0 )
+      else 
+        raise "Don't know how to handle multiplication of a Mat by a #{b.class}"
+      end
+    end
+
     def minMaxLoc
-      CVFFI::minMaxLoc( self.to_CvMat )
+      case channels
+      when 1
+        CVFFI::minMaxLoc( self.to_CvMat )
+      else
+        split.map { |channel| CVFFI::minMaxLoc( channel.to_CvMat ) }.transpose
+      end
     end
 
     def minMax
@@ -402,6 +422,7 @@ module CVFFI
       CVFFI::cvScaleAdd( self.to_CvMat, scalar.to_CvScalar, a.to_CvMat, dest )
       dest
     end
+    alias :scaleAdd :scale_add
 
     def warp_perspective( m )
       dest = twin

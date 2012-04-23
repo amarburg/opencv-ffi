@@ -46,6 +46,10 @@ module CVFFI
     (matMagicType(m) >> 3) + 1
   end
 
+  def self.matDepth( m )
+    (matMagicType(m) & 0x07)
+  end
+
   # A bit clumsy
   def self.matType( m )
     CvMatType[ CVFFI::matMagicType( m ) ]

@@ -17,6 +17,9 @@ module CVFFI
     #  void cvCvtColorInvariants( const CvArr *srcarr, CvArr *dstarr, int code )
     attach_function :cvCvtColorInvariants, [ :pointer, :pointer, :int ], :void
 
+
+    attach_function :cvGenerateSQuasiInvariant, [ :pointer, :pointer, :pointer ], :void
+
   end
 end
 
