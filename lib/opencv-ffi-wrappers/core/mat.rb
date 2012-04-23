@@ -106,6 +106,7 @@ module CVFFI
     def mat_size
       CVFFI::CvSize.new( :width => self.width, :height => self.height ) 
     end
+    alias :image_size :mat_size
 
     def twin
       CVFFI::cvCreateMat( self.height, self.width, self.type )
@@ -438,8 +439,7 @@ module CVFFI
       dest
     end
 
-    def resize( size, opts = {} )
-      interpolation = opts[:interpolation] || :CV_INTER_LINEAR
+    def resize( size, interpolation = :CV_INTER_LINEAR )
       sz = CVFFI::Size.new( size )
       dest = CVFFI::Mat.new( sz,  {type: type} )
 
