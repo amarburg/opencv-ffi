@@ -18,6 +18,33 @@ double sdot( const Pixel &a, const Pixel &b )
   return a(0)*b(0)+ a(1)*b(1)+ a(2)*b(2);
 }
 
+void normalizedColorImage( Mat &src, Mat &dst )
+{
+  Size sz = src.size();
+
+  CV_Assert( src.channels() == 3 );
+  CV_Assert( src.depth() == CV_32F );
+
+  dst.create( sz, CV_MAKETYPE( CV_32F, 3 ) );
+
+  for( int i = 0; i < sz.height; i++ ) {
+    for( int j = 0; j < sz.width; j++ ) {
+      Pixel fhat = src.at<Pixel>( i,j );
+      float fnorm = 1.0/norm(fhat);
+      fhat *= fnorm;
+
+      dst.at<Pixel>(i,j) = fhat;
+
+      if( i == 0 and j == 0) {
+        Pixel p = dst.at<Pixel>(i,j);
+        cout << "At " << i << "," << j << " = " << p[0] << "," << p[1] << "," << p[2] << endl;
+      }
+
+    }
+  }
+}
+
+
 // Implements the algorithms in section II.c of van de Weijer, Gevers and Smeulders
 // "Robust Photometric Invariant Features From the Color Tensor"
 // DOI:  10.1109/TIP.2005.860343
@@ -40,6 +67,7 @@ void generateColorTensor( Mat &src, Mat &fx, Mat &fy )
   Sobel( src, fx, CV_32F, 1, 0, CV_SCHARR );
   Sobel( src, fy, CV_32F, 0, 1, CV_SCHARR );
 }
+
 void generateSQuasiInvariant( Mat &src, Mat &scx, Mat &scy )
 {
   Size sz = src.size();
@@ -330,6 +358,44 @@ using namespace cv;
 
 
 extern "C" {
+    void cvNormalizedColorImage( CvMat *srcarr, CvMat *dstarr )
+  {
+    Mat src = cvarrToMat(srcarr);
+    Mat cvtSrc;
+
+    // Input must be cast to 32FC3
+    CV_Assert( src.channels() == 3 );
+    switch( src.depth() ) {
+      case CV_8U:
+        src.convertTo( cvtSrc, CV_32F, 1.0, 0 );
+        break;
+      case CV_32F:
+        cvtSrc = src;
+        break;
+      default:
+        cout << "cvNormalizedColorImage cannot deal with type " << src.depth() << endl;
+    }
+
+    Mat dstMat = cvarrToMat(dstarr), dst;
+
+    cv::normalizedColorImage( cvtSrc, dst );
+
+    // Cast back to scx, scy type
+    switch( dstMat.depth() ) {
+      case CV_8U:
+        dst.convertTo( dstMat, CV_8U, 256.0, 0 );
+        break;
+      case CV_32F:
+        // Strictly speaking, you should be able to set scx.data == dstx
+        // but the syntax escapes me...
+        dst.copyTo( dstMat );
+        break;
+      default:
+        cout << "cvNormalizeColorImage cannot deal with type " << dstMat.depth() << endl;
+    }
+  }
+
+
   void cvGenerateColorTensor( CvMat *srcarr, CvMat *scx, CvMat *scy )
   {
     Mat src = cvarrToMat(srcarr);

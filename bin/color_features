@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 'opencv-ffi-wrappers'
+require 'opencv-ffi-ext'
+
+img = CVFFI::cvLoadImage( "test/test_files/images/IMG_7089.JPG" )
+dst = CVFFI::Mat.new( img.image_size, :CV_8UC3 )
+
+CVFFI::ColorInvariance::cvNormalizedColorImage( img, dst )
+  dst.save("/tmp/normalized_color_space.jpg")
+
+  channels = dst.split.map { |c| CVFFI::Mat.new( c ) }
+
+  channel_names = ["B","G","R"]
+  channels.each_with_index { |channel,i|
+    channel.save( "/tmp/normalized_channel_#{channel_names[i]}.jpg" )
+  }
+
+params = CVFFI::GoodFeaturesParams.new
+params.use_harris = true
+
+#features = channels.map { |channel|
+#  CVFFI::goodFeaturesToTrack( channel, params )
+#}
+#
+#features.each_with_index { |f,i|
+#  puts "Channel #{channel_names[i]}, #{f.length} features."
+#}
+#
+grey = img.ensure_greyscale
+grey.save("greyscale.jpg")
+

@@ -19,6 +19,7 @@ module CVFFI
     attach_function :cvCvtColorInvariants, [ :pointer, :pointer, :int ], :void
 
 
+    attach_function :cvNormalizedColorImage, [ :pointer, :pointer ], :void
     attach_function :cvGenerateColorTensor, [ :pointer, :pointer, :pointer ], :void
     attach_function :cvGenerateSQuasiInvariant, [ :pointer, :pointer, :pointer ], :void
 

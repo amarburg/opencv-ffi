@@ -18,6 +18,21 @@ class TestColorInvariance < Test::Unit::TestCase
     TestSetup::save_image( "gaussian_opponent.jpg", dst )
   end
 
+  def test_normalized_color_space
+    img = TestSetup::test_image
+    dst = CVFFI::Mat.new( img.image_size, :CV_8UC3 )
+
+    CVFFI::ColorInvariance::cvNormalizedColorImage( img, dst )
+    TestSetup::save_image( "normalized_color_space.jpg", dst )
+
+    channels = dst.split
+
+    channel_names = ["B","G","R"]
+    channels.each_with_index { |channel,i|
+      TestSetup::save_image( "normalized_channel_#{channel_names[i]}.jpg", channel )
+    }
+  end
+
   def test_color_tensor
     img = TestSetup::test_image
     scx = CVFFI::Mat.new( img.image_size, :CV_32FC3 )
