@@ -217,8 +217,9 @@ module CVFFI
     end
 
     def at=(i,j,v)
-      if type == :CV_32F
-        mat.set_f( i,j, v)
+      case channels
+      when 1
+        mat.set_f( i,j, v )
       else
         mat.set_scalar( i,j, v) # CVFFI::CvScalar.new( { w: v, x: v, y: v, z: v } ) )
       end
@@ -227,7 +228,8 @@ module CVFFI
     alias :set :at=
 
     def at(i,j)
-      if type == :CV_32F
+      case channels
+      when 1
         mat.at_f( i,j)
       else
         mat.at_scalar( i,j )
