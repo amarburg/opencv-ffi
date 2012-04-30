@@ -17,6 +17,7 @@ CvSeq *KeyPointsToCvSeq( vector<KeyPoint> kps, CvMemStorage *storage )
   CvSeqWriter writer;
   cvStartAppendToSeq( seq, &writer );
   for( vector<KeyPoint>::iterator itr = kps.begin(); itr != kps.end(); itr++ ) {
+
     CvKeyPoint_t kp = KeyPointToKeyPoint_t( *itr );
     CV_WRITE_SEQ_ELEM( kp, writer );
   }
@@ -49,7 +50,7 @@ void CvSeqToKeyPointVector( CvSeq *seq, vector<KeyPoint> &kps )
 
 // Keypoint detection only
 extern "C" 
-void cvSIFTDetect( const CvArr *img, 
+void cvSIFTWrapperDetect( const CvArr *img, 
                    const CvArr *mask, 
                    CvSeq **keypoints,
                     CvMemStorage *storage,
@@ -74,7 +75,7 @@ void cvSIFTDetect( const CvArr *img,
 
 // Both detection and description
 extern "C"
-CvMat *cvSIFTDetectDescribe( const CvArr *img, 
+CvMat *cvSIFTWrapperDetectDescribe( const CvArr *img, 
     const CvArr *mask, 
     CvSeq **keypoints,
     CvMemStorage *storage,

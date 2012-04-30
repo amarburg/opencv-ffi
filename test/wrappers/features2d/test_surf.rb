@@ -21,7 +21,7 @@ class TestSURF < Test::Unit::TestCase
                                       :nOctaveLayers => 4 )
 
     # This should test the auto=conversion to greyscale
-    surf = CVFFI::SURF::detect( @img.ensure_greyscale, params )
+    surf = CVFFI::SURF::detect( @img, params )
 
     assert_not_nil surf
 
@@ -29,9 +29,12 @@ class TestSURF < Test::Unit::TestCase
     CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), @img )
 
     ## Test some of the functions built into SURF::Result
-    p surf[0]
-    puts surf[0].distance_to( surf[1] )
+    p surf.first
+    puts surf.first.distance_to( surf[1] )
     puts surf[1].distance_to( surf[2] )
+
+    as_array = surf.to_a
+    p as_array.first
  end
 
 end

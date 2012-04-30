@@ -20,6 +20,11 @@ module CVFFI
       def x;  pt.x; end
       def y;  pt.y; end
 
+      def laplacian; @kp.laplacian; end
+      def dir; @kp.dir; end
+      def hessian; @kp.hessian; end
+      def size; @kp.size; end
+
       def distance_to( q )
         #  Here's the pure-Ruby way to do it
       #  @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
@@ -79,29 +84,26 @@ module CVFFI
           CVFFI::draw_circle( img, r.kp.pt, opts )
         }
       end
+
+      def to_a
+        map { |r|
+          [ r.x, r.y, r.laplacian, r.size, r.dir, r.hessian ]
+        }
+      end
     end
 
     def self.detect( img, params )
 
       raise ArgumentError unless params.is_a?( CvSURFParams ) || params.is_a?( Params )
 
-      img = CVFFI::IplImage.new img.to_IplImage
-
-      if img.nChannels == 3
-        greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( :height => img.height,
-                                                           :width => img.width ),
-                                                           :IPL_DEPTH_8U, 1 )
-        CVFFI::cvCvtColor( img, greyImg, :CV_RGB2GRAY )
-      else
-        greyImg = img
-      end
+      img = CVFFI::IplImage.new img.to_IplImage.ensure_greyscale
 
       kp_ptr = FFI::MemoryPointer.new :pointer
       desc_ptr = FFI::MemoryPointer.new :pointer
 
       mem_storage = CVFFI::cvCreateMemStorage( 0 )
 
-      CVFFI::cvExtractSURF( greyImg, nil, kp_ptr, desc_ptr, mem_storage, params, :false )
+      CVFFI::cvExtractSURF( img, nil, kp_ptr, desc_ptr, mem_storage, params, :false )
 
       keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
       descriptors = CVFFI::CvSeq.new( desc_ptr.read_pointer() )

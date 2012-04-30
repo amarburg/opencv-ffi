@@ -11,8 +11,8 @@ module CVFFI
   module Features2D
 
     # This module calls the cvffi extension library's SIFT functions.
-    # These functions, in turn, are just thin C wrappers around OpenCV's
-    # SIFT functions ... which are written in C++
+    # These functions, in turn, are re-written versions of OpenCV's SIFT 
+    # functions which expose a C API rather than un- and re-wrapping C++
     module SIFT
       extend NiceFFI::Library
 
@@ -41,22 +41,88 @@ module CVFFI
 
       end
 
-      attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
-      attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
+      ## Unfortunately, uses a bespoke "features" structure internally
+      class CvSIFTFeature < NiceFFI::Struct
+        layout :x, :double,
+               :y, :double,
+               :scale, :double,
+               :orientation, :double,
+               :descriptor_length, :int,
+               :descriptor, [ :double, 128 ],
+               :feature_data, :pointer,
+               :class_id, :int,
+               :response, :float
+
+        def to_a
+          [ x, y, scale, orientation, response ]
+        end
+
+        def self.from_a(a)
+          CvSIFTFeature.new( x: a[0], y: a[1], scale: a[2], orientation: a[3], response: a[4] )
+        end
+
+        def self.create_cvseq( pool )
+          CVFFI::cvCreateSeq( 0, CvSeq.size, CvSIFTFeature.size, pool )
+        end
+      end
+
+      class Results < SequenceArray
+
+        def initialize( seq, pool )
+          super( seq, pool, CvSIFTFeature )
+        end
+
+      end
+
+#      def self.from_a( a )
+#        a = YAML::load(a) if a.is_a? String
+#        raise "Don't know what to do" unless a.is_a? Array
+#
+#        pool = CVFFI::cvCreateMemStorage(0)
+#        cvseq = CVFFI::OpenSURF::createOpenSURFPointSequence( pool )
+#        seq = Sequence.new cvseq
+#        
+#        a.each { |r|
+#          raise "Hm, not what I expected" unless r.length == 6
+#          point = CVFFI::OpenSURF::OpenSURFPoint.new( '' )
+#          # Hm, the embedded CvPoint buggers up initialization by hash
+#          point.scale = r[2]
+#          point.orientation = r[3]
+#          point.laplacian = r[4]
+#          d = r[5].unpack('m')[0].unpack('e64')
+#
+#          d.each_with_index { |d,i| point.descriptor[i] = d }
+#
+#          # r[5].unpack('e64')
+#          point.pt.x = r[0]
+#          point.pt.y = r[1]
+#          seq.push( point )
+#        }
+#
+#
+#        ra = ResultArray.new( cvseq, pool )
+#      end
+
+
+
+      ## Original C wrappers around OpenCV C++ code
+      attach_function :cvSIFTWrapperDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void
+      attach_function :cvSIFTWrapperDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
+
+      ## "remixed" OpenCV code which now works directly in C structures
+      attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, 
+                              CvSIFTParams.by_value ], CvSeq.typed_pointer
+
+      #attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
 
       def self.detect( image, params )
         params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
 
-        kp_ptr = FFI::MemoryPointer.new :pointer
         storage = CVFFI::cvCreateMemStorage( 0 )
-        image = image.ensure_greyscale
 
-        cvSIFTDetect( image, nil, kp_ptr, storage, params )
+        keypoints = CVFFI::CvSeq.new cvSIFTDetect( image.ensure_greyscale, nil, storage, params )
 
-        seq_ptr = kp_ptr.read_pointer()
-        keypoints = CVFFI::CvSeq.new( seq_ptr )
-
-        Keypoints.new( keypoints, storage )
+        Results.new( keypoints, storage )
       end
 
       def self.detect_describe( image, params )
