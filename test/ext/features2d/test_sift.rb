@@ -64,8 +64,8 @@ class TestSIFT < Test::Unit::TestCase
 
 #puts "KP  descriptor: #{kps.first.descriptor.to_a.join(',')}"
 #puts "UNS descriptor: #{unserialized.first.descriptor.to_a.join(',')}"
-    puts "Here's the first feature serialized: #{as_array.first}"
-    puts "Here's the first 100 bytes as yaml: #{as_array.to_yaml[0,300]}"
+    #puts "Here's the first feature serialized: #{as_array.first}"
+    #puts "Here's the first 100 bytes as yaml: #{as_array.to_yaml[0,300]}"
 
     kps.extend EachTwo
     kps.each2(unserialized) { |kp,uns|
