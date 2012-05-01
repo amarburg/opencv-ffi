@@ -18,7 +18,7 @@ class TestSIFT < Test::Unit::TestCase
   include CVFFI::Features2D
 
   def setup
-    @img = TestSetup::test_image
+    @img = TestSetup::small_test_image
   end
 
   def test_SIFTDetect
@@ -35,8 +35,12 @@ class TestSIFT < Test::Unit::TestCase
     p kps[1]
 
     # Test serialization/unserialization
-    unserialized = SIFT::Results.from_a( kps.to_yaml )
+    as_array = kps.to_a
+    unserialized = SIFT::Results.from_a( as_array.to_yaml )
     assert_equal kps.length, unserialized.length
+
+    puts "Here's the first feature serialized: #{as_array.first}"
+    puts "Here's the first 100 bytes as yaml: #{as_array.to_yaml[0,300]}"
 
     kps.extend EachTwo
     kps.each2(unserialized) { |kp,uns|
@@ -54,11 +58,14 @@ class TestSIFT < Test::Unit::TestCase
     puts "SIFT detected and described #{kps.size} points."
 
     # Test serialization/unserialization
-    unserialized = SIFT::Results.from_a( kps.to_yaml )
+    as_array = kps.to_a
+    unserialized = SIFT::Results.from_a( as_array.to_yaml )
     assert_equal kps.length, unserialized.length
 
 #puts "KP  descriptor: #{kps.first.descriptor.to_a.join(',')}"
 #puts "UNS descriptor: #{unserialized.first.descriptor.to_a.join(',')}"
+    puts "Here's the first feature serialized: #{as_array.first}"
+    puts "Here's the first 100 bytes as yaml: #{as_array.to_yaml[0,300]}"
 
     kps.extend EachTwo
     kps.each2(unserialized) { |kp,uns|
