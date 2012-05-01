@@ -1348,15 +1348,6 @@ struct ImagePyrData
     bool is_img_dbl;
 };
 
-void release_features( struct feature** feat, int count )
-{
-    for( int i = 0; i < count; i++ )
-    {
-        free( (*feat)[i].feature_data );
-        (*feat)[i].feature_data = NULL;
-    }
-    free( *feat );
-}
 
 CvSeq *compute_features( const ImagePyrData* imgPyrData, CvMemStorage *storage, 
                        double contr_thr, int curv_thr )
@@ -1401,12 +1392,6 @@ struct SiftParams
     int smax;
 };
 
-//inline KeyPoint featureToKeyPoint( const feature& feat )
-//{
-//    float size = (float)(feat.scl * SIFT::DescriptorParams::GET_DEFAULT_MAGNIFICATION() * 4); // 4==NBP
-//    float angle = (float)(feat.ori * a_180divPI);
-//    return KeyPoint( (float)feat.x, (float)feat.y, size, angle, feat.response, feat.feature_data->octv, feat.class_id );
-//}
 
 static void fillFeatureData( feature& feat, const SiftParams& params )
 {
@@ -1502,67 +1487,22 @@ static void fillFeatureData( feature& feat, const SiftParams& params )
   ddata->scl_octv = params.sigma0 * pow(2.0, static_cast<double>(s / params.S));
 }
 
-//inline void keyPointToFeature( const KeyPoint& keypoint, feature& feat, const SiftParams& params )
-//{
-//    feat.x = keypoint.pt.x;
-//    feat.y = keypoint.pt.y;
-
-//    feat.scl = keypoint.size / (SIFT::DescriptorParams::GET_DEFAULT_MAGNIFICATION()*4); // 4==NBP
-//    feat.ori = keypoint.angle * a_PIdiv180;
-
-//    feat.response = keypoint.response;
-//    feat.class_id = keypoint.class_id;
-
-//    feat.feature_data = (detection_data*) calloc( 1, sizeof( detection_data ) );
-//    fillFeatureData( feat, params );
-//}
-
 //==== ====
-
-void release_features_data( CvSeq* featuresSeq )
-{
-    for( int i = 0; i < featuresSeq->total; i++ )
-    {
-        feature * ft = CV_GET_SEQ_ELEM( feature, featuresSeq, i );
-        free( ft->feature_data );
-    }
-}
 
 // Calculate orientation of features.
 // Note: calc_feature_oris() duplicates the points with several dominant orientations.
 // So if keypoints was detected by Sift feature detector then some points will be
 // duplicated twice.
 // TODO: repair
-//void recalculateAngles( vector<KeyPoint>& keypoints, IplImage*** gauss_pyr,
-//                        int nOctaves, int nOctaveLayers )
-//{
-//    CvMemStorage* storage = cvCreateMemStorage( 0 );
-//    CvSeq* featuresSeq = cvCreateSeq( 0, sizeof(CvSeq), sizeof(struct feature), storage );
-//
-//    for( size_t i = 0; i < keypoints.size(); i++ )
-//    {
-//        feature ft;
-//        //TODO ... fix up the wrap/unwrap
-//        //keyPointToFeature( keypoints[i], ft, SiftParams( nOctaves, nOctaveLayers ) );
-//        cvSeqPush( featuresSeq, &ft );
-//    }
-//
-//    calc_feature_oris( featuresSeq, gauss_pyr );
-//
-//    keypoints.resize( featuresSeq->total );
-//    for( int i = 0; i < featuresSeq->total; i++ )
-//    {
-//        feature * ft = CV_GET_SEQ_ELEM( feature, featuresSeq, i );
-//        //TODO ... fixup the wrap/unwrap
-//        //keypoints[i] = featureToKeyPoint( *ft );
-//    }
-//
-//    // Remove duplicated keypoints.
-//    KeyPointsFilter::removeDuplicated( keypoints );
-//
-//    release_features_data( featuresSeq );
-//    cvReleaseMemStorage( &storage );
-//}
+void recalculateAngles( CvSeq *featuresSeq, IplImage*** gauss_pyr,
+                        int nOctaves, int nOctaveLayers )
+{
+
+    calc_feature_oris( featuresSeq, gauss_pyr );
+   
+    // Remove duplicated keypoints.
+    //KeyPointsFilter::removeDuplicated( keypoints );
+}
 //
 
 //==== ====
@@ -1578,7 +1518,6 @@ extern "C" {
       CvMemStorage *storage, CvSIFTParams_t params )
   {
     IplImage stub;
-
     IplImage *image = cvGetImage( imageArr, &stub );
     IplImage *mask  = maskArr ? cvGetImage( maskArr, &stub ) : NULL;
 
@@ -1661,67 +1600,48 @@ extern "C" {
   }
 
 
-//  // descriptors
-//  //void SIFT::operator()(const Mat& image, const Mat& mask,
-//  //    vector<KeyPoint>& keypoints,
-//  //    Mat& descriptors,
-//  //    bool useProvidedKeypoints) const
-//
-//  CvMat *cvSIFTDetectDescribe( const CvArr *img, 
-//      const CvArr *mask, 
-//      CvSeq **keypoints,
-//      CvMemStorage *storage,
-//      CvSIFTParams_t params )
-//  {
-//    if( image.empty() || image.type() != CV_8UC1 )
-//      CV_Error( CV_StsBadArg, "img is empty or has incorrect type" );
-//
-//    Mat fimg;
-//    image.convertTo(fimg, CV_32FC1/*, 1.0/255.0*/);
-//
-//    if( !useProvidedKeypoints )
-//      (*this)(image, mask, keypoints);
-//    else
-//    {
-//      // filter keypoints by mask
-//      KeyPointsFilter::runByPixelsMask( keypoints, mask );
-//    }
-//
-//    IplImage img = fimg;
-//    ImagePyrData pyrImages( &img, commParams.nOctaves, commParams.nOctaveLayers, SIFT_SIGMA, SIFT_IMG_DBL );
-//
-//    if( descriptorParams.recalculateAngles )
-//      recalculateAngles( keypoints, pyrImages.gauss_pyr, commParams.nOctaves, commParams.nOctaveLayers );
-//
-//    CvMemStorage* storage = cvCreateMemStorage( 0 );
-//    CvSeq* featuresSeq = cvCreateSeq( 0, sizeof(CvSeq), sizeof(struct feature), storage );
-//
-//    for( size_t i = 0; i < keypoints.size(); i++ )
-//    {
-//      feature ft;
-//      keyPointToFeature( keypoints[i], ft, SiftParams( commParams.nOctaves, commParams.nOctaveLayers ) );
-//      cvSeqPush( featuresSeq, &ft );
-//    }
-//    compute_descriptors( featuresSeq, pyrImages.gauss_pyr, SIFT_DESCR_WIDTH, SIFT_DESCR_HIST_BINS );
-//    CV_DbgAssert( (int)keypoints.size() == featuresSeq->total );
-//    // TODO check that keypoint fiels is the same as before compute_descriptors()
-//
-//    descriptors.create( featuresSeq->total, SIFT::DescriptorParams::DESCRIPTOR_SIZE, CV_32FC1 );
-//    for( int i = 0; i < featuresSeq->total; i++ )
-//    {
-//      float* rowPtr = descriptors.ptr<float>(i);
-//      feature * featurePtr = CV_GET_SEQ_ELEM( feature, featuresSeq, i );
-//      CV_Assert( featurePtr );
-//      double* desc = featurePtr->descr;
-//      for( int j = 0; j < descriptors.cols; j++ )
-//      {
-//        rowPtr[j] = (float)desc[j];
-//      }
-//    }
-//
-//    release_features_data( featuresSeq );
-//    cvReleaseMemStorage( &storage );
-//  }
+  // descriptors
+  //void SIFT::operator()(const Mat& image, const Mat& mask,
+  //    vector<KeyPoint>& keypoints,
+  //    Mat& descriptors,
+  //    bool useProvidedKeypoints) const
+
+  CvSeq *cvSIFTDetectDescribe( const CvArr *imageArr, 
+      const CvArr *maskArr, 
+      CvMemStorage *storage,
+      CvSIFTParams_t params,
+      CvSeq *features CV_DEFAULT(NULL) )
+  {
+    IplImage stub;
+    IplImage *image = cvGetImage( imageArr, &stub );
+    IplImage *mask  = maskArr ? cvGetImage( maskArr, &stub ) : NULL;
+
+    if( image->depth != IPL_DEPTH_8U || image->nChannels != 1 )
+      CV_Error( CV_StsBadArg, "image is empty or has incorrect type (!=CV_8UC1)" );
+
+    if( !features )  {
+      features = cvSIFTDetect(image, mask, storage, params );
+    } else  {
+      // filter features by mask
+      //KeyPointsFilter::runByPixelsMask( features, mask );
+    }
+
+    CvSize imgSize;
+    imgSize.width = image->width;
+    imgSize.height = image->height;
+
+    IplImage *img = cvCreateImage( imgSize, IPL_DEPTH_32F, 1 );
+    cvConvertScale( image, img, 1, 0 );
+
+    ImagePyrData pyrImages( img, params.nOctaves, params.nOctaveLayers, SIFT_SIGMA, SIFT_IMG_DBL );
+
+    if( params.recalculateAngles )
+      recalculateAngles( features, pyrImages.gauss_pyr, params.nOctaves, params.nOctaveLayers );
+    
+    compute_descriptors( features, pyrImages.gauss_pyr, SIFT_DESCR_WIDTH, SIFT_DESCR_HIST_BINS );
+
+    return features;
+  }
 
 
 }

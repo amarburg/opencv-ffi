@@ -11,6 +11,8 @@ typedef struct {
 
   double threshold, edgeThreshold;
   double magnification;
+
+  int recalculateAngles;
 } CvSIFTParams_t;
 
 extern "C" 

@@ -25,7 +25,8 @@ module CVFFI
           :intervals, :int,
           :threshold, :double,
           :edgeThreshold, :double,
-          :magnification, :double
+          :magnification, :double,
+          :recalculateAngles, :int 
       end
 
       class Params < CVFFI::Params
@@ -34,6 +35,7 @@ module CVFFI
         param :threshold, 0.04
         param :edgeThreshold, 10.0 
         param :magnification, 3.0
+        param :recalculateAngles, 1.0
 
         def to_CvSIFTParams
           CvSIFTParams.new( @params  )
@@ -53,16 +55,40 @@ module CVFFI
                :class_id, :int,
                :response, :float
 
+        def self.keys
+          [ :x, :y, :scale, :orientation, :response, :descriptor_length ]
+        end
+
         def to_a
-          [ x, y, scale, orientation, response ]
+          CvSIFTFeature::keys.map { |key|
+            self[key]
+          }.push descriptor.to_a.pack( "g#{descriptor_length}" )
         end
 
         def self.from_a(a)
-          CvSIFTFeature.new( x: a[0], y: a[1], scale: a[2], orientation: a[3], response: a[4] )
+          raise "Not enough elements in array to unserialize (#{a.length} < #{keys.length}" unless a.length >= keys.length
+
+          feature = CvSIFTFeature.new
+          keys.each { |key|
+            feature[key] = a.shift
+          }
+          desc =  a.shift.unpack("g#{feature.descriptor_length}")
+          feature.descriptor_length.times { |j| feature[:descriptor][j] = desc[j] }
+
+          feature
         end
 
-        def self.create_cvseq( pool )
-          CVFFI::cvCreateSeq( 0, CvSeq.size, CvSIFTFeature.size, pool )
+        def ==(b)
+          result = CvSIFTFeature::keys.reduce( true ) { |m,s|
+            #puts "Key #{s} doesn't match" unless self[s] == b[s]
+            m = m and (self[s] == b[s])
+          }
+
+          if descriptor_length > 0 
+            result =( result and (descriptor.to_a == b.descriptor.to_a) )
+          end
+
+          result
         end
       end
 
@@ -72,6 +98,9 @@ module CVFFI
           super( seq, pool, CvSIFTFeature )
         end
 
+        def self.from_a( a )
+          SequenceArray.from_a( a, CvSIFTFeature )
+        end
       end
 
 #      def self.from_a( a )
@@ -113,34 +142,22 @@ module CVFFI
       attach_function :cvSIFTDetect, [:pointer, :pointer, :pointer, 
                               CvSIFTParams.by_value ], CvSeq.typed_pointer
 
-      #attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], CvMat.typed_pointer
+      attach_function :cvSIFTDetectDescribe, [:pointer, :pointer, :pointer, 
+                              CvSIFTParams.by_value, :pointer ], CvSeq.typed_pointer
 
       def self.detect( image, params )
         params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
-
         storage = CVFFI::cvCreateMemStorage( 0 )
-
         keypoints = CVFFI::CvSeq.new cvSIFTDetect( image.ensure_greyscale, nil, storage, params )
-
         Results.new( keypoints, storage )
       end
 
-      def self.detect_describe( image, params )
+      def self.detect_describe( image, params, keypoints = nil )
         params = params.to_CvSIFTParams unless params.is_a?( CvSIFTParams )
-
-        # I believe this is re-shaped by the function
-        descriptors = CVFFI::CvMat.new( CVFFI::cvCreateMat( 1,1, :CV_32F ) )
-        kp_ptr = FFI::MemoryPointer.new :pointer
         storage = CVFFI::cvCreateMemStorage( 0 )
-        image = image.ensure_greyscale
-
-        descriptors = CvMat.new( cvSIFTDetectDescribe( image, nil, kp_ptr, storage, params ))
-
-        keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
-
-        descs = descriptors.to_Matrix.row_vectors
-
-        Keypoints.new( keypoints, storage, descs )
+        keypoints = keypoints.to_CvSeq if keypoints
+        keypoints = CVFFI::CvSeq.new cvSIFTDetectDescribe( image.ensure_greyscale, nil, storage, params, keypoints )
+        Results.new( keypoints, storage )
       end
 
     end

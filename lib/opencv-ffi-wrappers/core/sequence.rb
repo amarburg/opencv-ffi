@@ -84,6 +84,10 @@ module CVFFI
       @seq.seq
     end
 
+    def to_yaml
+      to_a.to_yaml
+    end
+
     def to_a
       Array.new( size ) { |i| at(i).to_a }
     end
@@ -92,18 +96,17 @@ module CVFFI
     # TODO:  Does it have to be this way?
     def self.from_a( a, wrapper_klass )
         a = YAML::load(a) if a.is_a? String
-        raise "Don't know what to do" unless a.is_a? Array
+        raise "SequenceArray::from_a.  Don't know what to do with #{a}" unless a.is_a? Array
 
         pool = CVFFI::cvCreateMemStorage(0)
-        cvseq = wrapper_klass.create_cvseq( pool )
+        cvseq = CVFFI::cvCreateSeq( 0, CvSeq.size, wrapper_klass.size, pool )
         seq = Sequence.new cvseq
 
         a.each { |this_row| 
           seq.push( wrapper_klass.from_a( this_row ) )
         }
 
-        ra = ResultArray.new( cvseq, pool )
-
+        SequenceArray.new( cvseq, pool, wrapper_klass )
     end
   end
 
