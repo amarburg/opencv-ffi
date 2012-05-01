@@ -1493,21 +1493,77 @@ static void fillFeatureData( feature& feat, const SiftParams& params )
 
 //==== ====
 
+static int featureCmpFunction( const void *_a, const void *_b, void *userdata )
+{
+  struct feature *a = (struct feature *)_a;
+  struct feature *b = (struct feature *)_b;
+
+  // Sort works on fields in this order: x, y, scl, ori, response
+  if( a->x < b->x ) return -1;
+  else if( a->x > b->x ) return +1;
+  else
+    if( a->y < b->y ) return -1;
+    else if( a->y > b->y ) return +1;
+    else
+      if( a->scl < b->scl ) return -1;
+      else if( a->scl > b->scl ) return +1;
+      else
+        if( a->ori < b->ori ) return -1;
+        else if( a->ori > b->ori ) return +1;
+        else
+          if( a->response < b->response ) return -1;
+          else if( a->response > b->response ) return +1;
+
+  return 0;
+}
+
+// Remove duplicated features from a CvSeq.  Works in-place.
+static CvSeq *removeFeatureSeqDuplicates( CvSeq *features )
+{
+  int i= 0,j, n = features->total;
+  struct feature *f1, *f2;
+
+  cvSeqSort( features, featureCmpFunction, NULL );
+
+  //TODO: Is this inefficient because it works in place,
+  //  or does CvSeq work like a linked list, so
+  //  dropping arbitrary elements is low cost.
+  while( i < (features->total-1) ) {
+    f1 = (struct feature *)cvGetSeqElem( features, i );
+    f2 = (struct feature *)cvGetSeqElem( features, i+1 );
+
+    if( f1->x != f2->x || f1->y != f2->y || 
+        f1->scl != f2->scl || f1->ori != f2->ori ||
+        f1->response != f2->response ) {
+      i++;
+    } else {
+      // If equal, drop i
+      cvSeqRemove( features, i+1 );
+    }
+  }
+
+  return features;
+}
+
+//==== ====
+
 // Calculate orientation of features.
 // Note: calc_feature_oris() duplicates the points with several dominant orientations.
 // So if keypoints was detected by Sift feature detector then some points will be
 // duplicated twice.
 // TODO: repair
-void recalculateAngles( CvSeq *featuresSeq, IplImage*** gauss_pyr,
+void recalculateAngles( CvSeq *features, IplImage*** gauss_pyr,
                         int nOctaves, int nOctaveLayers )
 {
 
-    calc_feature_oris( featuresSeq, gauss_pyr );
+    calc_feature_oris( features, gauss_pyr );
    
     // Remove duplicated keypoints.
     //KeyPointsFilter::removeDuplicated( keypoints );
+    removeFeatureSeqDuplicates( features );
 }
 //
+
 
 //==== ====
 
@@ -1571,6 +1627,8 @@ extern "C" {
 
     int feature_count = 0;
     CvSeq *features = compute_features( &pyrImages, storage, params.threshold, (int)params.edgeThreshold );
+
+    removeFeatureSeqDuplicates( features );
 
     // Unfortunately, the code works on a sequence of 
 
