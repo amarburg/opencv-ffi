@@ -1,4 +1,3 @@
-
 #ifndef _SIFT_H_
 #define _SIFT_H_
 
@@ -15,6 +14,12 @@ typedef struct {
   int recalculateAngles;
 } CvSIFTParams_t;
 
+/* These two functions are C wrappers around OpenCV's "stock" C++ 
+ * SIFT functions.  By doing so they're C wrappers around C++ wrappers
+ * around C functions.  The functions found in cv_sift.cpp are "pure C"
+ * copies of the OpenCV functions.  In reality the C API should just be
+ * exposed in OpenCV, with the explicit C++ wrapper around it.
+ */
 extern "C" 
 void cvSIFTWrapperDetect( const CvArr *img, 
     const CvArr *mask, 

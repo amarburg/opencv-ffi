@@ -1509,11 +1509,6 @@ void recalculateAngles( CvSeq *featuresSeq, IplImage*** gauss_pyr,
 
 extern "C" {
 
-
-  // detectors
-//  void SIFT::operator()(const Mat& image, const Mat& mask,
-//      vector<KeyPoint>& keypoints) const
-
   CvSeq *cvSIFTDetect( const CvArr *imageArr, const CvArr *maskArr, 
       CvMemStorage *storage, CvSIFTParams_t params )
   {
@@ -1599,12 +1594,6 @@ extern "C" {
     return features;
   }
 
-
-  // descriptors
-  //void SIFT::operator()(const Mat& image, const Mat& mask,
-  //    vector<KeyPoint>& keypoints,
-  //    Mat& descriptors,
-  //    bool useProvidedKeypoints) const
 
   CvSeq *cvSIFTDetectDescribe( const CvArr *imageArr, 
       const CvArr *maskArr, 
