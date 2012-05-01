@@ -49,8 +49,8 @@ module CVFFI
 
     def ensure_greyscale
       return self if nChannels == 1
-      greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( { :height => height, 
-                                                        :width => width }), 
+      greyImg = CVFFI::cvCreateImage( CVFFI::CvSize.new( height: height, 
+                                                        width: width ), 
                                                         :IPL_DEPTH_8U, 1 )
       CVFFI::cvCvtColor( self.to_IplImage, greyImg, :CV_BGR2GRAY )
       greyImg
