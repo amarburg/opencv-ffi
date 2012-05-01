@@ -695,6 +695,10 @@ static struct feature* interp_extremum( IplImage*** dog_pyr, int octv,
   ddata = feat->feature_data;
   feat->x = ( c + xc ) * pow( 2.0, octv );
   feat->y = ( r + xr ) * pow( 2.0, octv );
+
+  // For response, using "interpolated contrast" D(\hat{x}) from Lowe's paper pp 98.
+  feat->response = contr;
+
   ddata->r = r;
   ddata->c = c;
   ddata->octv = octv;

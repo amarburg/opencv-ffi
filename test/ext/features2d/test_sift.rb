@@ -18,7 +18,7 @@ class TestSIFT < Test::Unit::TestCase
   include CVFFI::Features2D
 
   def setup
-    @img = TestSetup::small_test_image
+    @img = TestSetup::test_image
   end
 
   def test_SIFTDetect
@@ -31,6 +31,8 @@ class TestSIFT < Test::Unit::TestCase
 
     puts "here's the first keypoint:"
     p kps[0]
+    puts "here's the second keypoint:"
+    p kps[1]
 
     # Test serialization/unserialization
     unserialized = SIFT::Results.from_a( kps.to_yaml )
