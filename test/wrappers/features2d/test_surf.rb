@@ -8,28 +8,23 @@ require 'opencv-ffi-wrappers/features2d/surf'
 class TestSURF < Test::Unit::TestCase
 
   def setup
-    @img = TestSetup::test_image
+    @img = TestSetup::small_test_image
   end
 
 
-  def test_cvExtractSURF
+  def test_SURFdetect
 
-    params = CVFFI::CvSURFParams.new( :hessianThreshold => 500.0,
-                                      :upright => 0,
-                                      :extended => 0,
-                                      :nOctaves => 3,
-                                      :nOctaveLayers => 4 )
-
-    # This should test the auto=conversion to greyscale
+    params = CVFFI::SURF::Params.new
     surf = CVFFI::SURF::detect( @img, params )
 
     assert_not_nil surf
 
-    surf.mark_on_image( @img, {:radius=>5, :thickness=>-1} )
-    CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), @img )
+    #surf.mark_on_image( @img, {:radius=>5, :thickness=>-1} )
+    #CVFFI::cvSaveImage( TestSetup::output_filename("surfWrapperPts.jpg"), @img )
 
     ## Test some of the functions built into SURF::Result
     p surf.first
+
     puts surf.first.distance_to( surf[1] )
     puts surf[1].distance_to( surf[2] )
 

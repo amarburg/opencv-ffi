@@ -61,8 +61,12 @@ module CVFFI
       self
     end
 
+    def wrap(i)
+      @wrap ? @wrap.new( @seq[i] ) : @seq[i]
+    end
+
     def at(i)
-      @cache[i] ||= @wrap ? @wrap.new( @seq[i] ) : @seq[i]
+      @cache[i] ||= wrap(i)
     end
 
     def each

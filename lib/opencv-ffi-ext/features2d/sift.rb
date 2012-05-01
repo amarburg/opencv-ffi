@@ -103,36 +103,6 @@ module CVFFI
         end
       end
 
-#      def self.from_a( a )
-#        a = YAML::load(a) if a.is_a? String
-#        raise "Don't know what to do" unless a.is_a? Array
-#
-#        pool = CVFFI::cvCreateMemStorage(0)
-#        cvseq = CVFFI::OpenSURF::createOpenSURFPointSequence( pool )
-#        seq = Sequence.new cvseq
-#        
-#        a.each { |r|
-#          raise "Hm, not what I expected" unless r.length == 6
-#          point = CVFFI::OpenSURF::OpenSURFPoint.new( '' )
-#          # Hm, the embedded CvPoint buggers up initialization by hash
-#          point.scale = r[2]
-#          point.orientation = r[3]
-#          point.laplacian = r[4]
-#          d = r[5].unpack('m')[0].unpack('e64')
-#
-#          d.each_with_index { |d,i| point.descriptor[i] = d }
-#
-#          # r[5].unpack('e64')
-#          point.pt.x = r[0]
-#          point.pt.y = r[1]
-#          seq.push( point )
-#        }
-#
-#
-#        ra = ResultArray.new( cvseq, pool )
-#      end
-
-
 
       ## Original C wrappers around OpenCV C++ code
       attach_function :cvSIFTWrapperDetect, [:pointer, :pointer, :pointer, :pointer, CvSIFTParams.by_value ], :void

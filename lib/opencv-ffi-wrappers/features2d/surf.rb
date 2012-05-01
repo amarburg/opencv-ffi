@@ -1,100 +1,120 @@
 
 require 'opencv-ffi/features2d'
-require 'opencv-ffi-wrappers/core'
-require 'opencv-ffi-wrappers/vectors'
+require 'opencv-ffi-wrappers'
 require 'opencv-ffi-ext/vector_math'
 
 module CVFFI
-  
 
   module SURF
 
-    class Result 
-      attr_accessor :kp, :desc
-      def initialize( kp, desc )
-        @kp = CVFFI::CvSURFPoint.new(kp)
-        @desc = desc
-      end
-
-      def pt; @kp.pt; end
-      def x;  pt.x; end
-      def y;  pt.y; end
-
-      def laplacian; @kp.laplacian; end
-      def dir; @kp.dir; end
-      def hessian; @kp.hessian; end
-      def size; @kp.size; end
-
-      def distance_to( q )
-        #  Here's the pure-Ruby way to do it
-      #  @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
-        
-        CVFFI::VectorMath::L2distance( @desc, q.desc )
-      end
-
-      def to_vector
-        Vector.[]( x, y, 1 )
-      end
-      
-      def to_Point
-        pt.to_Point
-      end
-   end
-
-    class ResultsArray
-      include Enumerable
-
-      attr_accessor :kp, :desc, :pool
-      attr_accessor :desc_type
-
-      def initialize( kp, desc, pool, desc_type = Float64 )
-        @kp = Sequence.new(kp)
-        @desc = Sequence.new(desc)
-        @pool = pool
-        @desc_type = desc_type
-        @results = Array.new( @kp.length )
-
-        raise RuntimeError "SURF Keypoint and descriptor sequences different length (#{@kp.size} != #{@desc.size})" unless (@kp.size == @desc.size)
-
-        destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer; poolPtr.putPointer( 0, @pool ); cvReleaseMemStorage( poolPtr ) }
-        ObjectSpace.define_finalizer( self, destructor )
-      end
-
-      def result(i)
-        @results[i] ||= Result.new( @kp[i], @desc_type.new( @desc[i] ) )
-      end
-
-      def each
-        @results.each_index { |i| 
-          yield result(i) 
-        }
-      end
-
-      def [](i)
-        result(i)
-      end
-
-      def size
-        @kp.size
-      end
-      alias :length :size
-
-      def mark_on_image( img, opts )
-        each { |r|
-          CVFFI::draw_circle( img, r.kp.pt, opts )
-        }
-      end
-
-      def to_a
-        map { |r|
-          [ r.x, r.y, r.laplacian, r.size, r.dir, r.hessian ]
-        }
-      end
+    class SURF64Descriptor < NiceFFI::Struct
+      layout :desc, [ :float, 64 ]
+      attr_accessor :desc_length
     end
 
-    def self.detect( img, params )
+    class SURF128Descriptor < NiceFFI::Struct
+      layout :desc, [ :float, 128 ]
+      attr_accessor :desc_length
+    end
 
-      raise ArgumentError unless params.is_a?( CvSURFParams ) || params.is_a?( Params )
+      class Params < CVFFI::Params
+        param :extended, 1
+        param :upright, 1
+        param :hessianThreshold, 300.0
+        param :nOctaves, 3
+        param :nOctaveLayers, 4
+
+        def to_CvSURFParams
+          CvSURFParams.new( @params  )
+        end
+      end
+
+
+
+      ## Monkey type some new functions into the point
+      module CvSURFPointMethods
+        def distance_to( q )
+          #  Here's the pure-Ruby way to do it
+          #  @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
+
+          #  CVFFI::VectorMath::L2distance( @desc, q.desc )
+          0.0
+        end
+
+        def to_vector
+          Vector.[]( x, y, 1 )
+        end
+
+        def to_Point
+          pt.to_Point
+        end
+
+        def to_a
+          [ pt.x, pt.y, laplacian, size, dir, hessian, 
+            descriptor.desc_length,
+            descriptor.desc.to_a.pack( "g#{descriptor.desc_length}" ) ]
+        end
+
+        def descriptor=( d ); @descriptor = d; end
+        def descriptor; @descriptor || nil; end
+
+      end
+
+      class CVFFI::CvSURFPoint
+        include CvSURFPointMethods
+      end
+
+      class DescriptorSequence < SequenceArray
+        # Shares a pool with the Results, assume it will take care
+        # of pool destruction
+        attr_accessor :desc_length
+
+        def initialize( seq, length )
+          @desc_length = length
+          super( seq, nil, descriptor_type )
+        end
+
+        def wrap(i)
+          a = super(i)
+          a.desc_length = desc_length
+          a
+        end
+
+        def descriptor_type
+          case desc_length
+          when 64
+            SURF64Descriptor
+          when 128
+            SURF128Descriptor
+          else
+            raise "Hm, don't know how to handle a SURF descriptor of length #{desc_length}."
+          end
+        end
+
+      end
+      class Results < SequenceArray
+
+      attr_accessor :descriptors
+      attr_accessor :desc_length
+
+        def initialize( seq, descriptors, desc_length, pool )
+          super( seq, pool, CVFFI::CvSURFPoint )
+          @descriptors = DescriptorSequence.new( descriptors, desc_length )
+        end
+
+        def wrap(i)
+          a = super(i)
+          a.descriptor = descriptors.at(i)
+          a
+        end
+
+        def self.from_a( a )
+          SequenceArray.from_a( a, CVFFI::CvSURFPoint )
+        end
+      end
+
+    def self.detect( img, params )
+        params = params.to_CvSURFParams unless params.is_a?( CvSURFParams )
 
       img = CVFFI::IplImage.new img.to_IplImage.ensure_greyscale
 
@@ -108,7 +128,8 @@ module CVFFI
       keypoints = CVFFI::CvSeq.new( kp_ptr.read_pointer() )
       descriptors = CVFFI::CvSeq.new( desc_ptr.read_pointer() )
 
-      ResultsArray.new( keypoints, descriptors, mem_storage )
+      descriptor_length = params.extended ? 128 : 64
+      Results.new( keypoints, descriptors, descriptor_length, mem_storage )
     end
   end
 end
