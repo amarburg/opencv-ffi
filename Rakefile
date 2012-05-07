@@ -3,7 +3,6 @@ require 'rake'
 require 'rake/testtask'
 require 'rake/clean'
 require 'yard'
-require './ext/mkrf-rakehelper-monkey'
 
 Rake::TestTask.new(:test) do |t|
 #  t.libs << 'lib/opencv-ffi' << '.'
@@ -12,16 +11,7 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/test_*.rb']
 end
 
-CLEAN.include "lib/*.so"
-
-#Rake::ExtensionTask.new('fast')
-setup_extension "opencv-ffi", "libcvffi"
-setup_extension "eigen", "libcvffi_eigen"
-setup_extension "opensurf", "libcvffi_opensurf"
-
 task :default => 'test'
-
-task :test => Mkrf::all_libs
 
 # Hm, let YARD take care of documention
 #desc "Build the local Markdown docs to html"

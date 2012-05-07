@@ -17,8 +17,9 @@ module CVFFI
   end
 
   # This can be a thinner wrapper than normal because I've pushed
-  # the logic to wrap and unwrap the list of corners in to opencv-ffi
+  # the logic to wrap and unwrap the list of corners into opencv-ffi
   # -- too painful to force anyone to have to do it themselves.
+  #
   def self.goodFeaturesToTrack( image, params = GoodFeaturesParams.new )
     # TODO, technically, cvGoodFeaturesToTrack can also take 32FC1 data as well,
     # doesn't necessarily need to be cast to 8UC1 greyscale

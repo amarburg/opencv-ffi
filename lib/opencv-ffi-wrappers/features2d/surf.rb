@@ -1,7 +1,7 @@
 
 require 'opencv-ffi/features2d'
 require 'opencv-ffi-wrappers'
-require 'opencv-ffi-ext/vector_math'
+#require 'opencv-ffi-ext/vector_math'
 
 module CVFFI
 
@@ -28,8 +28,6 @@ module CVFFI
           CvSURFParams.new( @params  )
         end
       end
-
-
 
       ## Monkey type some new functions into the point
       module CvSURFPointMethods

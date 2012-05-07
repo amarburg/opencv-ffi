@@ -15,8 +15,8 @@ module CVFFI
     [:pointer, :pointer, :pointer, :pointer, :pointer, :double, :double, :pointer, :int, :int, :double], :void
 
   # This version diverges from the OpenCV API because the original returns
-  # an array of Point2D32f in corners ... this functions will provide
-  # is as a return value.
+  # an array of Point2D32f in corners ... this function will provide
+  # it as a return value.
   #
   # @param max_corners  The maximum number of corners to return
   # @return             An array of CvPoint2D32f giving the detected corners.

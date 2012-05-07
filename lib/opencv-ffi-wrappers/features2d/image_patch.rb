@@ -1,7 +1,6 @@
 require 'opencv-ffi'
 require 'opencv-ffi-wrappers/core/iplimage'
 require 'opencv-ffi-wrappers/core/point'
-require 'opencv-ffi-ext/eigen'
 
 module CVFFI
 
@@ -275,7 +274,8 @@ module CVFFI
           }
 
           c = Matrix.rows( [ [c11,c12],[c12,c22] ] )
-          d,v = CVFFI::Eigen.eigen( c )
+          #d,v = CVFFI::Eigen.eigen( c )
+          raise "Currently broken, as the image_patch code relies on the Ext eigen library."
 
           d = d.to_a
           i = if d[0] == d[1]
