@@ -6,7 +6,7 @@ gemspec
 
 def my_github( x ); "http://github.com/amarburg/#{x}.git"; end
 
-gem "nice-ffi", :git=>my_github(nice-ffi)
+gem "nice-ffi", :git=>my_github("nice-ffi")
 
 group :development do
   gem "redcarpet"
