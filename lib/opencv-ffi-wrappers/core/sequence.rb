@@ -38,6 +38,13 @@ module CVFFI
   class SequenceArray
     include Enumerable
 
+    def self.sequence_class( klass )
+      class_eval %(
+        @wrapped_klass = klass
+        class << self; attr_reader :wrapped_klass; end
+      )
+    end
+
     attr_reader :seq, :pool
 
     def initialize( seq, pool, wrapper_klass = nil )
@@ -46,7 +53,7 @@ module CVFFI
 
       @cache = Array.new( @seq.length )
 
-      @wrap = wrapper_klass
+      @wrap = wrapper_klass || self.class.wrapped_klass
 
       destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer 
         poolPtr.putPointer( 0, @pool ) 
@@ -98,19 +105,20 @@ module CVFFI
 
     # Well, this is awkward, isn't it?
     # TODO:  Does it have to be this way?
-    def self.from_a( a, wrapper_klass )
+    def self.from_a( a, wrapper_klass = nil )
+      klass = wrapper_klass || wrapped_klass
         a = YAML::load(a) if a.is_a? String
         raise "SequenceArray::from_a.  Don't know what to do with #{a}" unless a.is_a? Array
 
         pool = CVFFI::cvCreateMemStorage(0)
-        cvseq = CVFFI::cvCreateSeq( 0, CvSeq.size, wrapper_klass.size, pool )
+        cvseq = CVFFI::cvCreateSeq( 0, CvSeq.size, klass.size, pool )
         seq = Sequence.new cvseq
 
         a.each { |this_row| 
-          seq.push( wrapper_klass.from_a( this_row ) )
+          seq.push( klass.from_a( this_row ) )
         }
 
-        SequenceArray.new( cvseq, pool, wrapper_klass )
+        SequenceArray.new( cvseq, pool, klass )
     end
   end
 

@@ -90,6 +90,7 @@ module CVFFI
         end
 
       end
+
       class Results < SequenceArray
 
       attr_accessor :descriptors
