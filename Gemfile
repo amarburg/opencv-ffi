@@ -3,7 +3,10 @@ gem "rake"
 
 # Specify your gem's dependencies in opencv-ffi.gemspec
 gemspec
-gem "nice-ffi", :git=>"git@github.com:amarburg/nice-ffi.git"
+
+def my_github( x ); "http://github.com/amarburg/#{x}.git"; end
+
+gem "nice-ffi", :git=>my_github(nice-ffi)
 
 group :development do
   gem "redcarpet"
