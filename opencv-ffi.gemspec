@@ -14,7 +14,6 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "opencv-ffi"
 
   s.files         = `git ls-files`.split("\n")
-  s.extensions    = "ext/mkrf_conf.rb"
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
@@ -22,5 +21,4 @@ Gem::Specification.new do |s|
   s.has_rdoc = true
 
   s.add_dependency "ffi"
-  s.add_dependency "mkrf"
 end
