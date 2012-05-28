@@ -33,6 +33,10 @@ module CVFFI
     end
     alias :at :[]
 
+    def clear
+      CVFFI::cvClearSeq( @seq )
+    end
+
   end
 
   class SequenceArray
@@ -45,25 +49,31 @@ module CVFFI
       )
     end
 
+    def sequence_class; @wrap; end
+
     attr_reader :seq, :pool
 
-    def initialize( seq, pool = nil, wrapper_klass = nil )
+    def initialize( seq, pool, wrapper_klass = nil )
       @seq = Sequence.new(seq)
-      @pool = pool || FFI::CvCreateMemStorage( 0 )
+      @pool = pool
 
       @cache = Array.new( @seq.length )
 
       @wrap = wrapper_klass || self.class.wrapped_klass
 
-      destructor = Proc.new { poolPtr = FFI::MemoryPointer.new :pointer 
+      destructor = Proc.new { 
+        poolPtr = FFI::MemoryPointer.new :pointer 
         poolPtr.putPointer( 0, @pool ) 
-        cvReleaseMemStorage( poolPtr ) }
+        cvReleaseMemStorage( poolPtr ) 
+        }
         ObjectSpace.define_finalizer( self, destructor )
     end
 
-    def reset( seq )
-      @seq = Sequence.new(seq)
-      @pool = kp.storage
+    def reset( seq  = nil )
+      if seq
+        @seq = Sequence.new(seq)
+        @pool = kp.storage
+      end
       @cache = Array.new( @seq.length )
       self
     end
