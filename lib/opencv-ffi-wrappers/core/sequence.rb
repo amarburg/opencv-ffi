@@ -47,9 +47,9 @@ module CVFFI
 
     attr_reader :seq, :pool
 
-    def initialize( seq, pool, wrapper_klass = nil )
+    def initialize( seq, pool = nil, wrapper_klass = nil )
       @seq = Sequence.new(seq)
-      @pool = pool
+      @pool = pool || FFI::CvCreateMemStorage( 0 )
 
       @cache = Array.new( @seq.length )
 
@@ -120,6 +120,7 @@ module CVFFI
 
         SequenceArray.new( cvseq, pool, klass )
     end
+
   end
 
 end
