@@ -87,7 +87,8 @@ raise RuntimeError "index greater than size of query set (#{r.query_idx} > #{que
 
     def to_a
       Array.new( size ) { |i|
-        [ @results[i].tidx, @results[i].qidx, @results[i].dist ]
+        [ @results[i].tidx, @train_set[ @results[i].tidx ].x, @train_set[ @results[i].tidx ].y,
+          @results[i].qidx, @query_set[ @results[i].qidx ].x, @query_set[ @results[i].qidx ].y, @results[i].dist ]
       }
     end
 
