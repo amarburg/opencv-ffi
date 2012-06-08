@@ -26,6 +26,17 @@ def recursive_test name
   end
 end
 
+module EachTwo
+  def each2(other, &blk)
+    raise "Can't call each2 unless arrays are same length (#{length} != #{other.length})" unless length == other.length
+
+    self.each_with_index { |mine,i|
+      blk.call( mine, other[i] )
+    }
+  end
+end
+
+
 module TestSetup
   
   @dirname = "/tmp/opencv-ffi-test"

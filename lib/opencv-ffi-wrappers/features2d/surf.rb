@@ -2,8 +2,65 @@
 require 'opencv-ffi/features2d'
 require 'opencv-ffi-wrappers'
 #require 'opencv-ffi-ext/vector_math'
+require 'base64'
 
 module CVFFI
+
+  ## Monkey type some new functions into the point
+  class CvSURFPoint
+    def x; pt.x; end
+    def y; pt.y; end
+
+    def distance_to( q )
+      #  Here's the pure-Ruby way to do it
+      #  @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
+
+      #  CVFFI::VectorMath::L2distance( @desc, q.desc )
+      0.0
+    end
+
+    def to_vector
+      Vector.[]( x, y, 1 )
+    end
+
+    def to_Point
+      pt.to_Point
+    end
+
+    def self.keys
+      [ :x, :y, :laplacian, :size, :dir, :hessian ]
+    end
+    def keys; self.class.keys; end
+
+    def to_a
+      [ pt.x, pt.y, laplacian, size, dir, hessian, 
+        descriptor.desc_length,
+        Base64.encode64(descriptor.desc.to_a.pack( "g#{descriptor.desc_length}" )) ]
+    end
+
+    # TODO:  Doesn't unserialize the descriptor at present....
+    def self.from_a( a )
+      kp = CvSURFPoint.new
+      kp.pt.x = a.shift
+      kp.pt.y = a.shift
+      kp.laplacian = a.shift
+      kp.size = a.shift
+      kp.dir = a.shift
+      kp.hessian = a.shift
+      kp
+    end
+
+    def ==(b)
+      keys.inject(true) { |m,key|
+        m and ( (send key) == (b.send key) )
+      }
+    end
+
+    def descriptor=( d ); @descriptor = d; end
+    def descriptor; @descriptor || nil; end
+
+  end
+
 
   module SURF
 
@@ -27,39 +84,6 @@ module CVFFI
         def to_CvSURFParams
           CvSURFParams.new( @params  )
         end
-      end
-
-      ## Monkey type some new functions into the point
-      module CvSURFPointMethods
-        def distance_to( q )
-          #  Here's the pure-Ruby way to do it
-          #  @desc.inject_with_index(0.0) { |x,d,i| x + (d-q.desc.d[i])**2  }
-
-          #  CVFFI::VectorMath::L2distance( @desc, q.desc )
-          0.0
-        end
-
-        def to_vector
-          Vector.[]( x, y, 1 )
-        end
-
-        def to_Point
-          pt.to_Point
-        end
-
-        def to_a
-          [ pt.x, pt.y, laplacian, size, dir, hessian, 
-            descriptor.desc_length,
-            descriptor.desc.to_a.pack( "g#{descriptor.desc_length}" ) ]
-        end
-
-        def descriptor=( d ); @descriptor = d; end
-        def descriptor; @descriptor || nil; end
-
-      end
-
-      class CVFFI::CvSURFPoint
-        include CvSURFPointMethods
       end
 
       class DescriptorSequence < SequenceArray
@@ -93,8 +117,8 @@ module CVFFI
 
       class Results < SequenceArray
 
-      attr_accessor :descriptors
-      attr_accessor :desc_length
+        attr_accessor :descriptors
+        attr_accessor :desc_length
 
         def initialize( seq, descriptors, desc_length, pool )
           super( seq, pool, CVFFI::CvSURFPoint )
