@@ -69,7 +69,7 @@ module CVFFI
         ObjectSpace.define_finalizer( self, destructor )
     end
 
-    def reset( seq, pool  = @pool)
+    def reset( seq = nil, pool  = @pool)
       if seq
         @seq = Sequence.new(seq)
         @pool = pool
