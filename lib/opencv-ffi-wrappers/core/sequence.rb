@@ -69,10 +69,10 @@ module CVFFI
         ObjectSpace.define_finalizer( self, destructor )
     end
 
-    def reset( seq  = nil )
+    def reset( seq, pool  = @pool)
       if seq
         @seq = Sequence.new(seq)
-        @pool = kp.storage
+        @pool = pool
       end
       @cache = Array.new( @seq.length )
       self
