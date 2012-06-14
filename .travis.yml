@@ -10,11 +10,15 @@ branches:
 bundler_args: --without development
 
 before_install:
+  - sudo add-apt-repository ppa:gijzelaar/opencv2.3
   - sudo apt-get update
-  - sudo apt-get install libcv2.1 libhighgui2.1
+  - sudo apt-get install libopencv-core2.3 libopencv-highgui2.3 libopencv-imgproc2.3 libopencv-features2d2.3
 
 script: bundle exec rake 
 
 notifications:
-  recipients:
+  email: 
+    recipients:
       - aaron.marburg@pg.canterbury.ac.nz
+    on_success: change
+    on_failure: always
