@@ -4,6 +4,8 @@ require 'rake/testtask'
 require 'rake/clean'
 require 'yard'
 
+task :default => 'test'
+
 Rake::TestTask.new(:test) do |t|
 #  t.libs << 'lib/opencv-ffi' << '.'
   t.libs << '.'
@@ -11,7 +13,6 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/test_*.rb']
 end
 
-task :default => 'test'
 
 # Hm, let YARD take care of documention
 #desc "Build the local Markdown docs to html"

@@ -1,5 +1,4 @@
 source "http://rubygems.org"
-gem "rake"
 
 # Specify your gem's dependencies in opencv-ffi.gemspec
 gemspec
@@ -14,3 +13,6 @@ group :development do
   gem "yard"
 end
 
+group :test do
+  gem "rake"
+end
