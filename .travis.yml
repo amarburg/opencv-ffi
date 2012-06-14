@@ -8,7 +8,8 @@ branches:
     - stable
 
 bundler_args: --without development
-before-install:
+
+beforer_-install:
   - sudo apt-get update
   - sudo apt-get install libcv2.1 libhighgui2.1
 
