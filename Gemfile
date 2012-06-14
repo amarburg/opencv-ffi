@@ -10,9 +10,9 @@ gem "nice-ffi", :git=>my_github("nice-ffi")
 group :development do
   gem "redcarpet"
   gem "simplecov", :require => false
-  gem "yard"
 end
 
 group :test do
   gem "rake"
+  gem "yard"
 end
