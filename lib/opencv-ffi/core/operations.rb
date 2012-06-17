@@ -32,12 +32,12 @@ module CVFFI
   def self.matMagicType( m )
     # Want to cast m.type to an integer
     type = case m.type
-           when Fixnum
+           when Integer
              m.type
            when Symbol
              CvMatType[m.type]
            else
-             raise "Can't convert #{m.type} to a numeric OpenCV type"
+             raise "Can't convert #{m.type} (#{m.type.class}) to a numeric OpenCV type"
            end
 
     type & 0xFFF
