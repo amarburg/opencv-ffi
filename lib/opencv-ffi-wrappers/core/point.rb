@@ -24,6 +24,10 @@ module CVFFI
       end
     end
 
+    def dot( b )
+      self.to_Vector.inner_product b.to_Vector
+    end
+
     def -(a)
       if got_what_i_need a
         self.class.new( [ x.to_f-a.x, y.to_f-a.y ] )
@@ -90,9 +94,20 @@ module CVFFI
     def to_s
       "(%.3f %.3f)" % [x,y]
     end
- #end
 
- # module CvPointCastMethods
+    def distance_to( b )
+      case b
+      when Line
+        self.normalize.dot b.normalize
+      else
+        l2distance( b )
+      end
+    end
+
+    def normalize
+      self.class.new( :x => x, :y => y )
+    end
+
     def to_CvPoint2D64f
       CvPoint2D64f.new( :x => x, :y => y )
     end
@@ -109,6 +124,10 @@ module CVFFI
       Point.new( x, y )
     end
 
+    def to_Vector( homogeneous = true )
+      Vector.elements( to_a( homogeneous ) )
+    end
+
     def to_a(homogeneous=true)
       if homogeneous
         [ x, y, 1 ]
@@ -120,15 +139,19 @@ module CVFFI
 
   class CvPointBase
     include CvPointMethods
-#    include CvPointCastMethods
   end
 
   class CvPoint; def to_CvPoint; self; end; end
   class CvPoint2D32f; def to_CvPoint2D32f; self; end; end
   class CvPoint2D64f; def to_CvPoint2D64f; self; end; end
 
+  ## The Point wrapper exists to:
+  #     - give an untyped Point class
+  #     - allow a more flexible contstructor than that provided by NiceFFI::Struct
+  #     - Allow array- and hash-like accessors
+  #
+  # Otherwise it shares an API with CvPoint* through CvPointMethods
   class Point 
-#    include CvPointCastMethods
     include CvPointMethods
 
     attr_accessor :w, :y, :x
@@ -186,6 +209,10 @@ module CVFFI
       else
         raise "Attempting to access invalid index in Point."
       end
+    end
+
+    def normalize
+      Point.new( @x.to_f/@w, @y.to_f/@w, 1.0 )
     end
   end
 
@@ -310,6 +337,57 @@ module CVFFI
 
   end
 
+
+  ##=======================================================
+  
+  
+  class Line
+
+    attr_accessor :x, :y, :z
+
+    def initialize( *args )
+      if args.length == 3
+        @x = args[0]
+        @y = args[1]
+        @z = args[2]
+      else
+        args = args.shift
+
+        case args
+        when Hash
+          @z = args[:z]
+          @y = args[:y]
+          @x = args[:x]
+        when Array
+          @x = args[0]
+          @y = args[1]
+          @z = args[2]
+        else
+          @x = args.x
+          @y = args.y
+          @z = args.z
+        end
+      end
+    end
+
+    def distance_to( point )
+      point.distance_to( self )
+    end
+
+    def normalize
+      den = Math::sqrt( x*x + y*y )
+      Line.new( x/den, y/den, z/den )
+    end
+
+    def to_a
+      [ x, y, z ]
+    end
+
+    def to_Vector
+      Vector.elements( to_a )
+    end
+
+  end
 
 
 

@@ -29,30 +29,6 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_in_delta 2.0, q.height, TestSetup::EPSILON
   end
 
-  def test_point
-    p = CVFFI::Point.new( 4.0, 5.0 )
-    assert_equal 4.0, p.x
-    assert_equal 5.0, p.y
-
-    q = p.to_CvPoint
-    assert_equal 4.0, q.x
-    assert_equal 5.0, q.y
-
-    a = p.to_a
-    assert a.is_a?(Array)
-    assert_equal 3, a.length
-    assert_equal 4.0, a[0]
-    assert_equal 5.0, a[1]
-    assert_equal 1.0, a[2]
-
-    a = p.to_a(false)
-    assert a.is_a?(Array)
-    assert_equal 2, a.length
-    assert_equal 4.0, a[0]
-    assert_equal 5.0, a[1]
-
-  end
-
   def test_size
     p = CVFFI::Size.new( [4.0, 5.0] )
 
@@ -79,31 +55,6 @@ class TestCoreTypesWrappers < Test::Unit::TestCase
     assert_equal 10.0, p.height
   end
 
-  def test_point
-    p = CVFFI::Point.new( 10.0, 0.0 )
-    r = CVFFI::Point.new( 0.0, 0.0 )
-
-    assert_equal 10.0, p.x
-    assert_equal  0.0, p.y
-
-    q = p.rotate( 0.0 )
-    assert_equal 10.0, q.x
-    assert_equal  0.0, q.y
-
-    q = p.rotate( Math::PI/2.0 )
-    assert_in_delta 0.0, q.x, TestSetup::EPSILON
-    assert_in_delta 10.0, q.y, TestSetup::EPSILON
-
-    assert p.neighbor?( r, 10.01 )
-    assert p.neighbor?( r, 9.99 ) == false
-
-    assert p.neighbor_rsquared?( r, 100.01 )
-    assert p.neighbor_rsquared?( r, 99.9 ) == false
-
-    assert_in_delta 10.0, p.l2distance( r ),  TestSetup::EPSILON
-    assert_in_delta 100.0, p.l2_squared_distance( r ),  TestSetup::EPSILON
-
-  end
 
   def test_iplimage
     img = CVFFI::cvCreateImage( CVFFI::CvSize.new( :width=>100, :height=>100 ), 8, 1 )
