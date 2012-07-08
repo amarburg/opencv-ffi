@@ -355,10 +355,10 @@ module CVFFI
 
         case args
         when Hash
-          @z = args[:z]
-          @y = args[:y]
           @x = args[:x]
-        when Array
+          @y = args[:y]
+          @z = args[:z]
+        when Array, Vector
           @x = args[0]
           @y = args[1]
           @z = args[2]
@@ -385,6 +385,10 @@ module CVFFI
 
     def to_Vector
       Vector.elements( to_a )
+    end
+
+    def normal_through( point )
+      Line.new( -y, x, ( y*point.x - x*point.y) )
     end
 
   end

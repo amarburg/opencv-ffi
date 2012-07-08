@@ -58,6 +58,20 @@ class TestCorePointWrappers < Test::Unit::TestCase
 
     d = line.distance_to point 
     assert_in_delta Math::sqrt(2.0), d, TestSetup::EPSILON
+  end
+
+  def test_normal_through_point
+    # Line at 45deg through origin
+    line =  CVFFI::Line.new( 1, 1, 0 )
+    point = CVFFI::Point.new( -1.0, -1.0 )
+
+    normal = line.normal_through( point ).normalize
+
+    # There's a family of answers, but these tests should catch the correct
+    # answer
+    assert_in_delta -1.0, (normal.x/normal.y), TestSetup::EPSILON
+    assert_in_delta  0.0, normal.z, TestSetup::EPSILON
+
 
   end
 
