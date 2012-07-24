@@ -6,10 +6,11 @@ require 'opencv-ffi-wrappers/misc/map_with_index'
 module CVFFI
 
   class FundamentalOrHomographyResults
-    attr_accessor :status
+    attr_accessor :status, :retval
 
-    def initialize(  inliers )
-      @status = inliers.to_a.map { |v| (v > 0.0) ? true : false }
+    def initialize(  inliers, retval )
+      @status = Array.new( inliers.height ) { |i| inliers.at_f( i, 0 ) > 0.0 ? true : false }
+      @retval = retval
       status.extend MapWithIndex
     end
 
@@ -29,12 +30,11 @@ module CVFFI
   end
 
   class Fundamental < FundamentalOrHomographyResults
-    attr_accessor :f, :retval
+    attr_accessor :f
 
-    def initialize( f, status, retval )
-      super(status)
-      @f = f
-      @retval = retval
+    def initialize( fin, inliers, retval )
+      super(inliers, retval)
+      @f = fin
     end
   end
 
@@ -59,7 +59,7 @@ module CVFFI
     attr_accessor :h
 
     def initialize( h, status )
-      super(status)
+      super(status, 0)
       @h = h
     end
   end
