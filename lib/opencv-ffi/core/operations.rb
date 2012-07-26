@@ -26,7 +26,14 @@ module CVFFI
                      :CV_16SC3,
                      :CV_32SC3,
                      :CV_32FC3,
-                     :CV_64FC3 ]
+                     :CV_64FC3,
+                     :CV_8UC4, 24,
+                     :CV_8SC4, 
+                     :CV_16UC4,
+                     :CV_16SC4,
+                     :CV_32SC4,
+                     :CV_32FC4,
+                     :CV_64FC4 ]
 
   ## As present, the type encodes 9 bits of nChannels and 3 bits of typ
   def self.matMagicType( m )
