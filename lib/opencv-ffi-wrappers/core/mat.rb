@@ -374,7 +374,7 @@ module CVFFI
         dest
       when Mat, CvMat
         dest = twin
-        CVFFI::cvSub( self.to_CvMat, other.to_CvMat, dest.to_CvMat, nil )
+        CVFFI::cvSub( self.to_CvMat, b.to_CvMat, dest.to_CvMat, nil )
         dest
       else
         raise "Don't know how to subtract #{b} from a Mat"
