@@ -336,9 +336,9 @@ module CVFFI
       Mat.new(greyImg)
     end
 
-    def to_float
+    def to_float( scale = 1 )
       float = CVFFI::cvCreateMat( height, width, :CV_32F )
-      CVFFI::cvConvertScale( self.to_CvMat, float, 1, 0 )
+      CVFFI::cvConvertScale( self.to_CvMat, float, scale, 0 )
       Mat.new( float )
     end
 
@@ -374,7 +374,7 @@ module CVFFI
         dest
       when Mat, CvMat
         dest = twin
-        CVFFI::cvSub( self.to_Cvmat, other.to_CvMat, dest.to_CvMat, nil )
+        CVFFI::cvSub( self.to_CvMat, other.to_CvMat, dest.to_CvMat, nil )
         dest
       else
         raise "Don't know how to subtract #{b} from a Mat"
