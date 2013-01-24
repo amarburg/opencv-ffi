@@ -358,7 +358,7 @@ module CVFFI
         dest
       when Mat, CvMat
         dest = twin
-        CVFFI::cvAdd( self.to_CvMat, other.to_CvMat, dest.to_CvMat, nil )
+        CVFFI::cvAdd( self.to_CvMat, b.to_CvMat, dest.to_CvMat, nil )
         dest
       else
         raise "Don't know how to add #{b} to a Mat"
