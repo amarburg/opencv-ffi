@@ -30,6 +30,7 @@ module CVFFI
       @order = :BGR
       w=x=y=z=0
 
+      # TODO:  Scalar wrapper could be much friendlier...
       unless args.length == 0
         #Use the default values;
         if args[0].is_a?( Hash )

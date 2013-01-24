@@ -63,6 +63,7 @@ module CVFFI
     CvMatType[ CVFFI::matMagicType( m ) ]
   end
 
+  attach_function :cvAdd, [ :pointer, :pointer, :pointer, :pointer ]
   attach_function :cvAddWeighted, [ :pointer, :double, :pointer, :double, :double, :pointer ], :void
   attach_function :cvAddS, [:pointer, CvScalar.by_value, :pointer, :pointer], :void
   attach_function :cvAvg, [:pointer, :pointer], CvScalar.by_value
