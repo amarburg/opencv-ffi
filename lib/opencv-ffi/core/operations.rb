@@ -110,6 +110,18 @@ module CVFFI
     real_cvNorm( arr1, arr2, normType, mask )
   end
 
+  CvDistType = enum :cvDistType, [ :CV_RAND_UNI, 0,
+                                   :CV_RAND_NORMAL, 1]
+  attach_function :cvRandArr, [:pointer, :pointer, CvDistType, CvScalar.by_value, CvScalar.by_value], :void
+  
+  # cvRNG is actuall handled by an inline, so fake it out.
+  # attach_function :cvRNG, [:int64], :uint64
+  # At present all it really does is "launder" an int64 into a uint64
+  class CvRNG < NiceFFI::Struct
+    layout :x, :uint64
+  end
+  def self.cvRNG( seed = -1 ); CvRNG.new({:x => seed}); end
+
   attach_function :cvScaleAdd, [ :pointer, CvScalar.by_value, :pointer, :pointer ], :void
   attach_function :cvSet,  [ :pointer, CvScalar.by_value, :pointer ], :void
 
