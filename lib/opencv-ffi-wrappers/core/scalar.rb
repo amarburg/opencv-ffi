@@ -47,7 +47,7 @@ module CVFFI
         end
       end
 
-      @s = CVFFI::CvScalar.new( :w => w, :x => x, :y => y, :z => z )
+      @s = CVFFI::CvScalar.new({ :w => w, :x => x, :y => y, :z => z })
     end
 
     def color_symbols
