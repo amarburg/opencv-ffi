@@ -30,9 +30,10 @@ module CVFFI
   #                            CvSURFParams params, 
   #                            int useProvidedKeyPts CV_DEFAULT(0)  );
 
-  attach_function :cvExtractSURF, [ :pointer, :pointer, 
-                                    :pointer, :pointer, 
-                                    :pointer, 
-                                    CvSURFParams.by_value, :cvBoolean ], :void
-
+  # C SURF interface removed from 2.4 (?)
+#  attach_function :cvExtractSURF, [ :pointer, :pointer, 
+#                                    :pointer, :pointer, 
+#                                    :pointer, 
+#                                    CvSURFParams.by_value, :cvBoolean ], :void
+#
 end
