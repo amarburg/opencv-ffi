@@ -25,6 +25,7 @@ module CVFFI
            :response, :float
   end
 
-  attach_function :cvGetStarKeypoints, [ :pointer, :pointer, CvStarDetectorParams.by_value ], CvSeq.typed_pointer
+  #  TODO: Function removed from Opencv 2.4?  Investigate.
+  #attach_function :cvGetStarKeypoints, [ :pointer, :pointer, CvStarDetectorParams.by_value ], CvSeq.typed_pointer
 
 end

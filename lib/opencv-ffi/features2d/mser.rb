@@ -37,6 +37,8 @@ module CVFFI
   end
 
   # CVAPI(void) cvExtractMSER( CvArr* _img, CvArr* _mask, CvSeq** contours, CvMemStorage* storage, CvMSERParams params );
-  attach_function :cvExtractMSER, [:pointer, :pointer, :pointer, :pointer, CvMSERParams.by_value], :void
+  #
+  #  TODO: Function removed from Opencv 2.4?  Investigate.
+  #attach_function :cvExtractMSER, [:pointer, :pointer, :pointer, :pointer, CvMSERParams.by_value], :void
 
 end

@@ -5,7 +5,10 @@ require 'opencv-ffi/features2d/library'
 
 module CVFFI
 
-
+  #
+  # C SURF interface removed from 2.4 (?)
+  # Restructure and move to opencv-ffi-ext??
+  #
   class CvSURFParams < NiceFFI::Struct
     layout :extended,      :int,
            :upright,       :int,
@@ -30,7 +33,6 @@ module CVFFI
   #                            CvSURFParams params, 
   #                            int useProvidedKeyPts CV_DEFAULT(0)  );
 
-  # C SURF interface removed from 2.4 (?)
 #  attach_function :cvExtractSURF, [ :pointer, :pointer, 
 #                                    :pointer, :pointer, 
 #                                    :pointer, 
