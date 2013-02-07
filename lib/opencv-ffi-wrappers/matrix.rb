@@ -1,4 +1,6 @@
 
+require_relative "core/mat"
+
 class Matrix
 
   def to_Matrix
@@ -13,6 +15,10 @@ class Matrix
       a.set_f( i, j, e )
     }
     a
+  end
+
+  def to_Mat( opts = {} )
+    Mat.new to_CvMat(opts)
   end
 
 end
@@ -32,6 +38,9 @@ class Vector
     a
   end
 
+  def to_Mat( opts = {} )
+    Mat.new to_CvMat(opts)
+  end
 end
 
     
