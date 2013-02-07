@@ -18,7 +18,7 @@ class Matrix
   end
 
   def to_Mat( opts = {} )
-    Mat.new to_CvMat(opts)
+    CVFFI::Mat.new to_CvMat(opts)
   end
 
 end
@@ -39,7 +39,7 @@ class Vector
   end
 
   def to_Mat( opts = {} )
-    Mat.new to_CvMat(opts)
+    CVFFI::Mat.new to_CvMat(opts)
   end
 end
 
