@@ -49,32 +49,41 @@ with coding the OpenCV API in C, so it may be necessary to deal with
 wrapping/unwrapping some of the pricklier types (pointers to pointers
 for example).
 
-+ `opencv-ffi-wrappers` is an attempt to create a nicer "more Ruby" API
-on top of the pure level, in two ways.   In some cases, OpenCV structs
-are extended to give them more object-like APIs.  Of course, in many ways this is re-creating the C++ API in Ruby, on top of C. 
++ `opencv-ffi-wrappers` is an attempt to create a nicer "more OO" API.    This includes:
 
-    New objects are often created to hide the typed-ness of OpenCV
-    structs.  For example, a `CvPoint2D32F` is different from a
-    `CvPoint2D32U`.  A `Point` wrapper, however, could behave more
-    interchangably.
+  * Extending OpenCV structs to give them a more OO API.
+(Of course, in many ways this is re-creating the C++ API in Ruby, on
+top of C, but never mind)
 
-    In many cases, OpenCV functions are wrapped with helper functions
-    which handle defaults and type checking incoming data in a more
-    Ruby way.
 
-    For performance reasons, every effort is made to keep data
-    (particularly CvMat, IplImage, etc) in OpenCV structs as much
-    as possible.  This means many of the wrapper classes rely on
-    delegation, with added functionality layered on top.  Point contains
-    a CvPoint2D32F, for example, but can coerce it to a CvPoint2D32U.
+  * Introducing new classes which wrap OpenCV structs.  Sometimes this
+  is to hide the typed-ness of the OpenCV structs.
+    For example, a `CvPoint2D32F` is different from a `CvPoint2D32U`.
+    A `Point` wrapper, however, could behave more interchangably.
+    Other times, the wrapper class provides a more intuitive API which
+    conflicts with the FFI API used on the OpenCV structs.  For example,
+    FFI structs use the `size` and `[]` methods.   
+    
+    * Finally, some of the
+    trickier OpenCV functions are wrapped with helper functions which
+    smooth out some of the rough edges.
 
-    I would expect most users to work primarily with the wrappers.
+    For performance reasons, every effort is made to keep data in OpenCV
+    structs as much as possible (particularly CvMat, IplImage, etc).
+    This means many of the wrapper classes rely on delegation, with
+    added functionality layered on top.  Point contains a CvPoint2D32F,
+    for example, but can coerce it to a CvPoint2D32U.
+
+    I would expect most users to be able to work primarily with the wrappers.
 
 + There is a companion gem
-[opencv-ffi-ext](https://github.com/amarburg/opencv-ffi-ext) which
-contains a compiled C library which adds additional functionality.
-These functions were originally included in this Gem, but were removed
-so that it wasn't necessary to compile a native extension to use this Gem.
+   [opencv-ffi-ext](https://github.com/amarburg/opencv-ffi-ext) which
+  contains a compiled C library which adds additional functionality.
+  These functions were originally included in this Gem, but were removed
+  so that it wasn't necessary to compile a native extension to use this Gem.
+
+   As noted above, much of the effort in the `-ext` gem has gone into
+   making C++-to-C wrappers, which is a bit sad.
 
 Motivation and Project Goals
 ---
