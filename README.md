@@ -4,14 +4,19 @@ OpenCV-FFI
 Status
 ------
 
-I freely admit this is project is still in-development.  I am using it
-for day-to-day work and it will continue to get better, more stable, etc.
+I freely admit this is project is still in development.  I am using it
+for day-to-day work in my graduate studies and I hope it will get faster,
+more stable, and have better coverage of the OpenCV API faster than it
+gets old, out of date, and broken.
+
 I implement OpenCV functions and their wrappers as necessary.  It does
 not cover the whole OpenCV C API, by any stretch.  It needs more and
 better tests, perhaps as should be expected.
 
 I'm very happy to discuss how this project might grow and expand to
-become more useful to the Ruby community...
+become more useful to the Ruby community...   I'm also open to the
+possibility that some of the new APIs (particularly in the wrappers)
+could be done differently.
 
 
 Introduction
@@ -21,13 +26,18 @@ An initial attempt at using [Ruby
 FFI](https://github.com/ffi/ffi) (actually, relying heavily on
 [Nice-FFI](https://github.com/jacius/nice-ffi)) to wrap OpenCV.
 
-Currently developing against
-[OpenCV](http://opencv.willowgarage.com/wiki/) 2.3.x pulled from
-[SVN](https://code.ros.org/svn/opencv/branches/2.3/opencv/).
+__As of January 2013, development has shifted to
+[OpenCV](http://opencv.willowgarage.com/wiki/) 2.4 from
+[git](https://github.com/Itseez/opencv).  I'm working against the
+master branch.__  The original 2.3.x code can be found in the branch *opencv_2.3.x*.
 
-This is admittedly a pet project at the moment, so I'm doing a poor job
-separating my immediate needs from the "best practices" structure
-for the Gem.  
+The move to OpenCV 2.4 is something a decision point, the C API to
+OpenCV is actually shrinking.  For example, many of the feature detection
+algorithms have been ported to a new object hierarchy.  Matching C
+functions weren't ported.  Much of the `opencv-ffi-ext` gem (described
+in more detail below) is C++-to-C matching functions.  At this point,
+working in C is a requirement for using FFI.  It may be that OpenCV+FFI
+is a combination destined to fall apart at some point...
 
 At present this is a three level API:
 
@@ -41,8 +51,7 @@ for example).
 
 + `opencv-ffi-wrappers` is an attempt to create a nicer "more Ruby" API
 on top of the pure level, in two ways.   In some cases, OpenCV structs
-are extended to give them more object-like APIs.
-In other cases new objects are created which wrap around OpenCV objects.
+are extended to give them more object-like APIs.  Of course, in many ways this is re-creating the C++ API in Ruby, on top of C. 
 
     New objects are often created to hide the typed-ness of OpenCV
     structs.  For example, a `CvPoint2D32F` is different from a
@@ -55,17 +64,17 @@ In other cases new objects are created which wrap around OpenCV objects.
 
     For performance reasons, every effort is made to keep data
     (particularly CvMat, IplImage, etc) in OpenCV structs as much
-    as possible, so many of the wrapper classes are true wrappers --
-    Point contains a CvPoint2D32F, for example, but can coerce it to
-    a CvPoint2D32U.
+    as possible.  This means many of the wrapper classes rely on
+    delegation, with added functionality layered on top.  Point contains
+    a CvPoint2D32F, for example, but can coerce it to a CvPoint2D32U.
 
-There is a companion gem
+    I would expect most users to work primarily with the wrappers.
+
++ There is a companion gem
 [opencv-ffi-ext](https://github.com/amarburg/opencv-ffi-ext) which
 contains a compiled C library which adds additional functionality.
-These functions were originally included in this Gem, but were removed so
-that it wasn't necessary to compile a native extension to use this Gem
-(ignoring, of course, that you need to have OpenCV installed, which is
-pretty similar to compiling a native extension).
+These functions were originally included in this Gem, but were removed
+so that it wasn't necessary to compile a native extension to use this Gem.
 
 Motivation and Project Goals
 ---
@@ -113,14 +122,6 @@ Resources
 See also {file:docs/DocsIndex.md} for an index of other documentation.
 
 Example code is in the `docs/examples` directory.
-
-
-Caveats and Second thoughts
----
-
-Arguably, the "wrappers" layer could be split into two layers --
-one which adds as much functionality as possible while just extending the OpenCV
-structs, and a second which really breaks out into new high-level objects.
 
 
 License
