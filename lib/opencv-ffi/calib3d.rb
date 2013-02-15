@@ -23,7 +23,7 @@ module CVFFI
                                            :cvRansacMethod, :double, :double, :pointer ], :int
 
   attach_function :cvFindHomography, [ :pointer, :pointer, :pointer, :cvRansacMethod,
-                                        :double, :pointer ], :void
+                                        :double, :pointer ], :int
 
 end
 
