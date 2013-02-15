@@ -58,8 +58,8 @@ module CVFFI
   class Homography < FundamentalOrHomographyResults
     attr_accessor :h
 
-    def initialize( h, status )
-      super(status, 0)
+    def initialize( h, status, retval )
+      super(status, retval)
       @h = h
     end
   end
@@ -68,9 +68,9 @@ module CVFFI
     homography = CVFFI::cvCreateMat( 3,3,:CV_32F)
     status = CVFFI::cvCreateMat( points1.height, 1, :CV_8U )
 
-    CVFFI::cvFindHomography( points1, points2, homography, method, reprojThreshold, status )
+    retval = CVFFI::cvFindHomography( points1, points2, homography, method, reprojThreshold, status )
 
-    Homography.new( homography, status )
+    Homography.new( homography, status, retval )
   end
 
 
