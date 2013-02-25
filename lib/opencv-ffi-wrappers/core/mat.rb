@@ -188,7 +188,7 @@ module CVFFI
         @mat = a1.mat
       when CvMat
         @mat = a1
-      when Size
+      when CvSize, Size
         opts = a2 || {}
         opts = { type: opts } if opts.is_a? Symbol
         doZero = opts[:zero] || true
