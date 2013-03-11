@@ -11,5 +11,6 @@ module CVFFI
 
   attach_function :cvGetSeqElem, [ :pointer, :int ], :pointer
   attach_function :cvSeqPush, [:pointer, :pointer ], :pointer
+  attach_function :cvSeqRemove, [:pointer, :int ], :void
 
 end

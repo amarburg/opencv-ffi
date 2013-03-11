@@ -37,6 +37,10 @@ module CVFFI
       CVFFI::cvClearSeq( @seq )
     end
 
+    def remove(i)
+      CVFFI::cvSeqRemove( @seq, i )
+    end
+
   end
 
   class SequenceArray
@@ -65,8 +69,8 @@ module CVFFI
         poolPtr = FFI::MemoryPointer.new :pointer 
         poolPtr.putPointer( 0, @pool ) 
         cvReleaseMemStorage( poolPtr ) 
-        }
-        ObjectSpace.define_finalizer( self, destructor )
+      }
+      ObjectSpace.define_finalizer( self, destructor )
     end
 
     def reset( seq = nil, pool  = @pool)
@@ -90,6 +94,30 @@ module CVFFI
       @cache.each_index { |i| 
         yield at(i) 
       }
+    end
+
+    # Might be more efficient way to do this, but 
+    # will gather all the keeps at once
+    # and then drop them from the seq ... then
+    # reset the cache
+    def keep_if( &blk )
+      del = []
+      length.times { |i|
+        del << i unless blk.call at(i)
+      }
+      # Do it in reverse order so earlier removals don't muck
+      # with the indices
+      del.reverse.each { |idx| @seq.remove( idx ) }
+      reset
+    end
+
+    def delete_if( &blk )
+      del = []
+      length.times { |i|
+        del << i if blk.call at(i)
+      }
+      del.reverse.each { |idx| @seq.remove( idx ) }
+      reset
     end
 
     def [](i)
@@ -117,18 +145,18 @@ module CVFFI
     # TODO:  Does it have to be this way?
     def self.from_a( a, wrapper_klass = nil )
       klass = wrapper_klass || wrapped_klass
-        a = YAML::load(a) if a.is_a? String
-        raise "SequenceArray::from_a.  Don't know what to do with #{a}" unless a.is_a? Array
+      a = YAML::load(a) if a.is_a? String
+      raise "SequenceArray::from_a.  Don't know what to do with #{a}" unless a.is_a? Array
 
-        pool = CVFFI::cvCreateMemStorage(0)
-        cvseq = CVFFI::cvCreateSeq( 0, CvSeq.size, klass.size, pool )
-        seq = Sequence.new cvseq
+      pool = CVFFI::cvCreateMemStorage(0)
+      cvseq = CVFFI::cvCreateSeq( 0, CvSeq.size, klass.size, pool )
+      seq = Sequence.new cvseq
 
-        a.each { |this_row| 
-          seq.push( klass.from_a( this_row ) )
-        }
+      a.each { |this_row| 
+        seq.push( klass.from_a( this_row ) )
+      }
 
-        SequenceArray.new( cvseq, pool, klass )
+      SequenceArray.new( cvseq, pool, klass )
     end
 
   end
