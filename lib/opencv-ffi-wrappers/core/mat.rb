@@ -39,6 +39,9 @@ module CVFFI
                      end
           end
 
+    def to_CvArr
+      self
+    end
 
     def to_CvMat( opt = {} )
       if opt[:type]
@@ -214,6 +217,10 @@ module CVFFI
       }
       end
 
+    end
+
+    def to_CvArr
+      to_CvMat
     end
 
     def at=(i,j,v)

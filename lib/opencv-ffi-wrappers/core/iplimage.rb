@@ -9,6 +9,10 @@ module CVFFI
       Size.new( self.width, self.height )
     end
 
+    def to_CvArr
+      self
+    end
+
     def to_IplImage
       self
     end

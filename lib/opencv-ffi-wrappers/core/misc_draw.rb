@@ -9,7 +9,10 @@ module CVFFI
     thickness = opts[:thickness] || 5
     radius = opts[:radius] || 1
 
-    CVFFI::cvCircle( img.to_IplImage, point.to_CvPoint, radius, color.to_CvScalar, thickness,8,0 )
+    # A bit awkward.  cvCircle takes a CvArr* (either a CvMat or IplImage), 
+    # so we want to "gently cast",
+    # not force a conversion from CvMat -> IplImage or vice versa
+    CVFFI::cvCircle( img.to_CvArr, point.to_CvPoint, radius, color.to_CvScalar, thickness,8,0 )
   end
 
   def self.draw_point( img, point, opts={} )
