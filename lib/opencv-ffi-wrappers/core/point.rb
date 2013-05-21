@@ -128,6 +128,10 @@ module CVFFI
       Vector.elements( to_a( homogeneous ) )
     end
 
+    def to_Matrix( homogeneous = true )
+      Matrix.columns [ to_a(homogeneous) ]
+    end
+    
     def to_a(homogeneous=true)
       if homogeneous
         [ x, y, 1 ]

@@ -43,15 +43,15 @@ module CVFFI
       self
     end
 
-    def to_CvMat( opt = {} )
-      if opt[:type]
+    def to_CvMat( opts = {} )
+      if opts[:type]
         raise "Need to convert CvMat types" if opt[:type] != type
       end
       self
     end
 
-    def to_Mat
-      CVFFI::Mat.new( self )
+    def to_Mat( opts = {} )
+      CVFFI::Mat.new to_CvMat(opts)
     end
 
     def to_Matrix
@@ -217,6 +217,13 @@ module CVFFI
       }
       end
 
+    end
+
+    def to_CvMat( opts = {} )
+      if opts[:type]
+        raise "Need to convert CvMat types" if opts[:type] != type
+      end
+      mat
     end
 
     def to_CvArr
