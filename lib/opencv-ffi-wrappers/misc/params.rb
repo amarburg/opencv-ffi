@@ -20,7 +20,11 @@ module CVFFI
     def initialize( opts = {} )
       @params = {}
       self.class.defaults.each_key { |k|
+        # This enables a copy constructor
+        opts = opts.to_hash if opts.respond_to? :to_hash   
+
         @params[k] = (opts[k] or opts[k.to_s] or self.class.defaults[k])
+
         define_singleton_method( k ) { @params[k] }
         instance_eval "def #{k}=(a); @params[:#{k}] = a; end"
       }
