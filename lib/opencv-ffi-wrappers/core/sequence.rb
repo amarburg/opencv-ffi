@@ -141,6 +141,21 @@ module CVFFI
       Array.new( size ) { |i| at(i).to_a }
     end
 
+    def random( i = 1, rng = Random::DEFAULT )
+      case i
+      when 1
+        at( rand( length ) )
+      else
+        indices = Array.new( i ) { |i| rng.rand( length ) }.uniq
+        while indices.length < i do
+          indices += Array.new( 10 )  { |i| rng.rand(length) }
+          indices.uniq!
+        end
+
+        indices.first( i ).map { |i| at(i) }
+      end
+    end
+
     # Well, this is awkward, isn't it?
     # TODO:  Does it have to be this way?
     def self.from_a( a, wrapper_klass = nil )
