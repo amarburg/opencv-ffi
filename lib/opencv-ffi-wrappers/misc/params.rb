@@ -23,7 +23,16 @@ module CVFFI
         # This enables a copy constructor
         opts = opts.to_hash if opts.respond_to? :to_hash   
 
-        @params[k] = (opts[k] or opts[k.to_s] or self.class.defaults[k])
+        # This is somewhat complicated because opts can be boolean, so the
+        # original i"opts[k] or ... " formulation resulted in params set to
+        # false being ignored
+        @params[k] = if !opts[k].nil?
+                       opts[k]
+                     elsif !opts[k.to_s].nil?
+                       opts[k.to_s] 
+                     else 
+                       self.class.defaults[k]
+                     end
 
         define_singleton_method( k ) { @params[k] }
         instance_eval "def #{k}=(a); @params[:#{k}] = a; end"
