@@ -1,0 +1,17 @@
+
+cflags = "-O"
+cppflags = "#{cflags}"
+cc = "gcc"
+cpp = "g++"
+libs = %w{ m rt opencv_core opencv_highgui opencv_imgproc }
+
+task :default => ["sobel"]
+
+file "sobel" => [ "sobel.c", "benchmark.o" ] do |t|
+    sh "#{cc} #{cflags} -o #{t.name} #{t.prerequisites.join(' ')} #{libs.map {|x| "-l#{x}"}.join(' ')}"
+end
+
+file "benchmark.o" => "../../common/benchmark.c" do |t|
+    sh "#{cc} #{cflags} -o #{t.name} -c ../../common/benchmark.c"
+end
+
