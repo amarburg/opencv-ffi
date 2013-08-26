@@ -5,7 +5,8 @@ require 'opencv-ffi/core'
 module CVFFI
   load_library("opencv_calib3d", @pathset)
 
-  CvRansacMethod = enum :cvRansacMethod, [ :CV_FM_7POINT, 1,
+  CvRansacMethod = enum :cvRansacMethod, [ :CV_DLT, 0,
+                                           :CV_FM_7POINT, 1,
                                            :CV_FM_8POINT, 2,
                                            :CV_FM_LMEDS,  4,
                                            :CV_LMEDS, 4,

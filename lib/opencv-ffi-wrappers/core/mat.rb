@@ -217,6 +217,11 @@ module CVFFI
       }
       end
 
+      destructor = Proc.new { 
+        releaseMat( @mat )
+      }
+      ObjectSpace.define_finalizer( self, destructor )
+
     end
 
     def to_CvMat( opts = {} )

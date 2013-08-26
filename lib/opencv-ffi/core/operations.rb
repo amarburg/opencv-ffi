@@ -146,6 +146,14 @@ module CVFFI
   attach_function :cvTranspose, [:pointer, :pointer], :void
 
   attach_function :cvReleaseMat, [ :pointer ], :void
+
+  # cvReleaseMat expects a pointer-to-pointer, which is awkware
+  def self.releaseMat( mat )
+    ptr = FFI::MemoryPointer.new :pointer
+    ptr.put_pointer(0, mat.to_ptr )
+    cvReleaseMat ptr
+  end
+
   attach_function :cvReleaseData, [ :pointer ], :void
 
   # cvReleaseImage expects a double-pointer to an IplImage

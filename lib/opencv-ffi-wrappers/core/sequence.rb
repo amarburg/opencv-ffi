@@ -66,9 +66,7 @@ module CVFFI
       @wrap = wrapper_klass || self.class.wrapped_klass
 
       destructor = Proc.new { 
-        poolPtr = FFI::MemoryPointer.new :pointer 
-        poolPtr.putPointer( 0, @pool ) 
-        cvReleaseMemStorage( poolPtr ) 
+        releaseMemStorage( @pool )
       }
       ObjectSpace.define_finalizer( self, destructor )
     end

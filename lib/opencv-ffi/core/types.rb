@@ -86,6 +86,14 @@ module CVFFI
            :width, :int
 
     hidden :refcount, :hdr_refcount
+
+    # These are handled by a union in the original structure
+    def rows; height; end
+    def cols; width; end
+
+    def self.release ptr
+      CVFFI::releaseMat ptr
+    end
   end
 
   #
@@ -149,6 +157,10 @@ module CVFFI
            :parent, NiceFFI::TypedPointer( CvMemStorage ),
            :block_size, :int,
            :free_space, :int
+
+    def self.release ptr
+      CVFFI::releaseMemStorage ptr
+    end
   end
 
   class CvSeq < NiceFFI::Struct
