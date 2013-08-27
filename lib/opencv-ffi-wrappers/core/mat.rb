@@ -99,6 +99,11 @@ module CVFFI
     end
 
     def set_scalar( i,j, f )
+      case f
+      when Array
+        f << 0 while f.length < 4
+        f = CvScalar.new( f )
+      end
       CVFFI::cvSet2D( self, i, j, f )
     end
 
@@ -270,6 +275,9 @@ module CVFFI
 
 
     [ :height, :width ].each { |f| pass_function f }
+    alias :rows :height
+    alias :cols :width
+    alias :columns :width
 
     def self.build( rows, cols, opts = {}, &blk )
       Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
@@ -482,6 +490,12 @@ module CVFFI
     alias :to_gray :ensure_greyscale
     alias :to_gray :ensure_greyscale
 
+
+    def map( type, &blk )
+      Mat.build( rows, cols, :type => type ) { |i,j|
+          blk.call i, j, at(i,j)
+      }
+    end
 
   end
 end

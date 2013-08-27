@@ -73,6 +73,10 @@ module CVFFI
            :z, :double
   end
 
+  def cvScalarAll( i )
+    CvScalar.new( w: i, x: i, y: i, z: i )
+  end
+
   #
   # CvMat
   #

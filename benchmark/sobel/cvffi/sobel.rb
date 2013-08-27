@@ -7,7 +7,7 @@ require "../../common/array_statistics"
 include CVFFI
 
 infile = "../../images/test_pattern_chart.jpg";
-iterations = 1000
+iterations = 10000
 
 img = CVFFI::cvLoadImageM( infile, CVFFI::CV_LOAD_IMAGE_GRAYSCALE )
 

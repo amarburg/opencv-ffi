@@ -101,6 +101,7 @@ module CVFFI
 
   attach_function :cvLog, [ :pointer, :pointer ], :void
 
+  attach_function :cvMerge, [ :pointer, :pointer, :pointer, :pointer, :pointer ], :void
   attach_function :cvMinMaxLoc, [:pointer, :pointer, :pointer, :pointer,:pointer,:pointer], :void
 
   enum :cvNormTypes, [ :CV_C, 1,
@@ -141,6 +142,7 @@ module CVFFI
   attach_function :cvSplit, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
 
   attach_function :cvSub, [:pointer, :pointer, :pointer, :pointer], :void
+  attach_function :cvSubRS, [:pointer, CvScalar.by_value, :pointer, :pointer ], :void
   attach_function :cvSum, [:pointer], CvScalar.by_value
 
   attach_function :cvTranspose, [:pointer, :pointer], :void
