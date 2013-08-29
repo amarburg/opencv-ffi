@@ -9,25 +9,22 @@ include CVFFI
 infile = "../../images/test_pattern_chart.jpg";
 iterations = 1
 
-img = Mat.new CVFFI::cvLoadImageM( infile, CVFFI::CV_LOAD_IMAGE_GRAYSCALE )
-
-class CVFFI::Mat
-  def sobel( args = {} )
-    dst = twin
-    cvSobel( self.to_CvMat, dst.to_CvMat, 
-            args[:xorder] || 0, args[:yorder] || 0, args[:apertureSize] || 3 )
-    dst
-  end
-end
-
+img = CVFFI::Mat.new CVFFI::cvLoadImageM( infile, CVFFI::CV_LOAD_IMAGE_GRAYSCALE )
 
 def test_function( img )
-  img.sobel( xorder: 1 )
+  rgb = img.map( :CV_32FC3 ) { |row,col,val|
+    r = val/255.0
+    g = 1.0 - r
+    b = 0.2 * r
+
+    [ b, g, r ].map! { |x| 255 * x }
+  }
 end
 
-
-test_function(img)
-test_function(img)
+if iterations > 1
+  test_function(img)
+  test_function(img)
+end
 
 durations = iterations.times.map { |i|
   GC.start

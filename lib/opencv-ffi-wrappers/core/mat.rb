@@ -279,6 +279,13 @@ module CVFFI
     alias :cols :width
     alias :columns :width
 
+
+    def convert_scale( type, scale = 1.0, shift = 0 )
+      dst = Mat.new( rows, cols, :type => type )
+      cvConvertScale( self, dst, scale, shift )
+      dst
+    end
+
     def self.build( rows, cols, opts = {}, &blk )
       Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
     end
