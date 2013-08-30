@@ -285,6 +285,7 @@ module CVFFI
       cvConvertScale( self, dst, scale, shift )
       dst
     end
+    alias :convert :convert_scale
 
     def self.build( rows, cols, opts = {}, &blk )
       Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
@@ -386,10 +387,7 @@ module CVFFI
     def +(b)
       case b
       when Numeric
-        other = CVFFI::Scalar.new( b,b,b,b )
-        dest = twin
-        CVFFI::cvAddS( self.to_CvMat, other.to_CvScalar, dest.to_CvMat, nil )
-        dest
+        scale_add( 1.0, b )
       when Mat, CvMat
         dest = twin
         CVFFI::cvAdd( self.to_CvMat, b.to_CvMat, dest.to_CvMat, nil )
@@ -402,10 +400,7 @@ module CVFFI
     def -(b)
       case b
       when Numeric
-        other = CVFFI::Scalar.new( -b,-b,-b,-b )
-        dest = twin
-        CVFFI::cvAddS( self.to_CvMat, other.to_CvScalar, dest.to_CvMat, nil )
-        dest
+        scale_add( 1.0, -b )
       when Mat, CvMat
         dest = twin
         CVFFI::cvSub( self.to_CvMat, b.to_CvMat, dest.to_CvMat, nil )
@@ -415,10 +410,30 @@ module CVFFI
       end
     end
 
+    def subtractReverse( b )
+      case b
+      when Numeric
+        dest = twin
+        CVFFI::cvSubRS( self.to_CvMat, cvScalarAll( b ), dest.to_CvMat, nil )
+        dest
+      else
+        raise "Don't know how to subtract a Mat from a #{b}"
+      end
+    end
+
     def *(b)
       case b
       when Numeric
-        scale_add( b, 0.0 )
+        convert_scale( type, b )
+      else 
+        raise "Don't know how to handle multiplication of a Mat by a #{b.class}"
+      end
+    end
+
+    def /(b)
+      case b
+      when Numeric
+        convert_scale( type, 1.0/b )
       else 
         raise "Don't know how to handle multiplication of a Mat by a #{b.class}"
       end
@@ -440,26 +455,24 @@ module CVFFI
     def max; min,max = minMax; max; end
     def min; min,max = minMax; min; end
 
-    def scale_add( s, a )
+    def scale_add( s, a = 0 )
       a = case a
           when Numeric
-            adder = twin
-            CVFFI::cvSet( adder.to_CvMat, 
-                         CVFFI::Scalar.new( a,a,a,a ).to_CvScalar, nil )
-            adder
+            # Adding a constant is handled by convert_scale
+            convert_scale( type, s, a )
           when Mat, CvMat
-            a
+            scalar = CVFFI::Scalar.new( s,s,s,s )
+            dest = twin
+
+            CVFFI::cvScaleAdd( self.to_CvMat, scalar.to_CvScalar, a.to_CvMat, dest )
+            dest
           else
             raise "Don't know how to add #{a} to an array"
           end
 
-      scalar = CVFFI::Scalar.new( s,s,s,s )
-      dest = twin
-
-      CVFFI::cvScaleAdd( self.to_CvMat, scalar.to_CvScalar, a.to_CvMat, dest )
-      dest
     end
     alias :scaleAdd :scale_add
+    alias :scale    :scale_add
 
     def warp_perspective( m )
       dest = twin
@@ -506,3 +519,5 @@ module CVFFI
 
   end
 end
+
+
