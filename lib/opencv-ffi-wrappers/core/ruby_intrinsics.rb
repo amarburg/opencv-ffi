@@ -3,7 +3,7 @@ class Float
   alias :add :+
   def +(b)
     case b
-    when CvMat, Mat
+    when CVFFI::CvMat, CVFFI::Mat
       b + self
     else
       add( b )
@@ -13,7 +13,7 @@ class Float
   alias :subtract :-
   def -(b)
     case b
-    when CvMat, Mat
+    when CVFFI::CvMat, CVFFI::Mat
       b.subtractReverse( self )
     else
       subtract( b ) 
@@ -23,7 +23,7 @@ class Float
   alias :multiply :*
   def *(b)
     case b
-    when CvMat, Mat
+    when CVFFI::CvMat, CVFFI::Mat
       b * self
     else
       multiply(b)
@@ -37,7 +37,7 @@ class Array
     a << nil while a.length < 4
 
     # TODO.  Automatically determine multichannel type based on types and number of arguments
-    dst = Mat.new( a.first.rows, a.first.cols, type: type )
+    dst = CVFFI::Mat.new( a.first.rows, a.first.cols, type: type )
     args = a.first(4) + [dst]
     cvMerge( *args )
     dst

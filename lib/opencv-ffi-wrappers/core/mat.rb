@@ -130,6 +130,10 @@ module CVFFI
       CVFFI::cvSetZero( self )
     end
 
+    def fill( a )
+      CVFFI::cvFill( self, cvScalarAll( a ) )
+    end
+
     def split
       out = Array.new( channels ) { |i| CVFFI::cvCreateMat( self.height, self.width, self.depth ) }
       
@@ -152,7 +156,7 @@ module CVFFI
     module ClassMethods 
       def eye( x, type = :CV_32F )
         a = CVFFI::cvCreateMat( x, x, type )
-        CVFFI::cvSetIdentity( a, CVFFI::CvScalar.new( :w => 1, :x => 1, :y => 1, :z => 1 ) )
+        CVFFI::cvSetIdentity( a, cvScalarAll( 1 ) )
         a
       end
 
@@ -278,14 +282,6 @@ module CVFFI
     alias :rows :height
     alias :cols :width
     alias :columns :width
-
-
-    def convert_scale( type, scale = 1.0, shift = 0 )
-      dst = Mat.new( rows, cols, :type => type )
-      cvConvertScale( self, dst, scale, shift )
-      dst
-    end
-    alias :convert :convert_scale
 
     def self.build( rows, cols, opts = {}, &blk )
       Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
@@ -455,21 +451,60 @@ module CVFFI
     def max; min,max = minMax; max; end
     def min; min,max = minMax; min; end
 
+    def convert_scale( type, scale = 1.0, shift = 0 )
+      dst = Mat.new( rows, cols, :type => type )
+      cvConvertScale( self, dst, scale, shift )
+      dst
+    end
+    alias :convert :convert_scale
+
+    # There are actually four cases of scale_add / scale_add!
+    #    scale by constant, add a constant  -> cvConvertScale
+    #    scale by Scalar,   add a constant  -> cvScaleAdd
+    #    scale by constant, add a Mat       -> cvScaleAdd
+    #    scale by Scalar,   add a Mat       -> cvScaleAdd
+    #
+    def scale_add!( s = 1.0, a = 0 )
+      if s.is_a? Numeric 
+        if a.is_a? Numeric
+          cvConvertScale( self, self, s, a )
+        else
+          scale_add!( cvScalarAll( s ), a )
+        end
+      elsif Scalar
+        if a == 0
+          scale_add!( s, twin.zero )
+        elsif a.is_a? Numeric
+          scale_add!( s, twin.fill(a)  )
+        else
+          CVFFI::cvScaleAdd( self.to_CvMat, s.to_CvScalar, a.to_CvMat, self )
+        end
+      else
+        raise "Don't know how to scale an array by #{s}"
+      end
+    end
+    alias :scale! :scale_add!
+
     def scale_add( s, a = 0 )
-      a = case a
-          when Numeric
-            # Adding a constant is handled by convert_scale
-            convert_scale( type, s, a )
-          when Mat, CvMat
-            scalar = CVFFI::Scalar.new( s,s,s,s )
-            dest = twin
-
-            CVFFI::cvScaleAdd( self.to_CvMat, scalar.to_CvScalar, a.to_CvMat, dest )
-            dest
-          else
-            raise "Don't know how to add #{a} to an array"
-          end
-
+      if s.is_a? Numeric 
+        if a.is_a? Numeric
+          convert_scale( type, s, a )
+        else
+          scale_add( cvScalarAll( s ), a )
+        end
+      elsif Scalar
+        if a == 0
+          scale_add( s, twin.zero )
+        elsif a.is_a? Numeric
+          scale_add( s, twin.fill(a)  )
+        else
+          dest = twin
+          CVFFI::cvScaleAdd( self.to_CvMat, s.to_CvScalar, a.to_CvMat, dest )
+          dest
+        end
+      else
+        raise "Don't know how to scale an array by #{s}"
+      end
     end
     alias :scaleAdd :scale_add
     alias :scale    :scale_add
