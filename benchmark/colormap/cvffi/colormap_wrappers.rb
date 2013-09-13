@@ -12,7 +12,7 @@ iterations = 100
 img = CVFFI::Mat.new CVFFI::cvLoadImageM( infile, CVFFI::CV_LOAD_IMAGE_GRAYSCALE )
 
 def test_function( img )
-  r = img.convert( :CV_32F ) / 255
+  r = img.convert( :CV_32F) / 255
   g = 1.0 - r
   b = r * 0.2
 

@@ -16,11 +16,11 @@ long test_function(CvMat *in )
   CvMat *b = cvCreateMat( in->rows, in->cols, CV_32FC1 );
 
   cvConvertScale( in, r, 1./255, 0 );
-  cvCopy( r, g, NULL );
-  cvCopy( r, b, NULL );
+  //cvCopy( r, g, NULL );
+  //cvCopy( r, b, NULL );
 
-  cvSubRS( g, cvScalarAll(1.0), g, NULL );
-  cvConvertScale( b, b, 0.2, 0 );
+  cvSubRS( r, cvScalarAll(1.0), g, NULL );
+  cvConvertScale( r, b, 0.2, 0 );
 
   CvMat *rgb = cvCreateMat( in->rows, in->cols, CV_32FC3 );
   cvMerge( b, g, r, NULL, rgb );

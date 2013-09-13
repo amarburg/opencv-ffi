@@ -17,11 +17,9 @@ def test_function( img )
   b = CVFFI::cvCreateMat( img.rows, img.cols, :CV_32F );
 
   CVFFI::cvConvertScale( img, r, 1.0/255, 0 );
-  CVFFI::cvCopy( r, g, nil );
-  CVFFI::cvCopy( r, b, nil );
 
-  CVFFI::cvSubRS( g, CVFFI::cvScalarAll(1.0), g, nil );
-  CVFFI::cvConvertScale( b, b, 0.2, 0 );
+  CVFFI::cvSubRS( r, CVFFI::cvScalarAll(1.0), g, nil );
+  CVFFI::cvConvertScale( r, b, 0.2, 0 );
 
   rgb = CVFFI::cvCreateMat( img.rows, img.cols, :CV_32FC3 );
   CVFFI::cvMerge( b, g, r, nil, rgb );
