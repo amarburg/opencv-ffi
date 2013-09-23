@@ -9,6 +9,15 @@ module CVFFI
     layout :a, [ CvPoint2D32f, 3 ]
   end
 
+  def self.get_2d_rotation_matrix( opts = {} )
+    center = Point.new( opts[:center] ) || Point.new( 0.0, 0.0 )
+    angle = opts[:angle] || 0.0
+    scale = opts[:scale] || 1.0
+
+    rot = CVFFI::cvCreateMat( 2, 3, :CV_32F )
+    cv2DRotationMatrix( center.to_CvPoint2D32f, angle, scale, rot )
+  end
+
   def self.get_affine_transform( src, dst )
     result = CVFFI::cvCreateMat( 2, 3, :CV_32F )
 

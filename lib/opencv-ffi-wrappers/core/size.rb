@@ -69,6 +69,7 @@ module CVFFI
           @y = args.height || args.y
         end
       end
+      @w = 1.0
     end
 
     def area

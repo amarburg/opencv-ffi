@@ -55,5 +55,5 @@ module CVFFI
   #                                    double angle,
   #                                    double scale, 
   #                                    CvMat* map_matrix );
-  attach_function :cv2DRotationMatrix, [ CvPoint2D32f.by_value, :double, :double, :pointer ], :void
+  attach_function :cv2DRotationMatrix, [ CvPoint2D32f.by_value, :double, :double, :pointer ], CvMat.typed_pointer
 end
