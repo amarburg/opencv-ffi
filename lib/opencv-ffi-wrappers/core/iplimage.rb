@@ -67,6 +67,7 @@ module CVFFI
 
     module ClassMethods
       def load( fname, color = true )
+        raise "Cannot find input file #{fname}" unless FileTest.readable? fname
         CVFFI::cvLoadImage( fname, color ? CV_LOAD_IMAGE_COLOR : CV_LOAD_IMAGE_GRAYSCALE )
       end
     end

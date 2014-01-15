@@ -453,7 +453,7 @@ module CVFFI
 
     def convert_scale( type, scale = 1.0, shift = 0 )
       dst = Mat.new( rows, cols, :type => type )
-      cvConvertScale( self, dst, scale, shift )
+      CVFFI::cvConvertScale( self, dst, scale, shift )
       dst
     end
     alias :convert :convert_scale
@@ -530,6 +530,11 @@ module CVFFI
       CVFFI::cvResize( self.to_CvMat, dest.to_CvMat, interpolation ) 
 
       dest
+    end
+    def shrink( factor, interpolation = :CV_INTER_LINEAR )
+      new_size = [ image_size.width * factor,
+                   image_size.height * factor ]
+      resize( new_size, interpolation )
     end
 
     def subRect( origin, size )
