@@ -73,7 +73,7 @@ module CVFFI
            :z, :double
   end
 
-  def cvScalarAll( i )
+  def self.cvScalarAll( i )
     CvScalar.new( w: i, x: i, y: i, z: i )
   end
 

@@ -4,20 +4,11 @@ require 'opencv-ffi-wrappers/misc'
 
 require 'matrix'
 
-
-# Monkey with Matrix and Vector's coercion functions
-class Vector
-  alias :coerce_orig :coerce
-  def coerce(other)
-    case other
-    when CvMat
-      nil
-    else
-      coerce_orig(other)
-    end
-  end
-end
-
+##
+## Todo:  What role does Mat play?  The original intention was to create
+#  a "typeless" version of CvMat ... but I don't know if that adds anything.
+#  The only clear advantage is that Mat can have a sensical contructor
+#  which doesn't interfere with the original FFI-specified constructor.
 module CVFFI
 
   module CvMatFunctions
@@ -29,15 +20,15 @@ module CVFFI
     # which returns the template class as well as the coerced version
     # of the matrix
     def coerce( other )
-            case other
-                     when Matrix 
-                       [other, to_Matrix]
-                     when Vector 
-                       [other, to_Vector]
-                     else
-                       raise TypeError, "#{self.class} can't be coerced into #{other.class}, fool"
-                     end
-          end
+      case other
+      when Matrix 
+        [other, to_Matrix]
+      when Vector 
+        [other, to_Vector]
+      else
+        raise TypeError, "#{self.class} can't be coerced into #{other.class}, fool"
+      end
+    end
 
     def to_CvArr
       self
@@ -116,8 +107,8 @@ module CVFFI
     end
     alias :image_size :mat_size
 
-    def twin
-      CVFFI::cvCreateMat( self.height, self.width, self.type )
+    def twin( type = self.type )
+      CVFFI::cvCreateMat( self.height, self.width, type )
     end
 
     def transpose
@@ -126,12 +117,26 @@ module CVFFI
       a
     end
 
+    def invert( opts = {} )
+      method = opts[:method] || :CV_LU
+      dst = twin
+      out = CVFFI::cvInvert( self, dst, method )
+
+      # DECOMP_LU, DECOMP_SVD and DECOMP_CHOLESKY return 0 for a singular
+      # matrix.
+      # We'll return nil in that case
+      (out == 0) ? nil : dst
+    end
+    alias :inv :invert
+
     def zero
       CVFFI::cvSetZero( self )
+      self
     end
 
     def fill( a )
-      CVFFI::cvFill( self, cvScalarAll( a ) )
+      CVFFI::cvSet( self, cvScalarAll( a ) )
+      self
     end
 
     def split
@@ -152,6 +157,124 @@ module CVFFI
     def depth
       CVFFI::matDepth( self )
     end
+    #
+    # There are four cases of scale_add / scale_add!
+    #    scale by constant,        add a constant (or 0)  -> cvConvertScale
+    #    scale by Scalar,          add a constant (or 0)  -> cvScaleAdd
+    #    scale by constant (or 1), add a Mat       -> cvScaleAdd
+    #    scale by Scalar,          add a Mat       -> cvScaleAdd
+    #
+    def convert_scale( type, scale = 1.0, shift = 0 )
+      dst = twin( type )
+      CVFFI::cvConvertScale( self, dst, scale, shift )
+      dst
+    end
+    alias :convert :convert_scale
+
+    def scale_add!( s = 1.0, a = 0 )
+      if s.is_a? Numeric 
+        if a.is_a? Numeric
+          cvConvertScale( self, self, s, a )
+        else
+          scale_add!( cvScalarAll( s ), a )
+        end
+      elsif Scalar
+        if a == 0
+          scale_add!( s, twin.zero )
+        elsif a.is_a? Numeric
+          scale_add!( s, twin.fill(a)  )
+        else
+          CVFFI::cvScaleAdd( self, s.to_CvScalar, a, self )
+        end
+      else
+        raise "Don't know how to scale an CvMat by #{s}"
+      end
+    end
+    alias :scale! :scale_add!
+
+    def scale_add( s, a = 0 )
+      if s.is_a? Numeric 
+        if a.is_a? Numeric
+          convert_scale( type, s, a )
+        else
+          scale_add( cvScalarAll( s ), a )
+        end
+      elsif Scalar
+        if a == 0
+          scale_add( s, twin.zero )
+        elsif a.is_a? Numeric
+          scale_add( s, twin.fill(a)  )
+        else
+          dest = twin
+          CVFFI::cvScaleAdd( self, s.to_CvScalar, a, dest )
+          dest
+        end
+      else
+        raise "Don't know how to scale an CvMat by #{s}"
+      end
+    end
+    alias :scaleAdd :scale_add
+    alias :scale    :scale_add
+
+    def +(b)
+      case b
+      when Numeric
+        scale_add( 1.0, b )
+      when Mat, CvMat
+        dest = twin
+        CVFFI::cvAdd( self, b, dest, nil )
+        dest
+      else
+        raise "Don't know how to add #{b} to a CvMat"
+      end
+    end
+
+    def -(b)
+      case b
+      when Numeric
+        scale_add( 1.0, -b )
+      when Mat, CvMat
+        dest = twin
+        CVFFI::cvSub( self, b, dest, nil )
+        dest
+      else
+        raise "Don't know how to subtract #{b} from a CvMat"
+      end
+    end
+
+    # This would be (b - self)
+    def subtract_reverse( b )
+      case b
+      when Numeric
+        dest = twin
+        CVFFI::cvSubRS( self, cvScalarAll( b ), dest, nil )
+        dest
+      else
+        raise "Don't know how to subtract a CvMat from a #{b}"
+      end
+    end
+
+    def *(b)
+      case b
+      when Numeric 
+        scale( type, b )
+      when Mat, CvMat, Matrix
+        dst = CVFFI::cvCreateMat( self.height, b.width, self.depth )
+        CVFFI::cvGEMM( self, b, 1.0, nil, 0.0, dst, 0 )
+        self.class.new dst
+      else 
+        raise "Don't know how to multiply  a Mat by a #{b.class}"
+      end
+    end
+
+    def /(b)
+      case b
+      when Numeric
+        scale( type, 1.0/b )
+      else 
+        raise "Don't know how to handle multiplication of a Mat by a #{b.class}"
+      end
+    end
 
     module ClassMethods 
       def eye( x, type = :CV_32F )
@@ -171,8 +294,57 @@ module CVFFI
 
   class CvMat
     include CvMatFunctions
+
+    alias :niceffi_initialize :initialize
+
+    def initialize( *args )
+      # Need to trap the case where the "conventional" NiceFFI constructor is being called
+      # It takes two args, "val" and an optional opt-hash
+
+      if (args.length == 2 and args[1].is_a? Hash) or (args.length == 1)
+
+        case args.first
+        when Hash, ::Array, String, Mat, CvMat, FFI::Pointer, FFI::Buffer
+          niceffi_initialize( *args )
+          return
+        end
+      end
+
+      # Otherwise, the new initializer functionality
+      raise "Got to end of new initialize with: #{args.each{|i| p i}}"
+
+          a1,a2,a3 = *args
+      case a1
+      when CvSize, Size
+        opts = a2 || {}
+        opts = { type: opts } if opts.is_a? Symbol
+        doZero = opts[:zero] || true
+        type = opts[:type] || :CV_32F
+        @mat = CVFFI::cvCreateMat( args[0].height, args[0].width, type )
+        mat.zero if doZero
+      else
+        rows,cols,opts = a1,a2,a3
+        opts ||= {}
+        opts = { type: opts } if opts.is_a? Symbol
+        doZero = opts[:zero] || true
+        type = opts[:type] || :CV_32F
+        @mat = CVFFI::cvCreateMat( rows, cols, type )
+
+        mat.zero if doZero
+      end
+
+      if block_given?
+        rows.times { |i|
+          cols.times { |j|
+            set(i,j, yield(i,j) )
+          }
+        }
+      end
+
+    end
+
   end
-  
+
   class Mat
     include CvMatFunctions
     include Enumerable
@@ -287,19 +459,20 @@ module CVFFI
       Mat.new( rows, cols, opts ) { |i,j| blk.call(i,j) }
     end
 
+    def self.rows( row_vector, opts = {} )
+      rows = row_vector.length
+      cols = row_vector.first.length
+      row_vector.each { |row| raise "Not all rows in vector are same length." unless row.length == cols }
+
+      build( rows, cols, opts ) { |r,c|
+        row_vector[r][c]
+      }
+    end
+
     def self.eye( size, opts = {} )
       m = Mat.new( size,size,opts )
       size.times { |i| m[i,i] = 1 }
       m
-    end
-
-    def self.rows( r, opts = {} )
-      height = r.length
-      width = r[0].length
-
-      Mat.build( height, width, opts ) { |i,j|
-        r[i][j]
-      }
     end
 
     def mean( opts = {} )
@@ -421,6 +594,8 @@ module CVFFI
       case b
       when Numeric
         convert_scale( type, b )
+      when Mat, CvMat, Matrix
+        Mat.new( self.to_CvMat * b.to_CvMat )
       else 
         raise "Don't know how to handle multiplication of a Mat by a #{b.class}"
       end
@@ -451,6 +626,12 @@ module CVFFI
     def max; min,max = minMax; max; end
     def min; min,max = minMax; min; end
 
+    # There are actually four cases of scale_add / scale_add!
+    #    scale by constant, add a constant  -> cvConvertScale
+    #    scale by Scalar,   add a constant  -> cvScaleAdd
+    #    scale by constant, add a Mat       -> cvScaleAdd
+    #    scale by Scalar,   add a Mat       -> cvScaleAdd
+    #
     def convert_scale( type, scale = 1.0, shift = 0 )
       dst = Mat.new( rows, cols, :type => type )
       CVFFI::cvConvertScale( self, dst, scale, shift )
@@ -458,12 +639,6 @@ module CVFFI
     end
     alias :convert :convert_scale
 
-    # There are actually four cases of scale_add / scale_add!
-    #    scale by constant, add a constant  -> cvConvertScale
-    #    scale by Scalar,   add a constant  -> cvScaleAdd
-    #    scale by constant, add a Mat       -> cvScaleAdd
-    #    scale by Scalar,   add a Mat       -> cvScaleAdd
-    #
     def scale_add!( s = 1.0, a = 0 )
       if s.is_a? Numeric 
         if a.is_a? Numeric
@@ -558,6 +733,9 @@ module CVFFI
     end
 
   end
+
+
+
 end
 
 

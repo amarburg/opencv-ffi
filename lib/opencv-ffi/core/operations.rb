@@ -86,6 +86,9 @@ module CVFFI
   attach_function :cvGetImageROI, [:pointer], CvRect.by_value
   attach_function :cvResetImageROI, [:pointer], :void
 
+
+  attach_function :cvGEMM, [:pointer, :pointer, :double, :pointer, :double, :pointer, :int], :void
+
   # CVAPI(CvScalar) cvGet2D( const CvArr* arr, int idx0, int idx1 );
   attach_function :cvGet1D, [ :pointer, :int ], CvScalar.by_value
   attach_function :cvGet2D, [ :pointer, :int, :int ], CvScalar.by_value
@@ -98,6 +101,14 @@ module CVFFI
   attach_function :cvGetReal3D, [ :pointer, :int, :int, :int ], :double
 
   attach_function :cvGetSubRect, [ :pointer, :pointer, CvRect.by_value ], CvMat.typed_pointer
+
+  enum :cvInvertTypes, [ :CV_LU, 0,
+                         :CV_SVD, 1,
+                         :CV_SVD_SYM, 2,
+                         :CV_CHOLESKY, 3,
+                         :CV_QR, 4,
+                         :CV_NORMAL, 16 ]
+  attach_function :cvInvert, [:pointer, :pointer, :int], :double
 
   attach_function :cvLog, [ :pointer, :pointer ], :void
 
@@ -125,7 +136,8 @@ module CVFFI
   def self.cvRNG( seed = -1 ); CvRNG.new({:x => seed}); end
 
   attach_function :cvScaleAdd, [ :pointer, CvScalar.by_value, :pointer, :pointer ], :void
-  attach_function :cvSet,  [ :pointer, CvScalar.by_value, :pointer ], :void
+  attach_function :_cvSet, :cvSet,  [ :pointer, CvScalar.by_value, :pointer ], :void
+  def self.cvSet( mat, s, mask = nil ); _cvSet( mat, s, mask ); end
 
   attach_function :cvSet1D, [ :pointer, :int, CvScalar.by_value ], :void
   attach_function :cvSet2D, [ :pointer, :int, :int, CvScalar.by_value ], :void

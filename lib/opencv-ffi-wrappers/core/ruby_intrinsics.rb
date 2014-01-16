@@ -43,3 +43,18 @@ class Array
     dst
   end
 end
+
+# Monkey with Matrix and Vector's coercion functions
+class Vector
+  alias :coerce_orig :coerce
+  def coerce(other)
+    case other
+    when CvMat
+      nil
+    else
+      coerce_orig(other)
+    end
+  end
+end
+
+

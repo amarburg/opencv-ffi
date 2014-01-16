@@ -17,6 +17,11 @@ module CVFFI
     def ==(b)
       width == b.width and height == b.height
     end
+
+    def *(s)
+      CvSize.new( width: (x*s).round.to_i,
+                  height: (y*s).round.to_i )
+    end
   end
 
   module CvSizeCastMethods

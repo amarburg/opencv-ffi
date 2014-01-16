@@ -50,6 +50,10 @@ module CVFFI
       out[0,nchannels]
     end
 
+    def fill( a )
+      CVFFI::cvSet( self, CVFFI::cvScalarAll( a ) )
+      self
+    end
 
     def ensure_greyscale
       return self if nChannels == 1

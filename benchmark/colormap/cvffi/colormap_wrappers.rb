@@ -21,7 +21,7 @@ end
 
 if iterations > 1
   test_function(img)
-  test_function(img)
+  test_function(img).save("/tmp/colormap.jpg")
 end
 
 durations = iterations.times.map { |i|
