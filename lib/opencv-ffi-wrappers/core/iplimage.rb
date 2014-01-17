@@ -55,6 +55,11 @@ module CVFFI
       self
     end
 
+    def zero 
+      CVFFI::cvSetZero( self )
+      self
+    end
+
     def ensure_greyscale
       return self if nChannels == 1
       greyImg = CVFFI::cvCreateImage( image_size.to_CvSize,

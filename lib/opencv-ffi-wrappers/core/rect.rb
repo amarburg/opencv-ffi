@@ -49,6 +49,13 @@ module CVFFI
     def width; size.width; end
     def height; size.height; end
 
+    def xmin; origin.x; end
+    def xmax; origin.x+size.width; end
+
+    def ymin; origin.y; end
+    def ymax; origin.y+size.height; end
+
+
     def each_with_relative( &blk )
       size.width.to_i.times { |x|
         size.height.to_i.times { |y|

@@ -22,6 +22,10 @@ module CVFFI
       CvSize.new( width: (x*s).round.to_i,
                   height: (y*s).round.to_i )
     end
+
+    def to_a
+      [ width, height ]
+    end
   end
 
   module CvSizeCastMethods
@@ -84,6 +88,10 @@ module CVFFI
     def floor
       @x = x.to_i
       @y = y.to_i
+    end
+
+    def to_a
+      [ @x, @y ]
     end
 
   end
