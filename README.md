@@ -29,7 +29,7 @@ FFI](https://github.com/ffi/ffi) (actually, relying heavily on
 __As of January 2013, development has shifted to
 [OpenCV](http://opencv.willowgarage.com/wiki/) 2.4 from
 [git](https://github.com/Itseez/opencv).  I'm working against the
-master branch.__  The original 2.3.x code can be found in the branch *opencv_2.3.x*.
+latest stable branch (as of Feb 2014, it's version 2.4.8).__  The original 2.3.x code can be found in the branch *opencv_2.3.x*.
 
 The move to OpenCV 2.4 is something a decision point, the C API to
 OpenCV is actually shrinking.  For example, many of the feature detection
