@@ -178,11 +178,23 @@ module CVFFI
           @y = args[:y]
           @x = args[:x]
           @w = args[:w] if args[:w]
-        when Array, Vector
+        when Array
           @x = args[0]
           @y = args[1]
           if args.length > 2
             @w = args[2]
+          end
+        when Vector
+          if (2..3).include? args.size
+            @x,@y,@z = (args.to_a << 1)
+          end
+        when Matrix
+          if args.column_count == 1 and (2..3).include? args.row_count
+            @x,@y,@z = (args.column_vectors.first.to_a << 1)
+          elsif args.row_count == 1 and (2..3).include? args.column_count
+            @x,@y,@z = (args.row_vectors.first.to_a << 1)
+          else
+            raise "Unable to create point from Matrix: #{args.inspect}"
           end
         else
           @x = args.x
