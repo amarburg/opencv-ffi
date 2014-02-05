@@ -139,6 +139,16 @@ module CVFFI
         [x,y]
       end
     end
+
+    def coerce( other )
+      case other
+      when Matrix
+        raise TypeError, "Cannot automatically coerce Point to Matrix because don't know if conversion should be homogeneous.  Use to_Matrix"
+      else
+        raise TypeError, "#{self.class} can't be coerced into #{other.class}"
+      end
+    end
+
   end
 
   class CvPointBase
@@ -163,7 +173,10 @@ module CVFFI
     def initialize( *args )
       @w = 1.0
 
-      if args.length == 2 and args[1] != nil
+      if args.length == 0
+        @x = 0.0
+        @y = 0.0
+      elsif args.length == 2 and args[1] != nil
         @x = args[0]
         @y = args[1]
       elsif args.length == 3
