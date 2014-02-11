@@ -14,6 +14,10 @@ module CVFFI
       status.extend MapWithIndex
     end
 
+    def frac_inliers
+      count_inliers.to_f / status.length
+    end
+
     def count_inliers
       count = status.reduce(0.0) { |m,obj|
         m += ( obj ) ? 1 : 0
